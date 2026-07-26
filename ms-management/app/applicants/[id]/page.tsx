@@ -1505,6 +1505,63 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
                 </select>
               </div>
 
+              {/* Conditional: Placed (Company Selection) */}
+              {targetStatus === "Placed" && (
+                <div className="space-y-3 pt-1">
+                  <div className="space-y-1">
+                    <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      Select Placed Company <span className="text-rose-500">*</span>
+                    </Label>
+                    <select
+                      className="w-full bg-white border border-slate-200 rounded-xl text-xs h-10 px-3 focus:border-blue-400 font-medium text-slate-700"
+                      value={companies.some(c => c.name === placedCompany) ? placedCompany : (placedCompany ? "custom" : "")}
+                      onChange={(e) => {
+                        if (e.target.value !== "custom") {
+                          setPlacedCompany(e.target.value);
+                        } else {
+                          setPlacedCompany("");
+                        }
+                      }}
+                    >
+                      <option value="">-- Select Company --</option>
+                      {companies.map((c) => (
+                        <option key={c.id} value={c.name}>
+                          {c.name}
+                        </option>
+                      ))}
+                      <option value="custom">Other / Custom Company Name</option>
+                    </select>
+                  </div>
+
+                  {(!companies.some(c => c.name === placedCompany) || placedCompany === "") && (
+                    <div className="space-y-1">
+                      <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                        Company Name <span className="text-rose-500">*</span>
+                      </Label>
+                      <Input
+                        type="text"
+                        placeholder="Enter company name..."
+                        value={placedCompany}
+                        onChange={(e) => setPlacedCompany(e.target.value)}
+                        className="bg-white border-slate-200 rounded-xl text-xs h-10 focus:border-blue-400"
+                      />
+                    </div>
+                  )}
+
+                  <div className="space-y-1">
+                    <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      Placement Date
+                    </Label>
+                    <Input
+                      type="date"
+                      value={placedDate || new Date().toISOString().slice(0, 10)}
+                      onChange={(e) => setPlacedDate(e.target.value)}
+                      className="bg-white border-slate-200 rounded-xl text-xs h-10 focus:border-blue-400"
+                    />
+                  </div>
+                </div>
+              )}
+
               {/* Conditional: Processing (Interview Date) */}
               {targetStatus === "Processing" && (
                 <div className="space-y-1 pt-1">
