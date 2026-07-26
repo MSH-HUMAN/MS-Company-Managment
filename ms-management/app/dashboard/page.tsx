@@ -1692,7 +1692,8 @@ export default function DashboardPage() {
     currentRole, currentUser,
     applicants, staff, tasks, interviews, leaveRequests, staffRequests,
     vehicles, notifications, companies, payroll,
-    staffAttendance, saveAttendance, addActivityLog, placements, shifts, updatePayroll
+    staffAttendance, saveAttendance, addActivityLog, placements, shifts, updatePayroll,
+    initStore
   } = useAuthStore();
 
   const [mounted, setMounted] = useState(false);
@@ -1700,8 +1701,10 @@ export default function DashboardPage() {
 
   useEffect(() => { 
     setMounted(true); 
-    initStore();
-  }, []);
+    if (initStore) {
+      initStore().catch(console.error);
+    }
+  }, [initStore]);
   if (!mounted) return null;
 
   const loggedInStaffRecord = staff.find(s =>
