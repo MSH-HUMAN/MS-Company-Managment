@@ -1698,7 +1698,10 @@ export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
   const now = useLiveDate();
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => { 
+    setMounted(true); 
+    initStore();
+  }, []);
   if (!mounted) return null;
 
   const loggedInStaffRecord = staff.find(s =>

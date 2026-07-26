@@ -184,101 +184,106 @@ export async function PUT(request: Request, { params }: RouteParams) {
     });
 
 
-    // If status has changed, trigger real-time notifications
+    // If status has changed, trigger real-time notifications and send status update email for EVERY status
     if (data.status && data.status !== existing.status && updated.email) {
+      const companyName = updated.company && updated.company !== "Not Placed" ? updated.company : "MS Human Resource Consultancies";
+      const positionsStr = Array.isArray(updated.applyingPositions) ? updated.applyingPositions.join(", ") : (updated.applyingPositions || "N/A");
+
+      let templateType = "Status_Changed";
+      let subject = `Application Status Updated: ${updated.status} - Tracking Code: ${updated.trackingCode}`;
+
       if (updated.status === "Selected") {
-        const positionsStr = Array.isArray(updated.applyingPositions) ? updated.applyingPositions.join(", ") : updated.applyingPositions;
-        try {
-          await sendEmail({
-            to: updated.email,
-            subject: `Job Offer Invitation: ${positionsStr}`,
-            body: "Job Offer Details",
-            candidateName: updated.fullName,
-            company: updated.company,
-            branch: updated.branch,
-            type: "Offer",
-            templateType: "Offer",
-            templateData: {
-              recipientName: updated.fullName,
-              position: positionsStr,
-              salary: updated.salaryExpectation ? String(updated.salaryExpectation) : "As agreed in interviews",
-              joiningDate: "Immediate or as per visa processing",
-              allowances: "Standard accommodation and transport as per UAE Labor Law",
-              offerLetterLink: `http://localhost:3000/apply?code=${updated.trackingCode}`
-            }
-          });
-        } catch (err) {
-          console.error("Async offer letter email error:", err);
-        }
-      } else if (!["Interview Scheduled", "Placed", "Selected", "Visa Processing"].includes(updated.status)) {
-        const companyName = updated.company && updated.company !== "Not Placed" ? updated.company : "MS Human Resource Consultancies";
-        const positions = Array.isArray(updated.applyingPositions) ? updated.applyingPositions.join(", ") : updated.applyingPositions;
-        
-        let templateType = "System";
-        let subject = `Application Status Updated: ${updated.status} - Tracking Code: ${updated.trackingCode}`;
-        
-        if (updated.status === "Approved") {
-          templateType = "Applicant_Approved";
-          subject = `Application Approved - Welcome to the Next Step!`;
-        } else if (updated.status === "Rejected") {
-          templateType = "Applicant_Rejected";
-          subject = `Application Update regarding your submission`;
-        } else if (updated.status === "Returned") {
-          templateType = "Applicant_Returned";
-          subject = `Action Required: Application Returned for Modification`;
-        } else if (updated.status === "Processing") {
-          templateType = "Applicant_Processing";
-          subject = `Application under Active Review`;
-        }
+        templateType = "Offer";
+        subject = `Job Offer Invitation: ${positionsStr}`;
+      } else if (updated.status === "Placed") {
+        templateType = "Placement_Confirmed";
+        subject = `Congratulations! Placement Confirmed - ${positionsStr}`;
+      } else if (updated.status === "Interview Scheduled") {
+        templateType = "Interview_Scheduled";
+        subject = `Interview Scheduled for ${positionsStr}`;
+      } else if (updated.status === "Rescheduled") {
+        templateType = "Interview_Rescheduled";
+        subject = `Interview Rescheduled for ${positionsStr}`;
+      } else if (updated.status === "Cancelled") {
+        templateType = "Interview_Cancelled";
+        subject = `Interview Cancelled - ${positionsStr}`;
+      } else if (updated.status === "Visa Processing") {
+        templateType = "Visa_Processing";
+        subject = `Visa Processing Started for ${updated.fullName}`;
+      } else if (updated.status === "Approved") {
+        templateType = "Applicant_Approved";
+        subject = `Application Approved - Welcome to the Next Step!`;
+      } else if (updated.status === "Rejected") {
+        templateType = "Applicant_Rejected";
+        subject = `Application Update regarding your submission`;
+      } else if (updated.status === "Returned") {
+        templateType = "Applicant_Returned";
+        subject = `Action Required: Application Returned for Modification`;
+      } else if (updated.status === "Processing") {
+        templateType = "Applicant_Processing";
+        subject = `Application under Active Review`;
+      } else if (updated.status === "Shortlisted") {
+        templateType = "Status_Changed";
+        subject = `You Have Been Shortlisted for ${positionsStr}!`;
+      } else if (updated.status === "Pending") {
+        templateType = "Status_Changed";
+        subject = `Application Status: Pending Review`;
+      }
 
-        const emailBody = `
-          <p style="font-size: 14px; color: #334155; margin-bottom: 16px;">
-            Please be informed that your application status has been updated to: <strong style="color: #2563eb;">${updated.status}</strong>.
-          </p>
-          <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-            <h4 style="margin-top: 0; margin-bottom: 12px; color: #0f172a; font-size: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Registration Summary</h4>
-            <ul style="list-style-type: none; padding: 0; margin: 0;">
-              <li style="margin-bottom: 10px; font-size: 14px; display: flex; align-items: center;">
-                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #059669; margin-right: 10px;"></span>
-                <span style="color: #64748b; font-weight: 600; min-width: 130px; display: inline-block;">Candidate Name:</span> 
-                <span style="color: #059669; font-weight: 600;">${updated.fullName}</span>
-              </li>
-              <li style="margin-bottom: 10px; font-size: 14px; display: flex; align-items: center;">
-                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #ea580c; margin-right: 10px;"></span>
-                <span style="color: #64748b; font-weight: 600; min-width: 130px; display: inline-block;">Tracking Code:</span> 
-                <span style="color: #ea580c; font-weight: 600; font-family: monospace; font-size: 15px;">${updated.trackingCode}</span>
-              </li>
-              <li style="font-size: 14px; display: flex; align-items: center;">
-                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #4f46e5; margin-right: 10px;"></span>
-                <span style="color: #64748b; font-weight: 600; min-width: 130px; display: inline-block;">Position:</span> 
-                <span style="color: #4f46e5; font-weight: 600;">${positions}</span>
-              </li>
-            </ul>
-          </div>
-        `;
+      const emailBody = `
+        <p style="font-size: 14px; color: #334155; margin-bottom: 16px;">
+          Please be informed that your application status has been updated to: <strong style="color: #2563eb;">${updated.status}</strong>.
+        </p>
+        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+          <h4 style="margin-top: 0; margin-bottom: 12px; color: #0f172a; font-size: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Registration Summary</h4>
+          <ul style="list-style-type: none; padding: 0; margin: 0;">
+            <li style="margin-bottom: 10px; font-size: 14px; display: flex; align-items: center;">
+              <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #059669; margin-right: 10px;"></span>
+              <span style="color: #64748b; font-weight: 600; min-width: 130px; display: inline-block;">Candidate Name:</span> 
+              <span style="color: #059669; font-weight: 600;">${updated.fullName}</span>
+            </li>
+            <li style="margin-bottom: 10px; font-size: 14px; display: flex; align-items: center;">
+              <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #ea580c; margin-right: 10px;"></span>
+              <span style="color: #64748b; font-weight: 600; min-width: 130px; display: inline-block;">Tracking Code:</span> 
+              <span style="color: #ea580c; font-weight: 600; font-family: monospace; font-size: 15px;">${updated.trackingCode}</span>
+            </li>
+            <li style="font-size: 14px; display: flex; align-items: center;">
+              <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #4f46e5; margin-right: 10px;"></span>
+              <span style="color: #64748b; font-weight: 600; min-width: 130px; display: inline-block;">Position:</span> 
+              <span style="color: #4f46e5; font-weight: 600;">${positionsStr}</span>
+            </li>
+          </ul>
+        </div>
+      `;
 
-        try {
-          await sendEmail({
-            to: updated.email,
-            subject,
+      try {
+        await sendEmail({
+          to: updated.email,
+          subject,
+          body: emailBody,
+          candidateName: updated.fullName,
+          company: companyName,
+          branch: updated.branch,
+          type: "Status Update",
+          templateType,
+          templateData: {
+            recipientName: updated.fullName,
             body: emailBody,
-            candidateName: updated.fullName,
-            company: companyName,
-            branch: updated.branch,
-            type: "Status Update",
-            templateType,
-            templateData: {
-              recipientName: updated.fullName,
-              body: emailBody,
-              actionLink: `http://localhost:3000/apply?code=${updated.trackingCode}`,
-              trackingCode: updated.trackingCode,
-              status: updated.status,
-              positions
-            }
-          });
-        } catch (err) {
-          console.error("Async status update email error:", err);
-        }
+            actionLink: `http://localhost:3000/apply?code=${updated.trackingCode}`,
+            trackingCode: updated.trackingCode,
+            status: updated.status,
+            newStatus: updated.status,
+            previousStatus: existing.status,
+            positions: positionsStr,
+            position: positionsStr,
+            salary: updated.salaryExpectation ? String(updated.salaryExpectation) : "As agreed",
+            joiningDate: "Immediate or as per visa processing",
+            allowances: "Standard accommodation and transport as per UAE Labor Law",
+            offerLetterLink: `http://localhost:3000/apply?code=${updated.trackingCode}`
+          }
+        });
+      } catch (err) {
+        console.error("Async status update email error:", err);
       }
     } else if (updated.email && Object.keys(data).some(key => data[key] !== undefined && data[key] !== (existing as any)[key])) {
       // General profile update

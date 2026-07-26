@@ -310,9 +310,8 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
       return;
     }
 
-    if (targetStatus === "Placed") {
-      setIsStatusModalOpen(false);
-      setIsCreatePlacementModalOpen(true);
+    if (targetStatus === "Placed" && !placedCompany) {
+      toast.error("Please select or specify the placed company name.");
       return;
     }
 

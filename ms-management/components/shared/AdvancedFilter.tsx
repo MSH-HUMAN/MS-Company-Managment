@@ -236,24 +236,48 @@ export default function AdvancedFilter({
 
       {/* 6.5. Interview Type (For Interviews module only) */}
       {moduleKey === "interviews" && (
-        <div className="space-y-1">
-          <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-            Interview Type
-          </Label>
-          <Select
-            value={currentFilters.interviewType || "all"}
-            onValueChange={(val) => setFilter(moduleKey, { interviewType: val || "", page: 1 })}
-          >
-            <SelectTrigger className="bg-white border-slate-200 rounded-xl text-xs h-9">
-              <SelectValue placeholder="All Types" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-slate-100 rounded-xl text-xs">
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="Online">Online</SelectItem>
-              <SelectItem value="Physical">Physical</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <>
+          <div className="space-y-1">
+            <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+              Interview Type
+            </Label>
+            <Select
+              value={currentFilters.interviewType || "all"}
+              onValueChange={(val) => setFilter(moduleKey, { interviewType: val || "", page: 1 })}
+            >
+              <SelectTrigger className="bg-white border-slate-200 rounded-xl text-xs h-9">
+                <SelectValue placeholder="All Types" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-slate-100 rounded-xl text-xs">
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="Online">Online</SelectItem>
+                <SelectItem value="Physical">Physical</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1">
+            <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+              Interview Mode
+            </Label>
+            <Select
+              value={currentFilters.interviewMode || "all"}
+              onValueChange={(val) => setFilter(moduleKey, { interviewMode: val || "", page: 1 })}
+            >
+              <SelectTrigger className="bg-white border-slate-200 rounded-xl text-xs h-9">
+                <SelectValue placeholder="All Modes" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-slate-100 rounded-xl text-xs">
+                <SelectItem value="all">All Modes</SelectItem>
+                <SelectItem value="Zoom">Zoom</SelectItem>
+                <SelectItem value="Google Meet">Google Meet</SelectItem>
+                <SelectItem value="Microsoft Teams">Microsoft Teams</SelectItem>
+                <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                <SelectItem value="Phone call">Phone call</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </>
       )}
 
       {/* 7. From Date */}

@@ -168,6 +168,9 @@ HR Department`;
     const isOnlineTarget = f.interviewType === "Online";
     list = list.filter(i => i.isOnline === isOnlineTarget);
   }
+  if (f.interviewMode && f.interviewMode !== "all") {
+    list = list.filter(i => i.mode === f.interviewMode);
+  }
   if (f.fromDate) list = list.filter(i => i.dateTime.slice(0,10) >= f.fromDate);
   if (f.toDate) list = list.filter(i => i.dateTime.slice(0,10) <= f.toDate);
 
@@ -187,6 +190,10 @@ HR Department`;
     if (!form.personName || !form.dateTime || !form.conductPerson) { 
       toast.error("Required fields: name, conductor, and date/time"); 
       return; 
+    }
+    if (!form.company || !form.branch) {
+      toast.error("Required fields: Company and Branch must be selected");
+      return;
     }
     const flag = NATIONALITIES.find(n => n.name === form.nationality)?.flag || "🏳️";
     const onlineState = form.isOnline;

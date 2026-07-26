@@ -40,6 +40,12 @@ export default function FilterChips({ moduleKey }: FilterChipsProps) {
   if (currentFilters.search) {
     activeChips.push({ key: "search", label: "Search", value: currentFilters.search });
   }
+  if (currentFilters.interviewType && currentFilters.interviewType !== "all") {
+    activeChips.push({ key: "interviewType", label: "Type", value: currentFilters.interviewType });
+  }
+  if (currentFilters.interviewMode && currentFilters.interviewMode !== "all") {
+    activeChips.push({ key: "interviewMode", label: "Mode", value: currentFilters.interviewMode });
+  }
   if (currentFilters.mobileSearch) {
     activeChips.push({ key: "mobileSearch", label: "Phone", value: currentFilters.mobileSearch });
   }
