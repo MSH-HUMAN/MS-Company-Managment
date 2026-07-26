@@ -474,18 +474,18 @@ export default function CompaniesPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 { id: "name", label: "Company Name", req: true },
-                { id: "companyType", label: "Company Type (e.g. LLC, F.Z.E)", req: true },
-                { id: "tradeLicenseNumber", label: "Trade License Number", req: true },
-                { id: "trnNumber", label: "TRN Number", req: true },
-                { id: "licenseIssueDate", label: "License Issue Date", type: "date", req: true },
-                { id: "licenseExpiryDate", label: "License Expiry Date", type: "date", req: true },
-                { id: "ownerName", label: "Owner / Partner Name", req: true },
-                { id: "emirateLocation", label: "Emirates / Location", req: true },
-                { id: "email", label: "Email Address", req: true },
-                { id: "telephone", label: "Telephone" },
-                { id: "hrMobile", label: "HR Mobile" },
-                { id: "ownerMobile", label: "Owner Mobile" },
-                { id: "whatsapp", label: "WhatsApp" },
+                { id: "email", label: "Company Email", type: "email", req: true },
+                { id: "ownerName", label: "Contact Person / Owner Name", req: true },
+                { id: "hrMobile", label: "Mobile Number", req: true },
+                { id: "emirateLocation", label: "Country / Location", req: true },
+                { id: "companyType", label: "Company Type (Optional)", req: false },
+                { id: "tradeLicenseNumber", label: "Trade License Number (Optional)", req: false },
+                { id: "trnNumber", label: "TRN Number (Optional)", req: false },
+                { id: "licenseIssueDate", label: "License Issue Date (Optional)", type: "date", req: false },
+                { id: "licenseExpiryDate", label: "License Expiry Date (Optional)", type: "date", req: false },
+                { id: "telephone", label: "Telephone (Optional)", req: false },
+                { id: "ownerMobile", label: "Owner Mobile (Optional)", req: false },
+                { id: "whatsapp", label: "WhatsApp (Optional)", req: false },
               ].map(field => (
                 <div key={field.id} className="space-y-1">
                   <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{field.label}{field.req && <span className="text-rose-500"> *</span>}</Label>
