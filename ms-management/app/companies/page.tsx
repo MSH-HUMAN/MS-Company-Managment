@@ -474,10 +474,10 @@ export default function CompaniesPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 { id: "name", label: "Company Name", req: true },
-                { id: "email", label: "Company Email", type: "email", req: true },
-                { id: "ownerName", label: "Contact Person / Owner Name", req: true },
-                { id: "hrMobile", label: "Mobile Number", req: true },
-                { id: "emirateLocation", label: "Country / Location", req: true },
+                { id: "email", label: "Company Email (Optional)", req: false },
+                { id: "ownerName", label: "Contact Person / Owner Name (Optional)", req: false },
+                { id: "hrMobile", label: "Mobile Number (Optional)", req: false },
+                { id: "emirateLocation", label: "Country / Location (Optional)", req: false },
                 { id: "companyType", label: "Company Type (Optional)", req: false },
                 { id: "tradeLicenseNumber", label: "Trade License Number (Optional)", req: false },
                 { id: "trnNumber", label: "TRN Number (Optional)", req: false },
