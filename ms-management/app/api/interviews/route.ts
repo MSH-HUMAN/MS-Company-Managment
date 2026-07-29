@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser, getTenantScopeFilter, hasPermissionBackend, createAuditLog, getPermissionScopedFilter } from "@/lib/auth-helpers";
-import { sendEmail, sendWhatsApp, generateEmailContent } from "@/lib/notifications";
+import { sendEmail, sendWhatsApp, generateEmailContent, generateWhatsAppContent } from "@/lib/notifications";
 
 export async function GET(request: Request) {
   try {
@@ -240,12 +240,21 @@ export async function POST(request: Request) {
 
     if ((mappedResponse.whatsapp || mappedResponse.mobile) && data.autoWhatsapp !== false) {
       const waNumber = mappedResponse.whatsapp || mappedResponse.mobile;
-      const isOnline = mappedResponse.isOnline;
-      const locationText = isOnline 
-        ? `Online via ${mappedResponse.mode} (${mappedResponse.meetingLink || "Link to be provided"})`
-        : `Physical (${mappedResponse.locationLink || "Location map to be provided"})`;
 
-      const waMessage = `Dear ${mappedResponse.personName}, your ${mappedResponse.type} is scheduled on ${mappedResponse.dateTime.replace("T", " ")}. Type: ${mappedResponse.isOnline ? "Online" : "Physical"} - ${locationText}. Conducted by: ${mappedResponse.conductPerson}.`;
+      const waMessage = generateWhatsAppContent("Interview_Scheduled", {
+        applicantName: mappedResponse.personName,
+        company: mappedResponse.company || company,
+        branch: mappedResponse.branch || branch,
+        position: mappedResponse.position || mappedResponse.meetingType || "Assessment Sync",
+        type: mappedResponse.type || "Interview",
+        dateTime: mappedResponse.dateTime,
+        isOnline: mappedResponse.isOnline,
+        meetingMode: mappedResponse.mode,
+        conductPerson: mappedResponse.conductPerson,
+        meetingLink: mappedResponse.meetingLink,
+        googleMapLink: mappedResponse.locationLink,
+        notes: mappedResponse.notes
+      });
 
       try {
         await sendWhatsApp({

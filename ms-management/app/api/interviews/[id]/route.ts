@@ -6,7 +6,7 @@ type RouteParams = {
   params: Promise<{ id: string }>;
 };
 
-import { sendEmail, sendWhatsApp } from "@/lib/notifications";
+import { sendEmail, sendWhatsApp, generateWhatsAppContent } from "@/lib/notifications";
 
 export async function PUT(request: Request, { params }: RouteParams) {
   try {
@@ -282,14 +282,31 @@ ${mappedResponse.company} Recruitment Team`;
     }
 
     if (shouldNotify && targetPhone) {
-      let waMessage = "";
+      let templateType: any = "Interview_Scheduled";
       if (data.status === "Cancelled") {
-        waMessage = `Dear ${mappedResponse.personName}, your ${mappedResponse.type} on ${existing.dateTime.replace("T", " ")} has been cancelled. ${updateReason ? `Reason: ${updateReason}.` : ""}`;
+        templateType = "Interview_Cancelled";
       } else if (data.status === "Rescheduled" || dateTimeChanged) {
-        waMessage = `Dear ${mappedResponse.personName}, your ${mappedResponse.type} has been rescheduled to ${mappedResponse.dateTime.replace("T", " ")}. ${updateReason ? `Reason: ${updateReason}.` : ""}`;
+        templateType = "Interview_Rescheduled";
       } else {
-        waMessage = `Dear ${mappedResponse.personName}, your ${mappedResponse.type} status is now: ${data.status || mappedResponse.status}.`;
+        templateType = "Status_Changed";
       }
+
+      const waMessage = generateWhatsAppContent(templateType, {
+        applicantName: mappedResponse.personName,
+        company: mappedResponse.company,
+        branch: mappedResponse.branch,
+        position: mappedResponse.position || mappedResponse.meetingType || "Discussion",
+        type: mappedResponse.type || "Interview",
+        dateTime: mappedResponse.dateTime,
+        isOnline: mappedResponse.isOnline,
+        meetingMode: mappedResponse.mode,
+        conductPerson: mappedResponse.conductPerson,
+        meetingLink: mappedResponse.meetingLink,
+        googleMapLink: mappedResponse.locationLink,
+        notes: updateReason || mappedResponse.notes,
+        status: data.status || mappedResponse.status,
+        reason: updateReason
+      });
 
       try {
         await sendWhatsApp({

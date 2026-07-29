@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser, getTenantScopeFilter, hasPermissionBackend, createAuditLog, getPermissionScopedFilter } from "@/lib/auth-helpers";
-import { sendEmail, sendWhatsApp, generateEmailContent } from "@/lib/notifications";
+import { sendEmail, sendWhatsApp, generateEmailContent, generateWhatsAppContent } from "@/lib/notifications";
 
 export async function GET(request: Request) {
   try {
@@ -274,7 +274,14 @@ export async function POST(request: Request) {
     if (applicant.whatsapp || applicant.mobile) {
       const waNumber = applicant.whatsapp || applicant.mobile;
       const companyName = applicant.company && applicant.company !== "Not Placed" ? applicant.company : "MS Horizon F.Z.E";
-      const waMessage = `Dear ${applicant.fullName}, your application for positions: ${Array.isArray(applicant.applyingPositions) ? applicant.applyingPositions.join(", ") : applicant.applyingPositions} has been registered successfully. Track your status using code: ${applicant.trackingCode}. Welcome to ${companyName}!`;
+      
+      const waMessage = generateWhatsAppContent("Registration", {
+        applicantName: applicant.fullName,
+        company: companyName,
+        branch: applicant.branch,
+        position: Array.isArray(applicant.applyingPositions) ? (applicant.applyingPositions as string[]).join(", ") : String(applicant.applyingPositions || ""),
+        trackingCode: applicant.trackingCode
+      });
 
       try {
         await sendWhatsApp({

@@ -853,3 +853,166 @@ ${company} Team`,
       throw new Error("Invalid templateType");
   }
 }
+
+/**
+ * Generates neat, comprehensive, professional WhatsApp messages
+ * matching the detailed format of email notifications.
+ */
+export function generateWhatsAppContent(
+  templateType: 
+    | "Interview_Scheduled" 
+    | "Interview_Online" 
+    | "Interview_Physical" 
+    | "Interview_Rescheduled" 
+    | "Interview_Cancelled" 
+    | "Registration" 
+    | "Status_Changed",
+  data: {
+    applicantName?: string;
+    company?: string;
+    branch?: string;
+    position?: string;
+    type?: string;
+    dateTime?: string;
+    isOnline?: boolean;
+    meetingMode?: string;
+    conductPerson?: string;
+    meetingLink?: string;
+    googleMapLink?: string;
+    notes?: string;
+    trackingCode?: string;
+    status?: string;
+    previousStatus?: string;
+    placedCompany?: string;
+    reason?: string;
+  }
+): string {
+  const name = data.applicantName || "Candidate";
+  const company = data.company || "MS Company Management";
+  const position = data.position || "General Position";
+  const dateStr = data.dateTime ? data.dateTime.replace("T", " ") : "To Be Confirmed";
+
+  switch (templateType) {
+    case "Interview_Scheduled":
+    case "Interview_Online":
+    case "Interview_Physical": {
+      const modeText = data.isOnline
+        ? `Online Virtual (${data.meetingMode || "Video Call"})`
+        : `Physical In-Person (${data.meetingMode || "Office Location"})`;
+      const locationDetail = data.isOnline
+        ? `• *Meeting Link:* ${data.meetingLink || "Link will be shared prior to meeting"}`
+        : `• *Location / Map:* ${data.googleMapLink || "Office Location"}`;
+
+      return `📋 *INTERVIEW SCHEDULE CONFIRMATION*
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Dear *${name}*,
+
+We are pleased to inform you that your *${data.type || "Interview"}* with *${company}* has been officially scheduled. Please review your complete details below:
+
+📌 *SCHEDULE DETAILS:*
+• *Candidate Name:* ${name}
+• *Position:* ${position}
+• *Interview Type:* ${data.type || "Interview"} (${data.isOnline ? "Online" : "Physical"})
+• *Date & Time:* ${dateStr}
+• *Interviewer:* ${data.conductPerson || "HR Coordinator"}
+
+📍 *ACCESS & LOCATION:*
+• *Format:* ${modeText}
+${locationDetail}
+
+${data.notes ? `📝 *NOTES & INSTRUCTIONS:*\n${data.notes}\n` : ""}
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Please ensure you are ready 5 minutes prior to the scheduled time. If you need to reschedule, kindly inform us in advance.
+
+Best regards,
+*${company} Recruitment Team*`;
+    }
+
+    case "Interview_Rescheduled": {
+      const modeText = data.isOnline
+        ? `Online Virtual (${data.meetingMode || "Video Call"})`
+        : `Physical In-Person (${data.meetingMode || "Office Location"})`;
+      const locationDetail = data.isOnline
+        ? `• *Meeting Link:* ${data.meetingLink || "Link will be shared prior to meeting"}`
+        : `• *Location / Map:* ${data.googleMapLink || "Office Location"}`;
+
+      return `🔄 *INTERVIEW RESCHEDULED*
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Dear *${name}*,
+
+Please note that your *${data.type || "Interview"}* for *${position}* with *${company}* has been rescheduled to a new time.
+
+📌 *UPDATED SCHEDULE DETAILS:*
+• *Candidate Name:* ${name}
+• *Position:* ${position}
+• *New Date & Time:* ${dateStr}
+• *Interviewer:* ${data.conductPerson || "HR Coordinator"}
+• *Format:* ${modeText}
+${locationDetail}
+
+${data.reason ? `📌 *Reason for Rescheduling:*\n${data.reason}\n` : ""}
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Best regards,
+*${company} Recruitment Team*`;
+    }
+
+    case "Interview_Cancelled": {
+      return `❌ *INTERVIEW CANCELLATION NOTICE*
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Dear *${name}*,
+
+We regret to inform you that your scheduled *${data.type || "Interview"}* for *${position}* on *${dateStr}* has been cancelled.
+
+${data.reason ? `📌 *Reason:* ${data.reason}\n` : ""}
+If you have any questions or wish to explore other opportunities, please feel free to reach out to us.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Best regards,
+*${company} Recruitment Team*`;
+    }
+
+    case "Registration": {
+      return `🎉 *APPLICATION RECEIVED & REGISTERED*
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Dear *${name}*,
+
+Thank you for applying with *${company}*. We have successfully registered your job application in our system.
+
+📌 *APPLICATION SUMMARY:*
+• *Candidate Name:* ${name}
+• *Tracking Code:* ${data.trackingCode || "TRK-PENDING"}
+• *Applied Position:* ${position}
+• *Registration Date:* ${new Date().toISOString().slice(0, 10)}
+
+📍 *TRACK YOUR STATUS:*
+You can track your real-time selection status anytime at:
+https://msjobs.net/apply?code=${data.trackingCode || ""}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Best regards,
+*${company} Talent Acquisition*`;
+    }
+
+    case "Status_Changed":
+    default: {
+      return `📢 *APPLICATION STATUS UPDATE*
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Dear *${name}*,
+
+Your job application status with *${company}* has been updated.
+
+📌 *STATUS UPDATE DETAILS:*
+• *Candidate Name:* ${name}
+• *Tracking Code:* ${data.trackingCode || "N/A"}
+• *Applied Position:* ${position}
+• *New Status:* *${data.status || "Updated"}*
+${data.placedCompany ? `• *Placed Company:* ${data.placedCompany}\n` : ""}${data.reason ? `• *Details:* ${data.reason}\n` : ""}
+📍 *TRACK YOUR STATUS:*
+View live updates at: https://msjobs.net/apply?code=${data.trackingCode || ""}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Best regards,
+*${company} Recruitment Team*`;
+    }
+  }
+}

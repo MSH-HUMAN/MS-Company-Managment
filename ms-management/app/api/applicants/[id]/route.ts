@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser, hasPermissionBackend, createAuditLog, canModifyRecord } from "@/lib/auth-helpers";
-import { sendEmail, sendWhatsApp, generateEmailContent } from "@/lib/notifications";
+import { sendEmail, sendWhatsApp, generateEmailContent, generateWhatsAppContent } from "@/lib/notifications";
 
 type RouteParams = {
   params: Promise<{ id: string }>;
@@ -337,7 +337,19 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
     if (data.status && data.status !== existing.status && (updated.whatsapp || updated.mobile)) {
       const waNumber = updated.whatsapp || updated.mobile;
-      const waMessage = `Dear ${updated.fullName}, your application status has been updated to: ${updated.status}. You can track it using code: ${updated.trackingCode}.`;
+      const companyName = updated.company && updated.company !== "Not Placed" ? updated.company : "MS Human Resource Consultancies";
+
+      const waMessage = generateWhatsAppContent("Status_Changed", {
+        applicantName: updated.fullName,
+        company: companyName,
+        branch: updated.branch,
+        position: Array.isArray(updated.applyingPositions) ? (updated.applyingPositions as string[]).join(", ") : String(updated.applyingPositions || ""),
+        trackingCode: updated.trackingCode,
+        status: updated.status,
+        previousStatus: existing.status,
+        placedCompany: updated.status === "Placed" ? (updated.clientName || undefined) : undefined,
+        reason: data.reason || (updated.statusHistory && Array.isArray(updated.statusHistory) && (updated.statusHistory[0] as any)?.reason) || undefined
+      });
 
       try {
         await sendWhatsApp({
