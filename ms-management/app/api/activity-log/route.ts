@@ -88,7 +88,6 @@ export async function POST(request: Request) {
 
     const log = await prisma.activityLog.create({
       data: {
-        id: data.id || undefined,
         dateTime: data.dateTime || new Date().toISOString().replace("T", " ").slice(0, 19),
         userName: user.name,
         role: user.role,

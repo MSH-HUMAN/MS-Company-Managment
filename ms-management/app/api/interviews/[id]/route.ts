@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getSessionUser, hasPermissionBackend, createAuditLog, canModifyRecord } from "@/lib/auth-helpers";
+import { getSessionUser, createAuditLog, canModifyRecord } from "@/lib/auth-helpers";
+import { sendEmail, sendWhatsApp, generateWhatsAppContent } from "@/lib/notifications";
 
 type RouteParams = {
   params: Promise<{ id: string }>;
 };
-
-import { sendEmail, sendWhatsApp, generateWhatsAppContent } from "@/lib/notifications";
 
 export async function PUT(request: Request, { params }: RouteParams) {
   try {
@@ -86,7 +85,17 @@ export async function PUT(request: Request, { params }: RouteParams) {
     if (data.remarks !== undefined) updatePayload.remarks = data.remarks;
     if (data.candidateResponse !== undefined) updatePayload.candidateResponse = data.candidateResponse;
 
-    // Support keeping a manual reason in notes or as part of the notification
+    // New columns
+    if (data.title !== undefined) updatePayload.title = data.title;
+    if (data.timeZone !== undefined) updatePayload.timeZone = data.timeZone;
+    if (data.meetingId !== undefined) updatePayload.meetingId = data.meetingId;
+    if (data.passcode !== undefined) updatePayload.passcode = data.passcode;
+    if (data.venue !== undefined) updatePayload.venue = data.venue;
+    if (data.building !== undefined) updatePayload.building = data.building;
+    if (data.floor !== undefined) updatePayload.floor = data.floor;
+    if (data.location !== undefined) updatePayload.location = data.location;
+    if (data.attachments !== undefined) updatePayload.attachments = data.attachments;
+
     const updateReason = data.reason || "";
     if (updateReason && (data.status === "Cancelled" || data.status === "Rescheduled")) {
       updatePayload.notes = data.notes 
@@ -173,111 +182,176 @@ export async function PUT(request: Request, { params }: RouteParams) {
       interviewResult: updated.interviewResult || "",
       feedback: updated.feedback || "",
       remarks: updated.remarks || "",
-      candidateResponse: updated.candidateResponse || ""
+      candidateResponse: updated.candidateResponse || "",
+      // New columns
+      title: updated.title || "",
+      timeZone: updated.timeZone || "Asia/Dubai",
+      meetingId: updated.meetingId || "",
+      passcode: updated.passcode || "",
+      venue: updated.venue || "",
+      building: updated.building || "",
+      floor: updated.floor || "",
+      location: updated.location || "",
+      attachments: updated.attachments || []
     };
 
-    // ── Determine what changed and notify ──────────────────────────────────
     const targetEmail = mappedResponse.email;
     const targetPhone = mappedResponse.whatsapp || mappedResponse.mobile;
     const shouldNotify = statusChanged || dateTimeChanged;
 
     if (shouldNotify && targetEmail) {
       let subject = "";
-      let body = "";
+      let bodyText = `Dear ${mappedResponse.personName},
+
+Your ${mappedResponse.type} has been updated.
+
+New Details:
+- Title: ${mappedResponse.title || "Interview Session"}
+- Status: ${mappedResponse.status}
+- Date & Time: ${mappedResponse.dateTime.replace("T", " ")} (${mappedResponse.timeZone})
+- Conductor: ${mappedResponse.conductPerson}
+- Format: ${mappedResponse.isOnline ? `Online (${mappedResponse.mode})` : "Physical"}
+`;
+
+      if (mappedResponse.isOnline) {
+        bodyText += `- Meeting Link: ${mappedResponse.meetingLink || "N/A"}\n`;
+        if (mappedResponse.meetingId) bodyText += `- Meeting ID: ${mappedResponse.meetingId}\n`;
+        if (mappedResponse.passcode) bodyText += `- Passcode: ${mappedResponse.passcode}\n`;
+      } else {
+        if (mappedResponse.venue) bodyText += `- Venue: ${mappedResponse.venue}\n`;
+        if (mappedResponse.building) bodyText += `- Building: ${mappedResponse.building}\n`;
+        if (mappedResponse.floor) bodyText += `- Floor: ${mappedResponse.floor}\n`;
+        if (mappedResponse.location) bodyText += `- Location/Address: ${mappedResponse.location}\n`;
+        if (mappedResponse.locationLink) bodyText += `- Map Link: ${mappedResponse.locationLink}\n`;
+      }
+
+      bodyText += `\nNotes/Reason: ${updateReason || mappedResponse.notes || "None"}\n\nBest regards,\n${mappedResponse.company} HR Team`;
 
       if (data.status === "Cancelled") {
-        subject = `Schedule Cancelled: ${mappedResponse.type}`;
-        body = `Dear ${mappedResponse.personName},
-
-We regret to inform you that your ${mappedResponse.type} scheduled for ${existing.dateTime.replace("T", " ")} has been cancelled.
-
-Reason for cancellation:
-${updateReason || "No reason provided by coordinator"}
-
-We apologize for any inconvenience. If you have questions or want to discuss future openings, please contact us.
-
-Best regards,
-${mappedResponse.company} Recruitment Team`;
-
+        subject = `Schedule Cancelled: ${mappedResponse.type} - ${mappedResponse.personName}`;
       } else if (data.status === "Completed") {
-        subject = `Schedule Completed: ${mappedResponse.type}`;
-        body = `Dear ${mappedResponse.personName},
-
-Your ${mappedResponse.type} has been marked as Completed. Thank you for your time.
-
-We will be in touch shortly with the next steps.
-
-Best regards,
-${mappedResponse.company} Recruitment Team`;
-
-      } else if (data.status === "Rescheduled" || dateTimeChanged) {
-        // Fire for: explicit Rescheduled status OR any dateTime change
-        const isOnline = mappedResponse.isOnline;
-        const locationInfo = isOnline
-          ? `New Mode: ${mappedResponse.mode}\nNew Meeting Link: ${mappedResponse.meetingLink || "To be provided"}`
-          : `New Location: Physical / Google Maps: ${mappedResponse.locationLink || "To be provided"}`;
-
-        subject = `Schedule Updated: Your ${mappedResponse.type} Has Been Rescheduled`;
-        body = `Dear ${mappedResponse.personName},
-
-Please be informed that your ${mappedResponse.type} has been rescheduled.
-
-New Schedule Details:
-- Position/Subject: ${mappedResponse.position || "Discussion"}
-- New Date & Time: ${mappedResponse.dateTime.replace("T", " ")}
-- Type: ${mappedResponse.isOnline ? "Online" : "Physical"}
-- ${locationInfo}
-- Conducted By: ${mappedResponse.conductPerson}
-
-${updateReason ? `Reason for rescheduling:\n${updateReason}\n` : ""}If you have any questions, please contact our HR team.
-
-Best regards,
-${mappedResponse.company} Recruitment Team`;
-
+        subject = `Schedule Completed: ${mappedResponse.type} - ${mappedResponse.personName}`;
       } else {
-        subject = `Schedule Status Update: ${mappedResponse.type}`;
-        body = `Dear ${mappedResponse.personName},
-
-Your ${mappedResponse.type} status has been updated to: ${data.status || mappedResponse.status}.
-
-Best regards,
-${mappedResponse.company} Recruitment Team`;
+        subject = `Schedule Updated: ${mappedResponse.type} Rescheduled - ${mappedResponse.personName}`;
       }
 
       let templateType: any = "Interview";
       if (data.status === "Cancelled") {
-        templateType = "Interview_Cancelled"; // Red banner — cancellation notice
+        templateType = "Interview_Cancelled";
       } else if (data.status === "Completed") {
-        templateType = "Interview_Completed"; // Emerald banner — thank-you / completion
+        templateType = "Interview_Completed";
       } else if (mappedResponse.isOnline) {
-        templateType = "Interview_Online"; // Teal banner
+        templateType = "Interview_Online";
       } else {
-        templateType = "Interview_Physical"; // Amber/Gold banner
+        templateType = "Interview_Physical";
       }
 
-      try {
-        await sendEmail({
-          to: targetEmail,
-          subject,
-          body,
-          candidateName: mappedResponse.personName,
-          company: mappedResponse.company,
-          branch: mappedResponse.branch,
-          templateType: templateType,
-          templateData: {
-            recipientName: mappedResponse.personName,
-            role: mappedResponse.position || mappedResponse.meetingType || "Discussion",
-            dateTime: mappedResponse.dateTime.replace("T", " "),
-            onlinePhysical: mappedResponse.isOnline ? "Online" : "Physical",
-            meetingMode: mappedResponse.mode || "",
-            conductPersonName: mappedResponse.conductPerson || "",
-            meetingLink: mappedResponse.isOnline ? (mappedResponse.meetingLink || "") : "",
-            googleMapLink: !mappedResponse.isOnline ? (mappedResponse.locationLink || "") : "",
-            notes: updateReason || mappedResponse.notes || ""
-          }
+      // Fetch applicant details if registered
+      let applicantDetails: any = null;
+      if (mappedResponse.applicantId) {
+        applicantDetails = await prisma.applicant.findUnique({
+          where: { id: mappedResponse.applicantId }
         });
-      } catch (err) {
-        console.error("Async PUT interview email error:", err);
+      }
+
+      // Resolve interviewer designation
+      let interviewerDesignation = "N/A";
+      if (mappedResponse.conductPerson) {
+        const interviewerUser = await prisma.user.findFirst({
+          where: { name: mappedResponse.conductPerson }
+        });
+        if (interviewerUser) {
+          const interviewerStaff = await prisma.staff.findFirst({
+            where: { email: interviewerUser.email }
+          });
+          interviewerDesignation = interviewerStaff?.position || interviewerUser.role || "N/A";
+        }
+      }
+
+      // Notify all roles: Applicant, Conductor, HR, Assigned Staff
+      const emailRecipients = new Set<string>();
+      if (targetEmail) emailRecipients.add(targetEmail);
+      
+      if (mappedResponse.conductPerson) {
+        const condUser = await prisma.user.findFirst({
+          where: { name: mappedResponse.conductPerson }
+        });
+        if (condUser && condUser.email) emailRecipients.add(condUser.email);
+      }
+
+      const compDetails = await prisma.company.findFirst({
+        where: { name: mappedResponse.company }
+      });
+      if (compDetails && compDetails.email) {
+        emailRecipients.add(compDetails.email);
+      } else {
+        emailRecipients.add("hr@safayar-msjobs.com");
+      }
+
+      if (mappedResponse.scheduledBy) {
+        const schUser = await prisma.user.findFirst({
+          where: { name: mappedResponse.scheduledBy }
+        });
+        if (schUser && schUser.email) emailRecipients.add(schUser.email);
+      }
+
+      for (const recipientEmail of emailRecipients) {
+        try {
+          await sendEmail({
+            to: recipientEmail,
+            subject,
+            body: bodyText,
+            candidateName: mappedResponse.personName,
+            company: mappedResponse.company,
+            branch: mappedResponse.branch,
+            templateType: templateType,
+            templateData: {
+              recipientName: mappedResponse.personName,
+              applicantName: mappedResponse.personName,
+              applicantId: mappedResponse.applicantId || "N/A",
+              trackingNumber: applicantDetails?.trackingCode || applicantDetails?.id || "N/A",
+              trackingCode: applicantDetails?.trackingCode || applicantDetails?.id || "N/A",
+              position: mappedResponse.position || applicantDetails?.applyingPositions?.[0] || "N/A",
+              applyingPosition: mappedResponse.position || applicantDetails?.applyingPositions?.[0] || "N/A",
+              nationality: applicantDetails?.nationality || mappedResponse.nationality || "N/A",
+              passportNumber: applicantDetails?.passportNumber || "N/A",
+              visaStatus: applicantDetails?.visaStatus || applicantDetails?.visaType || "N/A",
+              mobileNumber: mappedResponse.mobile || applicantDetails?.mobile || "N/A",
+              emailAddress: mappedResponse.email || applicantDetails?.email || "N/A",
+              currentStatus: applicantDetails?.status || "N/A",
+              applicantCompany: applicantDetails?.company || "N/A",
+              applicantBranch: applicantDetails?.branch || "N/A",
+
+              role: mappedResponse.position || mappedResponse.meetingType || "Discussion",
+              dateTime: mappedResponse.dateTime.replace("T", " "),
+              date: mappedResponse.dateTime ? (mappedResponse.dateTime.split("T")[0] || mappedResponse.dateTime.split(" ")[0]) : "N/A",
+              time: mappedResponse.dateTime ? (mappedResponse.dateTime.split("T")[1] || mappedResponse.dateTime.split(" ")[1]) : "N/A",
+              link: mappedResponse.isOnline ? (mappedResponse.meetingLink || "Online") : (mappedResponse.location || "N/A"),
+
+              onlinePhysical: mappedResponse.isOnline ? "Online" : "Physical",
+              meetingMode: mappedResponse.mode || "",
+              conductPersonName: mappedResponse.conductPerson || "",
+              meetingLink: mappedResponse.isOnline ? (mappedResponse.meetingLink || "") : "",
+              googleMapLink: !mappedResponse.isOnline ? (mappedResponse.locationLink || "") : "",
+              notes: updateReason || mappedResponse.notes || "",
+              title: mappedResponse.title || "Interview Session",
+              timeZone: mappedResponse.timeZone,
+              meetingId: mappedResponse.meetingId,
+              passcode: mappedResponse.passcode,
+              venue: mappedResponse.venue,
+              building: mappedResponse.building,
+              floor: mappedResponse.floor,
+              location: mappedResponse.location,
+
+              interviewerName: mappedResponse.conductPerson || "N/A",
+              interviewerDesignation: interviewerDesignation,
+              companyName: mappedResponse.company || "N/A",
+              branchName: mappedResponse.branch || "N/A",
+            }
+          });
+        } catch (err) {
+          console.error("Async PUT interview email error:", err);
+        }
       }
     }
 

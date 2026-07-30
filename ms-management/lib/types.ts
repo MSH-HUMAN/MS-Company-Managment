@@ -268,7 +268,7 @@ export interface Interview {
   position?: string;
   dateTime: string;
   isOnline: boolean;
-  mode: "Zoom" | "Google Meet" | "Microsoft Teams" | "WhatsApp" | "Phone call";
+  mode: string;
   meetingLink?: string | null;
   locationLink?: string | null;
   notes?: string;
@@ -283,6 +283,15 @@ export interface Interview {
   feedback?: string;
   remarks?: string;
   candidateResponse?: string;
+  title?: string;
+  timeZone?: string;
+  meetingId?: string;
+  passcode?: string;
+  venue?: string;
+  building?: string;
+  floor?: string;
+  location?: string;
+  attachments?: any[];
 }
 
 export interface LeaveRequest {

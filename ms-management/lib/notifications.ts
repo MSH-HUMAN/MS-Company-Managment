@@ -287,37 +287,77 @@ export async function sendEmail({
   usedTemplateName = isPrecompiledHtml ? (templateType || "Precompiled") : selectedTemplate;
 
   try {
+    let applicantDetails: any = null;
+    if (templateData?.applicantId) {
+      applicantDetails = await prisma.applicant.findUnique({
+        where: { id: templateData.applicantId }
+      });
+    }
+
+    let interviewerDesignation = templateData?.interviewerDesignation;
+    if (templateData?.interviewerName && !interviewerDesignation) {
+      const interviewerUser = await prisma.user.findFirst({
+        where: { name: templateData.interviewerName }
+      });
+      if (interviewerUser) {
+        const interviewerStaff = await prisma.staff.findFirst({
+          where: { email: interviewerUser.email }
+        });
+        interviewerDesignation = interviewerStaff?.position || interviewerUser.role || "N/A";
+      }
+    }
+
     if (isPrecompiledHtml) {
       htmlContent = body;
     } else {
       const tpl = await loadTemplateAsync(selectedTemplate);
       const compiled = Handlebars.compile(tpl);
 
-    const recipientName = templateData?.recipientName || candidateName || templateData?.applicantName || "Recipient";
+    const recipientName = templateData?.recipientName || candidateName || templateData?.applicantName || applicantDetails?.fullName || "Recipient";
     const logoText = (company || "").toUpperCase().split(" ").slice(0, 2).map((s: string) => s.charAt(0)).join("") || "MS";
 
     // Auto-populate all required dynamic fields with fallbacks
     const safeData = {
+      applicantFullName: templateData?.applicantFullName || applicantDetails?.fullName || recipientName || "N/A",
       applicantName: recipientName,
       recipientName,
-      passportNumber: templateData?.passportNumber || templateData?.passport || "N/A",
-      nationality: templateData?.nationality || "N/A",
-      position: templateData?.position || (templateData?.applyingPositions ? (Array.isArray(templateData.applyingPositions) ? templateData.applyingPositions.join(", ") : templateData.applyingPositions) : "N/A"),
+      applicantId: templateData?.applicantId || applicantDetails?.id || "N/A",
+      trackingCode: templateData?.trackingCode || templateData?.trackingNumber || applicantDetails?.trackingCode || "N/A",
+      trackingNumber: templateData?.trackingNumber || templateData?.trackingCode || applicantDetails?.trackingCode || "N/A",
+      appliedPosition: templateData?.appliedPosition || templateData?.position || (applicantDetails?.applyingPositions ? (Array.isArray(applicantDetails.applyingPositions) ? applicantDetails.applyingPositions[0] : applicantDetails.applyingPositions) : "N/A"),
+      passportNumber: templateData?.passportNumber || templateData?.passport || applicantDetails?.passportNumber || "N/A",
+      visaStatus: templateData?.visaStatus || templateData?.visaType || applicantDetails?.visaStatus || applicantDetails?.visaType || "N/A",
+      nationality: templateData?.nationality || applicantDetails?.nationality || "N/A",
+      mobileNumber: templateData?.mobileNumber || templateData?.mobile || applicantDetails?.mobile || "N/A",
+      emailAddress: templateData?.emailAddress || templateData?.email || applicantDetails?.email || "N/A",
+      currentStatus: templateData?.currentStatus || templateData?.status || applicantDetails?.status || "N/A",
+      applicantCompany: templateData?.applicantCompany || applicantDetails?.company || "N/A",
+      applicantBranch: templateData?.applicantBranch || applicantDetails?.branch || "N/A",
+
+      position: templateData?.position || (templateData?.applyingPositions ? (Array.isArray(templateData.applyingPositions) ? templateData.applyingPositions.join(", ") : templateData.applyingPositions) : (applicantDetails?.applyingPositions ? (Array.isArray(applicantDetails.applyingPositions) ? applicantDetails.applyingPositions.join(", ") : applicantDetails.applyingPositions) : "N/A")),
       company: company || templateData?.company || "MS Horizon F.Z.E",
       branch: branch || templateData?.branch || "Main Branch",
       clientCompany: templateData?.clientCompany || templateData?.clientName || "N/A",
+      
       interviewDate: templateData?.interviewDate || templateData?.dateTime || "N/A",
       interviewTime: templateData?.interviewTime || "N/A",
+      interviewType: templateData?.interviewType || "Interview",
+      interviewMode: templateData?.interviewMode || "N/A",
       interviewLocation: templateData?.interviewLocation || templateData?.location || "N/A",
       meetingLink: templateData?.meetingLink || templateData?.link || "N/A",
+      meetingId: templateData?.meetingId || "N/A",
+      passcode: templateData?.passcode || "N/A",
+      interviewerName: templateData?.interviewerName || templateData?.conductPersonName || "N/A",
+      interviewerDesignation: interviewerDesignation || "N/A",
+      companyName: templateData?.companyName || company || "N/A",
+      branchName: templateData?.branchName || branch || "N/A",
+
       hrName: templateData?.hrName || "HR Operations Team",
       hrEmail: templateData?.hrEmail || companyEmail || "hr@safayar-msjobs.com",
       consultantName: templateData?.consultantName || templateData?.createdBy || sentBy || "System Admin",
       salary: templateData?.salary || "N/A",
       joiningDate: templateData?.joiningDate || templateData?.placedDate || "N/A",
-      visaStatus: templateData?.visaStatus || templateData?.visaType || "N/A",
-      status: templateData?.status || "N/A",
-      trackingNumber: templateData?.trackingNumber || templateData?.trackingCode || "N/A",
+      status: templateData?.status || applicantDetails?.status || "N/A",
       currentDate: templateData?.currentDate || new Date().toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' }),
       currentTime: templateData?.currentTime || new Date().toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' }),
       companyLogo: companyLogo || "",

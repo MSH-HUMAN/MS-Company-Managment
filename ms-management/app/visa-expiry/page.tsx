@@ -97,9 +97,10 @@ export default function VisaExpiryPage() {
     
     if (item.type === "Applicant") {
       const clientCompany = companies.find(c => c.name === item.company);
-      const recipientEmails = [item.email];
-      if (clientCompany && clientCompany.email) {
-        recipientEmails.push(clientCompany.email);
+      const recipientEmails = [item.email, clientCompany?.email].filter((email): email is string => Boolean(email && email.includes("@") && email.trim() !== ""));
+      if (recipientEmails.length === 0) {
+        toast.error(`No valid email addresses found to send reminder for ${item.name}.`);
+        return;
       }
       
       recipientEmails.forEach(email => {
@@ -115,38 +116,25 @@ export default function VisaExpiryPage() {
         });
       });
 
-      if (clientCompany && clientCompany.email) {
-        toast.success(`Visa expiry reminder sent to Applicant (${item.email}) and Client HR (${clientCompany.email})`);
-        addActivityLog({
-          id: `LOG-${item.id}-visa-reminder`,
-          dateTime: new Date().toISOString(),
-          userName: currentUser.name,
-          role: currentRole,
-          company: currentUser.company,
-          branch: currentUser.branch,
-          action: "Email Sent",
-          module: "Visa Expiry",
-          oldValue: null,
-          newValue: `Reminder sent to Applicant (${item.email}) and Client HR (${clientCompany.email}) for ${item.name}`,
-          ipAddress: "127.0.0.1",
-        });
-      } else {
-        toast.success(`Visa expiry reminder sent to Applicant (${item.email})`);
-        addActivityLog({
-          id: `LOG-${item.id}-visa-reminder`,
-          dateTime: new Date().toISOString(),
-          userName: currentUser.name,
-          role: currentRole,
-          company: currentUser.company,
-          branch: currentUser.branch,
-          action: "Email Sent",
-          module: "Visa Expiry",
-          oldValue: null,
-          newValue: `Reminder sent to ${item.name} (${item.email})`,
-          ipAddress: "127.0.0.1",
-        });
-      }
+      toast.success(`Visa expiry reminder queued for ${item.name}.`);
+      addActivityLog({
+        id: `LOG-${item.id}-visa-reminder`,
+        dateTime: new Date().toISOString(),
+        userName: currentUser.name,
+        role: currentRole,
+        company: currentUser.company,
+        branch: currentUser.branch,
+        action: "Email Sent",
+        module: "Visa Expiry",
+        oldValue: null,
+        newValue: `Reminder sent for applicant ${item.name}`,
+        ipAddress: "127.0.0.1",
+      });
     } else {
+      if (!item.email || !item.email.includes("@")) {
+        toast.error(`No valid email address found to send reminder for staff ${item.name}.`);
+        return;
+      }
       addSentEmail({
         id: `EMAIL-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
         to: item.email,

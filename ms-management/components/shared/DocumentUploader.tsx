@@ -50,6 +50,16 @@ function formatBytes(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+// Helper to convert blob to data URL
+function getBlobBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target?.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
 // ─── types ────────────────────────────────────────────────────────────────────
 
 interface PendingItem {
@@ -88,26 +98,41 @@ export default function DocumentUploader({
   const [stagingOpen, setStagingOpen] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<Document | null>(null);
   const [uploadingAll, setUploadingAll] = useState(false);
+  
+  // Progress states
+  const [currentUploadIndex, setCurrentUploadIndex] = useState(0);
+  const [currentProgress, setCurrentProgress] = useState(0);
 
   // ── read files into pending list ───────────────────────────────────────────
   const readFiles = useCallback((files: FileList | File[]) => {
     const arr = Array.from(files);
     if (arr.length === 0) return;
 
+    // Check size limit: none, let chunked handle large files, but only load thumbnails for images < 5MB
     const readers: Promise<PendingItem>[] = arr.map(
       (file) =>
         new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) =>
+          const isImage = file.type.startsWith("image/");
+          if (isImage && file.size < 5 * 1024 * 1024) {
+            const reader = new FileReader();
+            reader.onload = (e) =>
+              resolve({
+                file,
+                dataUrl: e.target?.result as string | null,
+                customName: file.name.replace(/\.[^/.]+$/, ""),
+                loading: false,
+              });
+            reader.onerror = () =>
+              resolve({ file, dataUrl: null, customName: file.name.replace(/\.[^/.]+$/, ""), loading: false });
+            reader.readAsDataURL(file);
+          } else {
             resolve({
               file,
-              dataUrl: e.target?.result as string | null,
+              dataUrl: null,
               customName: file.name.replace(/\.[^/.]+$/, ""),
               loading: false,
             });
-          reader.onerror = () =>
-            resolve({ file, dataUrl: null, customName: file.name.replace(/\.[^/.]+$/, ""), loading: false });
-          reader.readAsDataURL(file);
+          }
         })
     );
 
@@ -128,7 +153,6 @@ export default function DocumentUploader({
   // ── input change ──────────────────────────────────────────────────────────
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) readFiles(e.target.files);
-    // reset so the same file can be re-picked
     e.target.value = "";
   };
 
@@ -144,7 +168,7 @@ export default function DocumentUploader({
   };
 
   // ── upload all pending ────────────────────────────────────────────────────
-  const confirmUploadAll = () => {
+  const confirmUploadAll = async () => {
     const nameless = pending.findIndex((p) => !p.customName.trim());
     if (nameless !== -1) {
       toast.error(`Please enter a name for file #${nameless + 1}.`);
@@ -152,31 +176,94 @@ export default function DocumentUploader({
     }
 
     setUploadingAll(true);
+    setCurrentUploadIndex(0);
+    setCurrentProgress(0);
 
-    // slight delay to show spinner
-    setTimeout(() => {
-      pending.forEach((item) => {
-        const ext = item.file.name.includes(".") ? "." + item.file.name.split(".").pop() : "";
-        const doc: Document = {
-          id: `DOC-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-          name: item.customName.trim() + ext,
-          uploadedBy,
-          uploadedDate: new Date().toISOString().slice(0, 10),
-          type: item.file.type || "application/octet-stream",
-          url: item.dataUrl ?? undefined,
-        };
-        onAdd(doc);
-      });
+    try {
+      for (let index = 0; index < pending.length; index++) {
+        setCurrentUploadIndex(index);
+        setCurrentProgress(0);
+
+        const item = pending[index];
+        const file = item.file;
+        const uploadId = `att-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        const chunkSize = 1024 * 1024; // 1MB chunks
+        const totalChunks = Math.ceil(file.size / chunkSize);
+
+        for (let i = 0; i < totalChunks; i++) {
+          const start = i * chunkSize;
+          const end = Math.min(start + chunkSize, file.size);
+          const blobSlice = file.slice(start, end);
+
+          const chunkDataUrl = await getBlobBase64(blobSlice);
+          const rawBase64 = i > 0 && chunkDataUrl.includes("base64,")
+            ? chunkDataUrl.split("base64,")[1]
+            : chunkDataUrl;
+
+          // Upload chunk
+          await new Promise<void>((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "/api/upload", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+
+            xhr.onload = () => {
+              if (xhr.status >= 200 && xhr.status < 300) {
+                resolve();
+              } else {
+                reject(new Error(`Failed to upload chunk ${i} of ${file.name}`));
+              }
+            };
+            xhr.onerror = () => reject(new Error("Network connection error"));
+            xhr.send(
+              JSON.stringify({
+                action: "chunk",
+                uploadId,
+                chunkIndex: i,
+                data: rawBase64,
+              })
+            );
+          });
+
+          // Update progress
+          const pct = Math.round(((i + 1) / totalChunks) * 100);
+          setCurrentProgress(pct);
+        }
+
+        // Complete upload
+        const ext = file.name.includes(".") ? "." + file.name.split(".").pop() : "";
+        const completeRes = await fetch("/api/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "complete",
+            uploadId,
+            name: item.customName.trim() + ext,
+            type: file.type || "application/octet-stream",
+            size: file.size,
+          }),
+        });
+
+        if (!completeRes.ok) {
+          throw new Error(`Failed to finalize upload for "${file.name}"`);
+        }
+
+        const completeData = await completeRes.json();
+        onAdd(completeData.document);
+      }
 
       toast.success(
         pending.length === 1
-          ? `"${pending[0].customName}" uploaded`
+          ? `"${pending[0].customName}" uploaded successfully`
           : `${pending.length} files uploaded successfully`
       );
       setPending([]);
       setStagingOpen(false);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "An error occurred during file upload.");
+    } finally {
       setUploadingAll(false);
-    }, 600);
+    }
   };
 
   // ── cancel all pending ────────────────────────────────────────────────────
@@ -303,8 +390,8 @@ export default function DocumentUploader({
                       {doc.uploadedBy} &nbsp;·&nbsp; {doc.uploadedDate}
                     </p>
                     <span className={cn(
-                      "inline-flex items-center gap-0.5 text-[8px] font-extrabold mt-0.5 uppercase tracking-wide",
-                      doc.url ? "text-emerald-600" : "text-amber-500"
+                       "inline-flex items-center gap-0.5 text-[8px] font-extrabold mt-0.5 uppercase tracking-wide",
+                       doc.url ? "text-emerald-600" : "text-amber-500"
                     )}>
                       {doc.url
                         ? <><CheckCircle2 className="w-2.5 h-2.5" /> Stored</>
@@ -348,9 +435,7 @@ export default function DocumentUploader({
         </div>
       )}
 
-      {/* ════════════════════════════════════════════════════════════════════
-          STAGING DIALOG — name every file before uploading
-      ════════════════════════════════════════════════════════════════════ */}
+      {/* ── STAGING DIALOG ── */}
       <Dialog open={stagingOpen} onOpenChange={(o) => { if (!uploadingAll && !o) cancelAll(); }}>
         <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-0 max-w-lg w-[95vw] max-h-[90vh] overflow-y-auto">
 
@@ -419,7 +504,6 @@ export default function DocumentUploader({
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
-                            // move focus to next input or confirm
                             const inputs = document.querySelectorAll<HTMLInputElement>("[data-doc-name-input]");
                             const current = Array.from(inputs).findIndex((el) => el === e.currentTarget);
                             if (current < inputs.length - 1) inputs[current + 1].focus();
@@ -459,43 +543,46 @@ export default function DocumentUploader({
 
           {/* footer */}
           <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between gap-3 bg-slate-50/50">
-            <p className="text-[10px] text-slate-400 font-medium">
-              {pending.length} file{pending.length !== 1 ? "s" : ""} ready to upload
-            </p>
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                onClick={cancelAll}
-                disabled={uploadingAll}
-                className="text-xs rounded-xl px-4 h-9 text-slate-600 hover:bg-slate-200"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={confirmUploadAll}
-                disabled={uploadingAll || pending.length === 0}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs px-5 h-9 gap-2 shadow-md shadow-blue-500/20 min-w-[120px]"
-              >
-                {uploadingAll ? (
-                  <>
-                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Uploading…
-                  </>
-                ) : (
-                  <>
+            {uploadingAll ? (
+              <div className="w-full flex flex-col gap-1.5 py-1">
+                <div className="flex justify-between text-[10px] font-bold text-slate-500">
+                  <span>Uploading file {currentUploadIndex + 1} of {pending.length}: "{pending[currentUploadIndex]?.customName}"...</span>
+                  <span>{currentProgress}%</span>
+                </div>
+                <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                  <div className="h-full bg-blue-600 transition-all duration-300" style={{ width: `${currentProgress}%` }} />
+                </div>
+              </div>
+            ) : (
+              <>
+                <p className="text-[10px] text-slate-400 font-medium">
+                  {pending.length} file{pending.length !== 1 ? "s" : ""} ready to upload
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    onClick={cancelAll}
+                    disabled={uploadingAll}
+                    className="text-xs rounded-xl px-4 h-9 text-slate-600 hover:bg-slate-200"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={confirmUploadAll}
+                    disabled={uploadingAll || pending.length === 0}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs px-5 h-9 gap-2 shadow-md shadow-blue-500/20 min-w-[120px]"
+                  >
                     <UploadCloud className="w-3.5 h-3.5" />
                     Upload {pending.length > 1 ? `All ${pending.length}` : "File"}
-                  </>
-                )}
-              </Button>
-            </div>
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* ════════════════════════════════════════════════════════════════════
-          PREVIEW DIALOG
-      ════════════════════════════════════════════════════════════════════ */}
+      {/* PREVIEW DIALOG */}
       <Dialog open={!!previewDoc} onOpenChange={(o) => { if (!o) setPreviewDoc(null); }}>
         <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-0 max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto">
 
@@ -536,7 +623,7 @@ export default function DocumentUploader({
                     className="max-w-full mx-auto rounded-xl shadow-md"
                   />
                 </div>
-              ) : previewDoc.type === "application/pdf" || previewDoc.url.startsWith("data:application/pdf") ? (
+              ) : previewDoc.type === "application/pdf" || previewDoc.url.includes("pdf") ? (
                 <iframe
                   src={previewDoc.url}
                   title={previewDoc.name}

@@ -22,6 +22,9 @@ model User {
   photo       String?
   permissions Json?
   theme       String   @default("system")
+
+  @@index([company])
+  @@index([branch])
 }
 
 model Company {
@@ -104,6 +107,8 @@ model Branch {
   tradeLicenseNumber String?
   location           String?
   contactPerson      String?
+
+  @@index([company])
 }
 
 model Role {
@@ -145,6 +150,9 @@ model Staff {
   shiftId            String?  @default("")
   salaryType         String?  @default("Monthly")
   permissions        Json?
+
+  @@index([company])
+  @@index([branch])
 }
 
 model Applicant {
@@ -186,6 +194,9 @@ model Applicant {
   maritalStatus      String?  @default("")
   education          String?  @default("")
   experience         String?  @default("")
+
+  @@index([company])
+  @@index([branch])
 }
 
 model Task {
@@ -211,6 +222,10 @@ model Task {
   targetDocument   String?
   incompleteReason String?
   history          Json?
+
+  @@index([company])
+  @@index([branch])
+  @@index([assignedToId])
 }
 
 model Interview {
@@ -240,6 +255,19 @@ model Interview {
   feedback          String?  @db.Text @default("")
   remarks           String?  @db.Text @default("")
   candidateResponse String?  @default("")
+  title             String?
+  timeZone          String?  @default("Asia/Dubai")
+  meetingId         String?
+  passcode          String?
+  venue             String?
+  building          String?
+  floor             String?
+  location          String?
+  attachments       Json?
+
+  @@index([company])
+  @@index([branch])
+  @@index([applicantId])
 }
 
 model LeaveRequest {
@@ -256,6 +284,9 @@ model LeaveRequest {
   branch      String
   createdAt   String
   approvedBy  String?
+
+  @@index([company])
+  @@index([branch])
 }
 
 model StaffRequest {
@@ -276,6 +307,9 @@ model StaffRequest {
   company     String
   branch      String
   history     Json?    // list of status audits
+
+  @@index([company])
+  @@index([branch])
 }
 
 model Vehicle {
@@ -305,6 +339,9 @@ model Vehicle {
   createdBy           String   @default("")
   assignmentHistory   Json?
   documents           Json?
+
+  @@index([company])
+  @@index([branch])
 }
 
 model Supplier {
@@ -324,6 +361,8 @@ model Supplier {
   createdAt       String   @default("")
   createdBy       String   @default("")
   documents       Json?    // Document[]
+
+  @@index([company])
 }
 
 model Placement {
@@ -431,6 +470,9 @@ model Placement {
   passportExpiry     String?  @default("")
   travelStatus       String?  @default("")
   photo              String?  @default("")
+
+  @@index([company])
+  @@index([branch])
 }
 
 model Notification {
@@ -446,6 +488,10 @@ model Notification {
   branch    String?
   sender    String?  @default("System")
   status    String?  @default("Sent")
+
+  @@index([userId])
+  @@index([company])
+  @@index([branch])
 }
 
 model ActivityLog {
@@ -461,6 +507,9 @@ model ActivityLog {
   newValue  String?
   ipAddress String?
   archived  Boolean  @default(false)
+
+  @@index([company])
+  @@index([branch])
 }
 
 model PayrollRecord {
@@ -485,6 +534,9 @@ model PayrollRecord {
   company          String
   branch           String
   createdAt        String
+
+  @@index([company])
+  @@index([branch])
 }
 
 model StaffAttendance {
@@ -496,6 +548,9 @@ model StaffAttendance {
   records   Json     // List of AttendanceRecord
   company   String
   branch    String
+
+  @@index([company])
+  @@index([branch])
 }
 
 model Shift {
@@ -512,6 +567,9 @@ model Shift {
   createdAt     String  @default("")
   overtimeEligible String  @default("Yes")
   status        String  @default("Active")
+
+  @@index([company])
+  @@index([branch])
 }
 
 model OvertimeRequest {
@@ -525,6 +583,9 @@ model OvertimeRequest {
   company   String
   branch    String
   createdAt String
+
+  @@index([company])
+  @@index([branch])
 }
 
 model AttendanceCorrection {
@@ -539,6 +600,9 @@ model AttendanceCorrection {
   company          String
   branch           String
   createdAt        String
+
+  @@index([company])
+  @@index([branch])
 }
 
 model PasswordResetRequest {
@@ -609,6 +673,9 @@ model SentEmail {
   errorLog       String?
   sentBy         String?  @default("System")
   type           String?  @default("Email")
+
+  @@index([company])
+  @@index([branch])
 }
 
 model EmailTemplate {
@@ -636,6 +703,9 @@ model SentWhatsApp {
   company       String?
   branch        String?
   candidateName String?
+
+  @@index([company])
+  @@index([branch])
 }
 
 model VisaReminderLog {
@@ -649,5 +719,25 @@ model VisaReminderLog {
   sentAt         String
   company        String
   branch         String
+
+  @@index([company])
+  @@index([branch])
+}
+
+model Attachment {
+  id        String   @id
+  name      String
+  type      String
+  size      Int
+  url       String
+  createdAt String
+  data      String   @db.Text
+}
+
+model FileChunk {
+  id         String   @id @default(cuid())
+  uploadId   String
+  chunkIndex Int
+  data       String   @db.Text
 }
 

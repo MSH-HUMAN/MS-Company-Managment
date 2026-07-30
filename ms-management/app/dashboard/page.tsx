@@ -1708,21 +1708,10 @@ export default function DashboardPage() {
 
   if (!mounted) return null;
 
-  if (!isStoreLoaded) {
-    return (
-      <div className="min-h-full bg-slate-50 flex items-center justify-center p-12 select-none">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-500 text-sm font-medium">Loading dashboard data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const loggedInStaffRecord = staff.find(s =>
+  const loggedInStaffRecord = staff ? staff.find(s =>
     s.email.toLowerCase() === currentUser.email.toLowerCase() ||
     s.name.toLowerCase() === currentUser.name.toLowerCase()
-  );
+  ) : null;
 
   const staffPosition = loggedInStaffRecord?.position?.toLowerCase() || "";
   const roleName = currentRole.toLowerCase();
@@ -1733,7 +1722,7 @@ export default function DashboardPage() {
   const isHRManager = roleName === "hr manager" || staffPosition === "hr manager" || staffPosition === "hr" || staffPosition === "hr operations" || staffPosition === "hr assistant";
   const isRecruiter = roleName === "recruiter" || staffPosition === "recruiter" || staffPosition === "recruitment coordinator" || staffPosition === "recruitment manager";
   const isAccountant = roleName === "accountant" || staffPosition === "accountant" || staffPosition === "finance manager" || staffPosition === "accounts executive";
-  const isStaff = roleName === "staff" || staffPosition === "staff" || (!isSuperAdmin && !isCompanyAdmin && !isBranchAdmin && !isHRManager && !isRecruiter && !isAccountant);
+  const isStaff = roleName === "staff" || roleName === "employee" || staffPosition === "staff" || staffPosition === "employee" || (!isSuperAdmin && !isCompanyAdmin && !isBranchAdmin && !isHRManager && !isRecruiter && !isAccountant);
 
   const userCompany = currentUser.company;
   const userBranch = currentUser.branch;
@@ -1882,128 +1871,161 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {(!isStaff && !isAccountant) && (
-          <ApplicantAnalyticsWidget applicants={fApplicants} isSuperAdmin={isSuperAdmin} isCompanyAdmin={isCompanyAdmin} />
-        )}
-
-        {/* Attendance widget — Super Admin sees system-wide summary; others see personal check-in */}
-        <div className="mb-2">
-          {isSuperAdmin ? (() => {
-            const todayStr = now.toISOString().slice(0, 10);
-            let present = 0, absent = 0, late = 0, leave = 0;
-            staffAttendance.forEach(sa => {
-              const rec = (sa.records || []).find((r: any) => r.date === todayStr);
-              if (!rec) return;
-              if (rec.status === "Present" || rec.status === "Work From Home") present++;
-              else if (rec.status === "Absent") absent++;
-              else if (rec.status === "Late") late++;
-              else if (rec.status === "Leave" || rec.status === "Half Day") leave++;
-            });
-            const totalMarked = present + absent + late + leave;
-            const notMarked = Math.max(0, staff.length - totalMarked);
-            const currentMonth = now.toLocaleString("en-US", { month: "short" });
-            const currentYear = now.getFullYear();
-            const monthPayroll = payroll.filter((p: any) => p.month && p.month.includes(currentMonth) && (p.year === currentYear || String(p.month).startsWith(String(currentYear))));
-            const totalPayroll = monthPayroll.reduce((acc: number, p: any) => acc + (Number(p.netSalary) || 0), 0);
-            return (
-              <Card className="rounded-3xl border-0 shadow-xl bg-white p-6 relative overflow-hidden">
-                <div className="absolute -right-10 -top-10 w-40 h-40 bg-indigo-50 rounded-full blur-3xl opacity-60" />
-                <div className="flex items-center justify-between mb-5 z-10 relative">
-                  <div>
-                    <h2 className="text-lg font-black text-slate-800">System Attendance Overview</h2>
-                    <p className="text-xs font-semibold text-slate-400 mt-0.5">Today · {now.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}</p>
-                  </div>
-                  <Link href="/attendance">
-                    <Button variant="outline" className="rounded-xl h-9 px-4 border-slate-200 text-blue-600 font-bold text-xs gap-1.5 hover:bg-blue-50">
-                      <Users className="w-3.5 h-3.5" /> Manage Attendance
-                    </Button>
-                  </Link>
+        {!isStoreLoaded ? (
+          <div className="space-y-6">
+            {/* Skeletal KPI metrics */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm animate-pulse space-y-2">
+                  <div className="h-6 bg-slate-100 rounded w-1/2"></div>
+                  <div className="h-3 bg-slate-100 rounded w-3/4"></div>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 z-10 relative">
-                  {[
-                    { label: "Total Staff", value: staff.length, color: "text-blue-600", bg: "bg-blue-50", icon: Users },
-                    { label: "Present", value: present, color: "text-emerald-600", bg: "bg-emerald-50", icon: UserCheck },
-                    { label: "Absent", value: absent, color: "text-rose-600", bg: "bg-rose-50", icon: AlertTriangle },
-                    { label: "Late", value: late, color: "text-amber-600", bg: "bg-amber-50", icon: Clock },
-                    { label: "On Leave", value: leave, color: "text-slate-600", bg: "bg-slate-100", icon: Calendar },
-                    { label: "Not Marked", value: notMarked, color: "text-gray-400", bg: "bg-gray-100", icon: CheckSquare },
-                  ].map((stat, i) => (
-                    <div key={i} className={`rounded-2xl ${stat.bg} p-3.5 flex flex-col items-center text-center`}>
-                      <stat.icon className={`w-5 h-5 ${stat.color} mb-2`} />
-                      <div className={`text-2xl font-black ${stat.color}`}>{stat.value}</div>
-                      <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">{stat.label}</div>
-                    </div>
-                  ))}
-                </div>
-                {totalPayroll > 0 && (
-                  <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100 flex items-center justify-between z-10 relative">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center">
-                        <DollarSign className="w-4 h-4 text-indigo-600" />
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-slate-600">Monthly Payroll ({currentMonth} {currentYear})</div>
-                        <div className="text-[10px] text-slate-400">{monthPayroll.length} payslip{monthPayroll.length !== 1 ? "s" : ""} processed</div>
-                      </div>
-                    </div>
-                    <div className="text-xl font-black text-indigo-700">AED {totalPayroll.toLocaleString()}</div>
-                  </div>
-                )}
-              </Card>
-            );
-          })() : (
-            <AttendanceWidget
-              currentUser={currentUser}
-              now={now}
-              staffAttendance={staffAttendance}
-              saveAttendance={saveAttendance}
-              addActivityLog={addActivityLog}
-              staff={staff}
-              shifts={shifts}
-            />
-          )}
-        </div>
+              ))}
+            </div>
 
-        {/* Role-based dashboard content */}
-        {isStaff ? (
-          <StaffDashboard
-            currentUser={currentUser} now={now} tasks={tasks} leaveRequests={leaveRequests}
-            notifications={notifications} payroll={payroll} staffAttendance={staffAttendance}
-            shifts={shifts}
-          />
-        ) : isSuperAdmin ? (
-          <SuperAdminDashboard
-            applicants={applicants} staff={staff} tasks={tasks} interviews={interviews}
-            leaveRequests={leaveRequests} staffRequests={staffRequests} vehicles={vehicles}
-            notifications={notifications} companies={companies} payroll={payroll}
-            staffAttendance={staffAttendance} saveAttendance={saveAttendance}
-            addActivityLog={addActivityLog} updatePayroll={updatePayroll} now={now}
-          />
-        ) : isRecruiter ? (
-          <RecruiterDashboard
-            fApplicants={fApplicants} fInterviews={fInterviews} placements={placements}
-            now={now} companies={companies} currentUser={currentUser}
-          />
-        ) : isHRManager ? (
-          <HRDashboard
-            fStaff={fStaff} leaveRequests={leaveRequests} staffRequests={staffRequests}
-            staffAttendance={staffAttendance} now={now} upcomingBirthdays={upcomingBirthdays}
-            currentUser={currentUser}
-          />
-        ) : isAccountant ? (
-          <AccountantDashboard
-            payroll={payroll} fStaff={fStaff} currentUser={currentUser}
-          />
+            {/* Skeletal Charts / Widgets */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm animate-pulse space-y-4 h-64">
+                <div className="h-6 bg-slate-100 rounded w-1/4"></div>
+                <div className="h-full bg-slate-50 rounded"></div>
+              </div>
+              <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm animate-pulse space-y-4 h-64">
+                <div className="h-6 bg-slate-100 rounded w-1/4"></div>
+                <div className="h-full bg-slate-50 rounded"></div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm animate-pulse space-y-4 h-48">
+              <div className="h-6 bg-slate-100 rounded w-1/4"></div>
+              <div className="h-full bg-slate-50 rounded"></div>
+            </div>
+          </div>
         ) : (
-          /* Render Dynamic Permission-based CompanyDashboard for all other roles/positions */
-          <CompanyDashboard
-            fApplicants={fApplicants} fStaff={fStaff} fTasks={fTasks} fInterviews={fInterviews}
-            leaveRequests={leaveRequests} staffRequests={staffRequests} payroll={payroll}
-            vehicles={vehicles} notifications={notifications} companies={companies}
-            now={now} upcomingBirthdays={upcomingBirthdays} visaAlerts={visaAlerts}
-            passportAlerts={passportAlerts} currentUser={currentUser} currentRole={currentRole}
-            isBranchAdmin={isBranchAdmin}
-          />
+          <>
+            {(!isStaff && !isAccountant) && (
+              <ApplicantAnalyticsWidget applicants={fApplicants} isSuperAdmin={isSuperAdmin} isCompanyAdmin={isCompanyAdmin} />
+            )}
+
+            {/* Attendance widget — Super Admin sees system-wide summary; others see personal check-in */}
+            <div className="mb-2">
+              {isSuperAdmin ? (() => {
+                const todayStr = now.toISOString().slice(0, 10);
+                let present = 0, absent = 0, late = 0, leave = 0;
+                staffAttendance.forEach(sa => {
+                  const rec = (sa.records || []).find((r: any) => r.date === todayStr);
+                  if (!rec) return;
+                  if (rec.status === "Present" || rec.status === "Work From Home") present++;
+                  else if (rec.status === "Absent") absent++;
+                  else if (rec.status === "Late") late++;
+                  else if (rec.status === "Leave" || rec.status === "Half Day") leave++;
+                });
+                const totalMarked = present + absent + late + leave;
+                const notMarked = Math.max(0, staff.length - totalMarked);
+                const currentMonth = now.toLocaleString("en-US", { month: "short" });
+                const currentYear = now.getFullYear();
+                const monthPayroll = payroll.filter((p: any) => p.month && p.month.includes(currentMonth) && (p.year === currentYear || String(p.month).startsWith(String(currentYear))));
+                const totalPayroll = monthPayroll.reduce((acc: number, p: any) => acc + (Number(p.netSalary) || 0), 0);
+                return (
+                  <Card className="rounded-3xl border-0 shadow-xl bg-white p-6 relative overflow-hidden">
+                    <div className="absolute -right-10 -top-10 w-40 h-40 bg-indigo-50 rounded-full blur-3xl opacity-60" />
+                    <div className="flex items-center justify-between mb-5 z-10 relative">
+                      <div>
+                        <h2 className="text-lg font-black text-slate-800">System Attendance Overview</h2>
+                        <p className="text-xs font-semibold text-slate-400 mt-0.5">Today · {now.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}</p>
+                      </div>
+                      <Link href="/attendance">
+                        <Button variant="outline" className="rounded-xl h-9 px-4 border-slate-200 text-blue-600 font-bold text-xs gap-1.5 hover:bg-blue-50">
+                          <Users className="w-3.5 h-3.5" /> Manage Attendance
+                        </Button>
+                      </Link>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 z-10 relative">
+                      {[
+                        { label: "Total Staff", value: staff.length, color: "text-blue-600", bg: "bg-blue-50", icon: Users },
+                        { label: "Present", value: present, color: "text-emerald-600", bg: "bg-emerald-50", icon: UserCheck },
+                        { label: "Absent", value: absent, color: "text-rose-600", bg: "bg-rose-50", icon: AlertTriangle },
+                        { label: "Late", value: late, color: "text-amber-600", bg: "bg-amber-50", icon: Clock },
+                        { label: "On Leave", value: leave, color: "text-slate-600", bg: "bg-slate-100", icon: Calendar },
+                        { label: "Not Marked", value: notMarked, color: "text-gray-400", bg: "bg-gray-100", icon: CheckSquare },
+                      ].map((stat, i) => (
+                        <div key={i} className={`rounded-2xl ${stat.bg} p-3.5 flex flex-col items-center text-center`}>
+                          <stat.icon className={`w-5 h-5 ${stat.color} mb-2`} />
+                          <div className={`text-2xl font-black ${stat.color}`}>{stat.value}</div>
+                          <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">{stat.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                    {totalPayroll > 0 && (
+                      <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100 flex items-center justify-between z-10 relative">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center">
+                            <DollarSign className="w-4 h-4 text-indigo-600" />
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-slate-600">Monthly Payroll ({currentMonth} {currentYear})</div>
+                            <div className="text-[10px] text-slate-400">{monthPayroll.length} payslip{monthPayroll.length !== 1 ? "s" : ""} processed</div>
+                          </div>
+                        </div>
+                        <div className="text-xl font-black text-indigo-700">AED {totalPayroll.toLocaleString()}</div>
+                      </div>
+                    )}
+                  </Card>
+                );
+              })() : (
+                <AttendanceWidget
+                  currentUser={currentUser}
+                  now={now}
+                  staffAttendance={staffAttendance}
+                  saveAttendance={saveAttendance}
+                  addActivityLog={addActivityLog}
+                  staff={staff}
+                  shifts={shifts}
+                />
+              )}
+            </div>
+
+            {/* Role-based dashboard content */}
+            {isStaff ? (
+              <StaffDashboard
+                currentUser={currentUser} now={now} tasks={tasks} leaveRequests={leaveRequests}
+                notifications={notifications} payroll={payroll} staffAttendance={staffAttendance}
+                shifts={shifts}
+              />
+            ) : isSuperAdmin ? (
+              <SuperAdminDashboard
+                applicants={applicants} staff={staff} tasks={tasks} interviews={interviews}
+                leaveRequests={leaveRequests} staffRequests={staffRequests} vehicles={vehicles}
+                notifications={notifications} companies={companies} payroll={payroll}
+                staffAttendance={staffAttendance} saveAttendance={saveAttendance}
+                addActivityLog={addActivityLog} updatePayroll={updatePayroll} now={now}
+              />
+            ) : isRecruiter ? (
+              <RecruiterDashboard
+                fApplicants={fApplicants} fInterviews={fInterviews} placements={placements}
+                now={now} companies={companies} currentUser={currentUser}
+              />
+            ) : isHRManager ? (
+              <HRDashboard
+                fStaff={fStaff} leaveRequests={leaveRequests} staffRequests={staffRequests}
+                staffAttendance={staffAttendance} now={now} upcomingBirthdays={upcomingBirthdays}
+                currentUser={currentUser}
+              />
+            ) : isAccountant ? (
+              <AccountantDashboard
+                payroll={payroll} fStaff={fStaff} currentUser={currentUser}
+              />
+            ) : (
+              /* Render Dynamic Permission-based CompanyDashboard for all other roles/positions */
+              <CompanyDashboard
+                fApplicants={fApplicants} fStaff={fStaff} fTasks={fTasks} fInterviews={fInterviews}
+                leaveRequests={leaveRequests} staffRequests={staffRequests} payroll={payroll}
+                vehicles={vehicles} notifications={notifications} companies={companies}
+                now={now} upcomingBirthdays={upcomingBirthdays} visaAlerts={visaAlerts}
+                passportAlerts={passportAlerts} currentUser={currentUser} currentRole={currentRole}
+                isBranchAdmin={isBranchAdmin}
+              />
+            )}
+          </>
         )}
       </div>
     </div>

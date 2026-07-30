@@ -269,9 +269,15 @@ export default function AdvancedFilter({
               </SelectTrigger>
               <SelectContent className="bg-white border-slate-100 rounded-xl text-xs">
                 <SelectItem value="all">All Modes</SelectItem>
-                <SelectItem value="Zoom">Zoom</SelectItem>
+                <SelectItem value="Physical Interview">Physical Interview</SelectItem>
+                <SelectItem value="Zoom Meeting">Zoom Meeting</SelectItem>
                 <SelectItem value="Google Meet">Google Meet</SelectItem>
                 <SelectItem value="Microsoft Teams">Microsoft Teams</SelectItem>
+                <SelectItem value="Telephone Interview">Telephone Interview</SelectItem>
+                <SelectItem value="Online Interview">Online Interview</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+                {/* Deprecated modes support */}
+                <SelectItem value="Zoom">Zoom</SelectItem>
                 <SelectItem value="WhatsApp">WhatsApp</SelectItem>
                 <SelectItem value="Phone call">Phone call</SelectItem>
               </SelectContent>
