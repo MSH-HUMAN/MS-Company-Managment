@@ -116,7 +116,7 @@ export default function TrackingPage() {
     filteredList = filteredList.filter(a => a.nationality === nationalityFilter);
   }
   if (statusFilter !== "all") {
-    filteredList = filteredList.filter(a => a.status === statusFilter);
+    filteredList = filteredList.filter(a => a.status && a.status.trim().toLowerCase() === statusFilter.trim().toLowerCase());
   }
   if (startDate) {
     filteredList = filteredList.filter(a => a.applicationDate >= startDate);
@@ -698,8 +698,8 @@ export default function TrackingPage() {
                   (a.applyingPositions && a.applyingPositions.join(", ").toLowerCase().includes(q))
                 );
               }
-              const count = stageFiltered.filter(a => a.status === stage).length;
-              const isSelected = statusFilter === stage;
+              const count = stageFiltered.filter(a => a.status && a.status.trim().toLowerCase() === stage.trim().toLowerCase()).length;
+              const isSelected = statusFilter.trim().toLowerCase() === stage.trim().toLowerCase();
               
               return (
                 <Card
@@ -939,8 +939,8 @@ export default function TrackingPage() {
         /* Kanban Board Container */
         <div className="flex-1 p-4 md:p-6 overflow-x-auto overflow-y-auto bg-slate-50/50 min-h-0">
           <div className="flex gap-4 h-full min-w-max pb-4">
-            {(statusFilter === "all" ? STAGES : STAGES.filter(s => s === statusFilter)).map(stage => {
-              const stageApplicants = filteredList.filter(a => a.status === stage);
+            {(statusFilter === "all" ? STAGES : STAGES.filter(s => s.trim().toLowerCase() === statusFilter.trim().toLowerCase())).map(stage => {
+              const stageApplicants = filteredList.filter(a => a.status && a.status.trim().toLowerCase() === stage.trim().toLowerCase());
               return (
                 <div key={stage}
                   onDragOver={e => e.preventDefault()}

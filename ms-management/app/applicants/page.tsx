@@ -83,7 +83,7 @@ export default function ApplicantsPage() {
       if (!item.mobile.includes(q)) return false;
     }
     if (currentFilters.status && currentFilters.status !== "all") {
-      if (item.status !== currentFilters.status) return false;
+      if (!item.status || item.status.trim().toLowerCase() !== currentFilters.status.trim().toLowerCase()) return false;
     }
     if (currentFilters.company && currentFilters.company !== "all") {
       if (item.company !== currentFilters.company) return false;
