@@ -3,16 +3,18 @@
 
 import { useState, use } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { 
   Mail, Phone, Calendar, User, FileText, ChevronRight, Download, Eye, 
   Trash2, ShieldAlert, Sparkles, Plus, Clock, MessageCircle, AlertTriangle, 
   ArrowLeft, ArrowRight, Building2, UserCheck, CalendarRange, UserMinus,
-  UploadCloud, CheckCircle2, MapPin, Video, Globe, TrendingUp, Activity, Star, Target
+  UploadCloud, CheckCircle2, MapPin, Video, Globe, TrendingUp, Activity, Star, Target, Edit
 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { formatDate, cn } from "@/lib/utils";
 import type { Applicant, Document, StatusHistory, Placement } from "@/lib/types";
 import PageHeader from "@/components/shared/PageHeader";
+import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import StatusBadge from "@/components/shared/StatusBadge";
 import TimelineItem from "@/components/shared/TimelineItem";
 import EmptyState from "@/components/shared/EmptyState";
@@ -31,13 +33,25 @@ import { toast } from "sonner";
 export default function ApplicantDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const { applicants, updateApplicant, addActivityLog, addInterview, companies, currentUser, hasPermission, interviews, placements, addPlacement, updatePlacement, sentEmails, sentWhatsApp, addSentEmail, currentRole } = useAuthStore();
+  const { applicants, updateApplicant, deleteApplicant, addActivityLog, addInterview, companies, currentUser, hasPermission, interviews, placements, addPlacement, updatePlacement, sentEmails, sentWhatsApp, addSentEmail, currentRole } = useAuthStore();
   
   const applicant = applicants.find((a: Applicant) => a.id === id);
 
   const [isSimulateModalOpen, setIsSimulateModalOpen] = useState(false);
   const [simulateSubject, setSimulateSubject] = useState("");
   const [simulateBody, setSimulateBody] = useState("");
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const handleConfirmDelete = async () => {
+    if (!applicant) return;
+    try {
+      await deleteApplicant(applicant.id);
+      toast.success("Applicant deleted successfully");
+      router.push("/applicants");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete applicant");
+    }
+  };
 
   const isClientCompany = companies.some(c => c.name === currentUser.company);
   
@@ -126,23 +140,42 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
       reader.readAsDataURL(file);
     });
 
+  const validatePhoto = (file: File): boolean => {
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    const allowed = ["jpg", "jpeg", "png"];
+    if (!ext || !allowed.includes(ext)) {
+      toast.error("Invalid photo format. Only JPG, JPEG, and PNG formats are allowed.");
+      return false;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Photo is too large. Profile photo size must be less than 2MB.");
+      return false;
+    }
+    return true;
+  };
+
+  const validatePDF = (file: File, fieldName: string): boolean => {
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    if (ext !== "pdf") {
+      toast.error(`Invalid format for ${fieldName}. Only PDF format is allowed.`);
+      return false;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(`File is too large. ${fieldName} size must be less than 5MB.`);
+      return false;
+    }
+    return true;
+  };
+
   // Upload a named-slot document
   const handleSlotUpload = async (slotName: string, file: File) => {
-    const ext = file.name.split(".").pop()?.toLowerCase();
-    
-    // Size and extension checks for CV
-    if (slotName === "CV") {
-      const allowed = ["pdf", "doc", "docx"];
-      if (!ext || !allowed.includes(ext)) {
-        toast.error("Invalid file type. Only PDF, DOC, and DOCX formats are allowed for CV.");
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("File is too large. CV size must be less than 5MB.");
-        return;
-      }
+    if (slotName === "Applicant Photo") {
+      if (!validatePhoto(file)) return;
+    } else {
+      if (!validatePDF(file, slotName)) return;
     }
 
+    const ext = file.name.split(".").pop()?.toLowerCase();
     const url = await readAsDataURL(file);
     const primaryName = `${slotName}.${ext}`;
     
@@ -178,13 +211,17 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
       name: primaryName,
       uploadedBy: currentUser.name,
       uploadedDate: new Date().toISOString().slice(0, 10),
-      type: file.type || "application/octet-stream",
+      type: file.type || (slotName === "Applicant Photo" ? "image/jpeg" : "application/pdf"),
       url,
     };
     
     updatedDocs.push(doc);
 
-    const updated = { ...applicant!, documents: updatedDocs };
+    const updated = { 
+      ...applicant!, 
+      documents: updatedDocs,
+      photo: slotName === "Applicant Photo" ? url : applicant!.photo
+    };
     try {
       await updateApplicant(updated);
       addActivityLog({ id: `LOG-${Date.now()}`, dateTime: new Date().toISOString().replace("T"," ").slice(0,19), userName: currentUser.name, role: currentUser.role, company: currentUser.company, branch: currentUser.branch, action: "Document Uploaded", module: "Applicants", oldValue: null, newValue: `${slotName} uploaded for ${applicant!.fullName}`, ipAddress: "192.168.1.102" });
@@ -196,13 +233,16 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
 
   // Handle other/additional docs upload
   const handleOtherDocsUpload = async (files: FileList) => {
-    const newDocs: Document[] = await Promise.all(Array.from(files).map(async (file) => {
+    const validFiles = Array.from(files).filter(f => validatePDF(f, "Other Document"));
+    if (validFiles.length === 0) return;
+
+    const newDocs: Document[] = await Promise.all(validFiles.map(async (file) => {
       const url = await readAsDataURL(file);
-      return { id: `DOC-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`, name: file.name, uploadedBy: currentUser.name, uploadedDate: new Date().toISOString().slice(0, 10), type: file.type || "application/octet-stream", url };
+      return { id: `DOC-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`, name: file.name, uploadedBy: currentUser.name, uploadedDate: new Date().toISOString().slice(0, 10), type: file.type || "application/pdf", url };
     }));
     const updated = { ...applicant!, documents: [...(applicant!.documents || []), ...newDocs] };
     updateApplicant(updated);
-    toast.success(`${files.length} file${files.length > 1 ? "s" : ""} uploaded`);
+    toast.success(`${validFiles.length} file${validFiles.length > 1 ? "s" : ""} uploaded`);
   };
 
   const handleDeleteDoc = (docId: string) => {
@@ -462,6 +502,30 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
         showBack={true}
         actions={
           <div className="flex items-center gap-2">
+            {hasPermission("applicants", "edit") && (
+              <Button
+                asChild
+                variant="outline"
+                className="text-xs h-9 rounded-xl border-slate-200 text-amber-600 hover:bg-amber-50 gap-1.5 font-bold"
+              >
+                <Link href={`/applicants/edit/${applicant.id}`}>
+                  <Edit className="w-4 h-4" />
+                  Edit Profile
+                </Link>
+              </Button>
+            )}
+            
+            {hasPermission("applicants", "delete") && (
+              <Button
+                variant="outline"
+                onClick={() => setIsDeleteDialogOpen(true)}
+                className="text-xs h-9 rounded-xl border-slate-200 text-rose-600 hover:bg-rose-50 gap-1.5 font-bold"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete Profile
+              </Button>
+            )}
+
             <Button
               variant="outline"
               onClick={() => {
@@ -838,7 +902,7 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
                         {canUpload && (
                           <label className="w-7 h-7 rounded-lg bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-600 cursor-pointer transition-colors" title={doc ? "Replace" : "Upload"}>
                             <UploadCloud className="w-3.5 h-3.5" />
-                            <input type="file" accept={slot.key === "CV" ? ".pdf,.doc,.docx" : ".pdf,image/*"} className="hidden" onChange={async (e) => { const f = e.target.files?.[0]; if (f) await handleSlotUpload(slot.key, f); e.target.value = ""; }} />
+                            <input type="file" accept={slot.key === "Applicant Photo" ? ".jpg,.jpeg,.png" : ".pdf"} className="hidden" onChange={async (e) => { const f = e.target.files?.[0]; if (f) await handleSlotUpload(slot.key, f); e.target.value = ""; }} />
                           </label>
                         )}
                       </div>
@@ -886,12 +950,12 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-xs font-bold text-slate-800">Other Documents</div>
-                      <div className="text-[9px] text-slate-400 font-medium">Emirates ID, certificates, references, and more</div>
+                      <div className="text-[9px] text-slate-400 font-medium">Emirates ID, references, and other certificates (PDF only, Max 5MB)</div>
                     </div>
                     {canUpload && (
                       <label className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl cursor-pointer transition-colors">
                         <Plus className="w-3.5 h-3.5" /> Add Files
-                        <input type="file" multiple accept="*/*" className="hidden" onChange={async (e) => { if (e.target.files) await handleOtherDocsUpload(e.target.files); e.target.value = ""; }} />
+                        <input type="file" multiple accept=".pdf" className="hidden" onChange={async (e) => { if (e.target.files) await handleOtherDocsUpload(e.target.files); e.target.value = ""; }} />
                       </label>
                     )}
                   </div>
@@ -1693,6 +1757,17 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Delete confirm dialog */}
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        title="Delete Applicant Record"
+        description="Are you sure you want to delete this applicant profile? This action will permanently remove their record from the database."
+        confirmText="Delete Profile"
+        variant="danger"
+      />
     </div>
   );
 }

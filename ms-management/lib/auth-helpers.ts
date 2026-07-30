@@ -13,7 +13,14 @@ export interface SessionUser {
   status: string;
   mobile: string;
   whatsapp: string;
+  permissions?: any;
 }
+
+/**
+ * Cache for role permissions to prevent redundant DB lookups on concurrent API hits
+ */
+const roleCache = new Map<string, { permissions: any; timestamp: number }>();
+const ROLE_CACHE_TTL = 10000; // 10 seconds TTL
 
 /**
  * Gets the current authenticated session user from cookie
@@ -50,7 +57,8 @@ export async function getSessionUser(): Promise<SessionUser | null> {
       branch: user.branch,
       status: user.status,
       mobile: user.mobile,
-      whatsapp: user.whatsapp
+      whatsapp: user.whatsapp,
+      permissions: user.permissions
     };
   } catch (error) {
     console.error("getSessionUser error:", error);
@@ -96,15 +104,11 @@ export function getTenantScopeFilter(user: SessionUser, companyField = "company"
  * Validates module permissions for a session user on the backend API
  */
 export async function hasPermissionBackend(user: SessionUser, moduleKey: string, action: string): Promise<boolean> {
-  // 1. Fetch user custom permissions override from DB
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id }
-  });
-  
-  if (dbUser && dbUser.permissions) {
-    const userPermissions = typeof dbUser.permissions === "string"
-      ? (() => { try { return JSON.parse(dbUser.permissions); } catch { return null; } })()
-      : (dbUser.permissions as any);
+  // 1. Check user custom permissions override from the session object (already retrieved in getSessionUser)
+  if (user.permissions) {
+    const userPermissions = typeof user.permissions === "string"
+      ? (() => { try { return JSON.parse(user.permissions); } catch { return null; } })()
+      : user.permissions;
       
     if (userPermissions) {
       const permissionModule = getPermissionModuleName(moduleKey);
@@ -131,20 +135,30 @@ export async function hasPermissionBackend(user: SessionUser, moduleKey: string,
     }
   }
 
-  // 2. Fetch role permissions from DB
-  const role = await prisma.role.findFirst({
-    where: { name: user.role }
-  });
+  // 2. Fetch role permissions from cache or DB
+  const now = Date.now();
+  const cached = roleCache.get(user.role);
+  let permissions = null;
+
+  if (cached && now - cached.timestamp < ROLE_CACHE_TTL) {
+    permissions = cached.permissions;
+  } else {
+    const role = await prisma.role.findFirst({
+      where: { name: user.role }
+    });
+    if (role) {
+      permissions = role.permissions ? (
+        typeof role.permissions === "string" 
+          ? (() => { try { return JSON.parse(role.permissions); } catch { return null; } })()
+          : (role.permissions as any)
+      ) : null;
+      roleCache.set(user.role, { permissions, timestamp: now });
+    }
+  }
 
   const permissionModule = getPermissionModuleName(moduleKey);
-  if (role && permissionModule) {
-    const permissions = role.permissions ? (
-      typeof role.permissions === "string" 
-        ? (() => { try { return JSON.parse(role.permissions); } catch { return null; } })()
-        : (role.permissions as any)
-    ) : null;
-    
-    if (permissions && permissions[permissionModule] !== undefined && permissions[permissionModule] !== null) {
+  if (permissions && permissionModule) {
+    if (permissions[permissionModule] !== undefined && permissions[permissionModule] !== null) {
       const modulePerms = permissions[permissionModule];
       if (modulePerms) {
         if (modulePerms[action] !== undefined && Boolean(modulePerms[action])) {

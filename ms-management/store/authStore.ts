@@ -32,13 +32,14 @@ interface AuthState {
   overtimeRequests: OvertimeRequest[];
   attendanceCorrections: AttendanceCorrection[];
   isStoreLoaded: boolean;
+  isStoreLoading: boolean;
   
   setCurrentUser: (user: User) => void;
   logout: () => Promise<void>;
   setRole: (role: string) => void;
   
   checkSession: () => Promise<boolean>;
-  initStore: () => Promise<void>;
+  initStore: (force?: boolean) => Promise<void>;
   
   // Database CRUD Actions
   addApplicant: (app: Applicant) => Promise<void>;
@@ -217,6 +218,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   overtimeRequests: [],
   attendanceCorrections: [],
   isStoreLoaded: false,
+  isStoreLoading: false,
   passwordResetRequests: [],
   siteSettings: DEFAULT_SITE_SETTINGS,
   salarySetups: [],
@@ -249,6 +251,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       currentRole: DEFAULT_USER.role,
       currentUser: DEFAULT_USER,
       isStoreLoaded: false,
+      isStoreLoading: false,
       applicants: [],
       staff: [],
       companies: [],
@@ -286,8 +289,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             currentUser: data.user,
             currentRole: data.user.role
           });
-          // Initialize stores for this authenticated user
-          await get().initStore();
+          // Initialize stores for this authenticated user in the background (non-blocking)
+          get().initStore().catch(console.error);
           return true;
         }
       }
@@ -297,39 +300,44 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isAuthenticated: false, currentUser: DEFAULT_USER, currentRole: DEFAULT_USER.role });
     return false;
   },
-  initStore: async () => {
+  initStore: async (force = false) => {
+    if (get().isStoreLoading) return;
+    if (get().isStoreLoaded && !force) return;
+
+    set({ isStoreLoading: true });
     try {
+      const t = Date.now();
       const [
         companies, ownCompanies, users, branches, roles, staff, applicants, tasks,
         attendance, requests, payroll, interviews, vehicles, suppliers,
         placements, notifications, logs, archivedLogs, settings, shifts, overtime, corrections,
         emails, whatsapp, leaves
       ] = await Promise.all([
-        fetch("/api/companies", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/own-companies", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/users", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/branches", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/roles", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/staff", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/applicants", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/tasks", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/attendance", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/requests", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/payroll", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/interviews", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/vehicles", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/suppliers", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/placement", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/notifications", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/activity-log", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/activity-log?archived=true", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/settings", { cache: "no-store" }).then(r => r.ok ? r.json() : null),
-        fetch("/api/shifts", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/overtime", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/corrections", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/emails", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/whatsapp", { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch("/api/leave", { cache: "no-store" }).then(r => r.ok ? r.json() : [])
+        fetch(`/api/companies?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/own-companies?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/users?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/branches?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/roles?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/staff?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/applicants?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/tasks?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/attendance?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/requests?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/payroll?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/interviews?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/vehicles?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/suppliers?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/placement?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/notifications?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/activity-log?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/activity-log?archived=true&t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/settings?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : null),
+        fetch(`/api/shifts?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/overtime?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/corrections?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/emails?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/whatsapp?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+        fetch(`/api/leave?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : [])
       ]);
 
       const mappedShifts = (shifts || []).map((s: any) => ({
@@ -381,14 +389,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         leaveRequests: leaves,
         siteSettings: settings || get().siteSettings,
         salarySetups,
-        isStoreLoaded: true
+        isStoreLoaded: true,
+        isStoreLoading: false
       });
-      // Apply theme CSS variables immediately after store load (covers page refresh,
-      // initial login, and back-navigation — works on Android Chrome + Safari iOS).
+      // Apply theme CSS variables immediately after store load
       if (settings) {
         applyThemeCssVars(settings);
       }
     } catch (e) {
+      set({ isStoreLoading: false });
       console.error("initStore failed:", e);
     }
   },
@@ -515,7 +524,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
     const saved = await res.json();
     set((state) => ({ applicants: [saved, ...state.applicants] }));
-    await get().initStore();
+    get().initStore(true).catch(console.error);
   },
   updateApplicant: async (app) => {
     const res = await fetch(`/api/applicants/${app.id}`, {
@@ -531,7 +540,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set((state) => ({
       applicants: state.applicants.map((a) => (a.id === saved.id ? saved : a))
     }));
-    await get().initStore();
+    get().initStore(true).catch(console.error);
   },
   deleteApplicant: async (id) => {
     const res = await fetch(`/api/applicants/${id}`, { method: "DELETE" });

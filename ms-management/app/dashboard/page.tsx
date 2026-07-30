@@ -1693,7 +1693,7 @@ export default function DashboardPage() {
     applicants, staff, tasks, interviews, leaveRequests, staffRequests,
     vehicles, notifications, companies, payroll,
     staffAttendance, saveAttendance, addActivityLog, placements, shifts, updatePayroll,
-    initStore
+    initStore, isStoreLoaded
   } = useAuthStore();
 
   const [mounted, setMounted] = useState(false);
@@ -1705,7 +1705,19 @@ export default function DashboardPage() {
       initStore().catch(console.error);
     }
   }, [initStore]);
+
   if (!mounted) return null;
+
+  if (!isStoreLoaded) {
+    return (
+      <div className="min-h-full bg-slate-50 flex items-center justify-center p-12 select-none">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-slate-500 text-sm font-medium">Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
 
   const loggedInStaffRecord = staff.find(s =>
     s.email.toLowerCase() === currentUser.email.toLowerCase() ||

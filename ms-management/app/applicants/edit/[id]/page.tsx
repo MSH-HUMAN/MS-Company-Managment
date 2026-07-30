@@ -1,14 +1,15 @@
 "use strict";
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { Plus, X, UploadCloud, Save, Trash2, ArrowLeft } from "lucide-react";
+import { Plus, X, UploadCloud, Save, Trash2 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { NATIONALITIES } from "@/lib/constants";
 import { Applicant, Document } from "@/lib/types";
 import PageHeader from "@/components/shared/PageHeader";
+import AccessDenied from "@/components/shared/AccessDenied";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +17,6 @@ import { Card } from "@/components/ui/card";
 import { 
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue 
 } from "@/components/ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 
 interface FormData {
@@ -36,47 +36,105 @@ interface FormData {
   passportNumber: string;
 }
 
-export default function NewApplicantPage() {
+export default function EditApplicantPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
-  const { addApplicant, addActivityLog, currentUser, ownCompanies, branches } = useAuthStore();
+  const { applicants, updateApplicant, addActivityLog, currentUser, ownCompanies, branches, hasPermission, isStoreLoaded } = useAuthStore();
+
+  const applicant = applicants.find((a: Applicant) => a.id === id);
 
   const [positions, setPositions] = useState<string[]>([]);
   const [positionInput, setPositionInput] = useState("");
   const [photo, setPhoto] = useState<string | null>(null);
-  const [cvFile, setCvFile] = useState<{ name: string; url: string } | null>(null);
-  const [selectedOwnCompany, setSelectedOwnCompany] = useState<string>(
-    currentUser.company === "System" ? "Alpha Solutions LLC" : currentUser.company
-  );
-  const [selectedOwnBranch, setSelectedOwnBranch] = useState<string>(
-    currentUser.branch === "All" ? "Main Branch" : currentUser.branch
-  );
 
   // Named document slots (field-by-field)
   const [passportCopy, setPassportCopy] = useState<{ name: string; url: string } | null>(null);
   const [visaPage, setVisaPage] = useState<{ name: string; url: string } | null>(null);
   const [applicantPhoto, setApplicantPhoto] = useState<{ name: string; url: string } | null>(null);
   const [otherDocs, setOtherDocs] = useState<{ name: string; url: string; type: string }[]>([]);
-  // track whether user clicked "Save & Add Another"
-  const [keepAndNew, setKeepAndNew] = useState(false);
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
-    defaultValues: {
-      fullName: "",
-      email: "",
-      mobile: "",
-      whatsapp: "",
-      dateOfBirth: "1995-01-01",
-      gender: "Male",
-      nationality: "India",
-      currentCountry: "UAE",
-      applyCountry: "UAE",
-      salaryExpectation: 3000,
-      visaType: "Visit",
-      visaExpiry: "",
-      passportExpiry: "",
-      passportNumber: ""
+  const [selectedOwnCompany, setSelectedOwnCompany] = useState<string>("");
+  const [selectedOwnBranch, setSelectedOwnBranch] = useState<string>("");
+
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormData>();
+
+  useEffect(() => {
+    if (applicant) {
+      reset({
+        fullName: applicant.fullName || "",
+        email: applicant.email || "",
+        mobile: applicant.mobile || "",
+        whatsapp: applicant.whatsapp || "",
+        dateOfBirth: applicant.dateOfBirth || "",
+        gender: applicant.gender || "Male",
+        nationality: applicant.nationality || "India",
+        currentCountry: applicant.currentCountry || "UAE",
+        applyCountry: applicant.applyCountry || "UAE",
+        salaryExpectation: applicant.salaryExpectation || 3000,
+        visaType: applicant.visaType || "Visit",
+        visaExpiry: applicant.visaExpiry || "",
+        passportExpiry: applicant.passportExpiry || "",
+        passportNumber: applicant.passportNumber || ""
+      });
+      setPositions(applicant.applyingPositions || []);
+      setPhoto(applicant.photo || null);
+      setSelectedOwnCompany(applicant.company || "");
+      setSelectedOwnBranch(applicant.branch || "");
+
+      // Map documents
+      const docs = applicant.documents || [];
+      const pass = docs.find((d: any) => d.name.toLowerCase().startsWith("passport copy.") || d.name.toLowerCase().includes("passport"));
+      if (pass) setPassportCopy({ name: pass.name, url: pass.url });
+
+      const visa = docs.find((d: any) => d.name.toLowerCase().startsWith("visa page.") || d.name.toLowerCase().includes("visa"));
+      if (visa) setVisaPage({ name: visa.name, url: visa.url });
+
+      const photoDoc = docs.find((d: any) => d.name.toLowerCase().startsWith("applicant photo.") || d.name.toLowerCase().includes("profile photo"));
+      if (photoDoc) setApplicantPhoto({ name: photoDoc.name, url: photoDoc.url });
+
+      const other = docs.filter((d: any) => 
+        !d.name.toLowerCase().startsWith("passport copy.") && !d.name.toLowerCase().includes("passport") &&
+        !d.name.toLowerCase().startsWith("visa page.") && !d.name.toLowerCase().includes("visa") &&
+        !d.name.toLowerCase().startsWith("applicant photo.") && !d.name.toLowerCase().includes("profile photo") &&
+        !(d.name.toLowerCase().includes("archived") && (d.name.toLowerCase().startsWith("cv_") || d.name.toLowerCase().includes("cv_v")))
+      );
+      setOtherDocs(other.map((d: any) => ({ name: d.name, url: d.url, type: d.type })));
     }
-  });
+  }, [applicant, reset]);
+
+  const canEditApplicants = hasPermission("applicants", "edit");
+
+  if (!isStoreLoaded) {
+    return (
+      <div className="min-h-full bg-slate-50 flex items-center justify-center p-12 select-none">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-slate-500 text-sm font-medium">Loading applicant details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!canEditApplicants) {
+    return <AccessDenied />;
+  }
+
+  if (!applicant) {
+    return (
+      <div className="flex flex-col min-h-full select-none">
+        <PageHeader title="Edit Applicant" showBack={true} />
+        <div className="p-12">
+          <div className="border border-slate-100 rounded-2xl p-8 bg-white text-center shadow-sm">
+            <h4 className="text-sm font-bold text-slate-800">Applicant not found</h4>
+            <p className="text-xs text-slate-400 mt-1 mb-4">The applicant you are trying to edit does not exist.</p>
+            <Button onClick={() => router.push("/applicants")} className="bg-blue-600 text-white rounded-xl text-xs h-9">
+              Back to Applicants
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleAddPosition = () => {
     if (positionInput.trim() && !positions.includes(positionInput.trim())) {
@@ -89,7 +147,6 @@ export default function NewApplicantPage() {
     setPositions(positions.filter((_, i) => i !== idx));
   };
 
-  // Utility: read a file as base64 dataURL
   const readAsDataURL = (file: File): Promise<string> =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -135,44 +192,35 @@ export default function NewApplicantPage() {
       return;
     }
 
-    const applicantId = `APP${String(Math.floor(100 + Math.random() * 900))}`;
-    
-    // Build documents array from named slots + other docs
+    // Build documents array
     const documents: Document[] = [];
     if (passportCopy) documents.push({ id: `DOC-passport-${Date.now()}`, name: passportCopy.name, uploadedBy: currentUser.name, uploadedDate: new Date().toISOString().slice(0, 10), type: "application/pdf", url: passportCopy.url });
     if (visaPage) documents.push({ id: `DOC-visa-${Date.now()}`, name: visaPage.name, uploadedBy: currentUser.name, uploadedDate: new Date().toISOString().slice(0, 10), type: "application/pdf", url: visaPage.url });
     if (applicantPhoto) documents.push({ id: `DOC-photo-${Date.now()}`, name: applicantPhoto.name, uploadedBy: currentUser.name, uploadedDate: new Date().toISOString().slice(0, 10), type: "image/jpeg", url: applicantPhoto.url });
-    if (cvFile) documents.push({ id: `DOC-cv-${Date.now()}`, name: "CV - " + cvFile.name, uploadedBy: currentUser.name, uploadedDate: new Date().toISOString().slice(0, 10), type: "application/pdf", url: cvFile.url });
+    
+    // Maintain old CV/archived CVs if any
+    const cvDocs = (applicant.documents || []).filter(d => 
+      d.name.toLowerCase().startsWith("cv.") || 
+      d.name.toLowerCase().includes("cv_v") || 
+      d.name.toLowerCase().includes("cv - ")
+    );
+    cvDocs.forEach(cv => documents.push(cv));
+
     otherDocs.forEach((d, i) => documents.push({ id: `DOC-other-${Date.now()}-${i}`, name: d.name, uploadedBy: currentUser.name, uploadedDate: new Date().toISOString().slice(0, 10), type: d.type, url: d.url }));
 
-    const newApplicant: Applicant = {
+    const updatedApplicant: Applicant = {
+      ...applicant,
       ...data,
-      id: applicantId,
       photo: applicantPhoto?.url ?? photo,
-      applicationDate: new Date().toISOString().slice(0, 10),
-      nationalityFlag: NATIONALITIES.find(n => n.name === data.nationality)?.flag || "🏳️",
       applyingPositions: positions,
-      status: "Pending",
-      trackingCode: `TRK-2026-${Math.floor(100 + Math.random() * 900)}`,
       company: selectedOwnCompany,
       branch: selectedOwnBranch || "Main Branch",
-      createdBy: currentUser.name,
-      createdAt: new Date().toISOString().replace('T', ' ').slice(0, 19),
-      documents,
-      statusHistory: [
-        {
-          oldStatus: null,
-          newStatus: "Pending",
-          changedBy: currentUser.name,
-          date: new Date().toISOString().slice(0, 10),
-          reason: "Applicant registered via form"
-        }
-      ]
+      documents
     };
 
-    const loadingToast = toast.loading("Registering applicant in database...");
+    const loadingToast = toast.loading("Saving changes to database...");
     try {
-      await addApplicant(newApplicant);
+      await updateApplicant(updatedApplicant);
 
       // Log Activity
       addActivityLog({
@@ -182,45 +230,27 @@ export default function NewApplicantPage() {
         role: currentUser.role,
         company: currentUser.company,
         branch: currentUser.branch,
-        action: "Created",
+        action: "Edited",
         module: "Applicants",
-        oldValue: null,
-        newValue: `Created applicant: ${newApplicant.fullName} (${newApplicant.id})`,
+        oldValue: `Applicant: ${applicant.fullName} (${applicant.id})`,
+        newValue: `Edited profile details`,
         ipAddress: "192.168.1.102"
       });
 
       toast.dismiss(loadingToast);
-      toast.success(`Applicant ${newApplicant.fullName} created successfully`);
-
-      if (keepAndNew) {
-        // Reset form state for a new entry
-        reset();
-        setPositions([]);
-        setPositionInput("");
-        setPhoto(null);
-        setPassportCopy(null);
-        setVisaPage(null);
-        setCvFile(null);
-        setApplicantPhoto(null);
-        setOtherDocs([]);
-        setKeepAndNew(false);
-        // Scroll back to top
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        toast.info("Form cleared — register next applicant");
-      } else {
-        router.push("/applicants");
-      }
+      toast.success(`Applicant profile updated successfully`);
+      router.push(`/applicants/${applicant.id}`);
     } catch (error: any) {
       toast.dismiss(loadingToast);
-      toast.error(error.message || "Failed to register applicant. Please try again.");
+      toast.error(error.message || "Failed to update applicant. Please try again.");
     }
   };
 
   return (
     <div className="flex flex-col min-h-full select-none pb-24 md:">
       <PageHeader
-        title="Add New Applicant"
-        subtitle="Register a new applicant form and upload documents"
+        title="Edit Applicant Profile"
+        subtitle={`Editing details for tracking code: ${applicant.trackingCode}`}
         showBack={true}
       />
 
@@ -573,41 +603,6 @@ export default function NewApplicantPage() {
                 )}
               </div>
 
-              {/* CV / Resume Copy */}
-              <div className={`border-2 rounded-xl p-4 flex flex-col items-center justify-center text-center space-y-2 hover:bg-slate-50 transition-colors relative cursor-pointer min-h-24 ${cvFile ? "border-emerald-400 bg-emerald-50/30" : "border-dashed border-slate-200"}`}>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      if (!validatePDF(file, "CV / Resume")) {
-                        e.target.value = "";
-                        return;
-                      }
-                      const url = await readAsDataURL(file);
-                      setCvFile({ name: file.name, url });
-                      toast.success(`CV attached`);
-                    }
-                  }}
-                  className="absolute inset-0 opacity-0 cursor-pointer h-full w-full"
-                />
-                <UploadCloud className={`w-7 h-7 ${cvFile ? "text-emerald-500" : "text-slate-400"}`} />
-                <div>
-                  <div className="text-[11px] font-bold text-slate-600">CV / Resume</div>
-                  {cvFile ? (
-                    <span className="text-[8px] text-emerald-600 font-bold truncate block max-w-[120px]">{cvFile.name}</span>
-                  ) : (
-                    <span className="text-[8px] text-slate-400">Click to upload</span>
-                  )}
-                </div>
-                {cvFile && (
-                  <button type="button" onClick={(e) => { e.stopPropagation(); setCvFile(null); }} className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center hover:bg-rose-200">
-                    <X className="w-3 h-3" />
-                  </button>
-                )}
-              </div>
-
               {/* Applicant Photo */}
               <div className={`border-2 rounded-xl p-4 flex flex-col items-center justify-center text-center space-y-2 hover:bg-slate-50 transition-colors relative cursor-pointer min-h-24 overflow-hidden ${applicantPhoto ? "border-emerald-400 bg-emerald-50/30" : "border-dashed border-slate-200"}`}>
                 <input
@@ -663,7 +658,6 @@ export default function NewApplicantPage() {
                   onChange={async (e) => {
                     const files = e.target.files;
                     if (files && files.length > 0) {
-                      // Validate all files are PDFs
                       const validFiles = Array.from(files).filter(f => validatePDF(f, "Other Document"));
                       if (validFiles.length === 0) {
                         e.target.value = "";
@@ -771,7 +765,6 @@ export default function NewApplicantPage() {
             </div>
           </Card>
 
-
           {/* Form Actions */}
           <div className="flex flex-col sm:flex-row justify-end gap-2.5 sm:gap-3 select-none w-full pb-20 sm:pb-0">
             <Button
@@ -784,19 +777,10 @@ export default function NewApplicantPage() {
             </Button>
             <Button
               type="submit"
-              onClick={() => setKeepAndNew(true)}
-              className="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs px-5 h-10 gap-1.5 border border-slate-200"
-            >
-              <Plus className="w-4 h-4" />
-              Save & Add Another
-            </Button>
-            <Button
-              type="submit"
-              onClick={() => setKeepAndNew(false)}
-              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs px-5 h-10 gap-1.5 shadow-md shadow-blue-500/10 animate-pulse"
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs px-5 h-10 gap-1.5 shadow-md shadow-blue-500/10"
             >
               <Save className="w-4 h-4" />
-              Save Applicant
+              Save Changes
             </Button>
           </div>
         </form>

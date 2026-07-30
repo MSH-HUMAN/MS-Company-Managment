@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import type { Applicant } from "@/lib/types";
 import Link from "next/link";
-import { Plus, Table as TableIcon, LayoutGrid, FileText, Trash2, CheckCircle, XCircle } from "lucide-react";
+import { Plus, Table as TableIcon, LayoutGrid, FileText, Trash2, Edit, CheckCircle, XCircle } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useFilterStore } from "@/store/filterStore";
 import { formatDate, getStatusColor, exportToCSV } from "@/lib/utils";
@@ -20,7 +20,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 
 export default function ApplicantsPage() {
-  const { currentRole, currentUser, applicants, deleteApplicant, updateApplicant, hasPermission, companies } = useAuthStore();
+  const { currentRole, currentUser, applicants, deleteApplicant, updateApplicant, hasPermission, companies, isStoreLoaded } = useAuthStore();
   const { filters, setFilter } = useFilterStore();
   
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
@@ -41,6 +41,17 @@ export default function ApplicantsPage() {
   const canPrintApplicants = hasPermission("applicants", "print");
   const canEditApplicants = hasPermission("applicants", "edit");
  
+  if (!isStoreLoaded) {
+    return (
+      <div className="min-h-full bg-slate-50 flex items-center justify-center p-12 select-none">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-slate-500 text-sm font-medium">Loading applicants data...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!canViewApplicants) {
     return <AccessDenied />;
   }
@@ -259,6 +270,8 @@ export default function ApplicantsPage() {
                   extraInfo={`Applied: ${formatDate(app.applicationDate)}`}
                   alert={alert}
                   detailUrl={`/applicants/${app.id}`}
+                  editUrl={canEditApplicants ? `/applicants/edit/${app.id}` : undefined}
+                  onDelete={canDeleteApplicants ? () => handleDeleteClick(app.id) : undefined}
                 />
               );
             })}
@@ -306,6 +319,13 @@ export default function ApplicantsPage() {
                           <FileText className="w-4 h-4" />
                         </Link>
                       </Button>
+                      {canEditApplicants ? (
+                        <Button asChild variant="ghost" size="icon" className="w-7 h-7 text-amber-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg" title="Edit Applicant">
+                          <Link href={`/applicants/edit/${app.id}`}>
+                            <Edit className="w-4 h-4" />
+                          </Link>
+                        </Button>
+                      ) : null}
                       {canDeleteApplicants ? (
                         <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(app.id)} className="w-7 h-7 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg">
                           <Trash2 className="w-4 h-4" />

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { 
   Phone, Mail, MapPin, Calendar, FileText, ChevronRight, User, 
   Building2, ShieldAlert, Award, AlertTriangle, Car, MessageCircle,
-  History, Download, Eye, Globe
+  History, Download, Eye, Globe, Edit, Trash2
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -41,6 +41,8 @@ interface ProfileCardProps {
   detailUrl: string;
   onStatusChange?: (newStatus: string) => void;
   statusOptions?: string[];
+  editUrl?: string;
+  onDelete?: () => void;
 }
 
 export default function ProfileCard({
@@ -63,7 +65,9 @@ export default function ProfileCard({
   alert,
   detailUrl,
   onStatusChange,
-  statusOptions = []
+  statusOptions = [],
+  editUrl,
+  onDelete
 }: ProfileCardProps) {
   const [showHistory, setShowHistory] = useState(false);
   const [showDocs, setShowDocs] = useState(false);
@@ -214,17 +218,43 @@ export default function ProfileCard({
               ID: {id}
             </span>
           </div>
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 h-8 gap-1 rounded-xl font-bold"
-          >
-            <Link href={detailUrl}>
-              View Details
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          </Button>
+          <div className="flex items-center gap-1">
+            {editUrl && (
+              <Button
+                asChild
+                variant="ghost"
+                size="icon"
+                className="w-7 h-7 hover:bg-slate-100 text-amber-500 hover:text-amber-600 rounded-lg"
+                title="Edit Profile"
+              >
+                <Link href={editUrl}>
+                  <Edit className="w-3.5 h-3.5" />
+                </Link>
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onDelete}
+                className="w-7 h-7 hover:bg-rose-50 text-rose-500 hover:text-rose-600 rounded-lg"
+                title="Delete Profile"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </Button>
+            )}
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-1.5 h-8 gap-1 rounded-xl font-bold"
+            >
+              <Link href={detailUrl}>
+                View Details
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </Card>
 
