@@ -142,14 +142,21 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
 
   const validatePhoto = (file: File): boolean => {
     const ext = file.name.split(".").pop()?.toLowerCase();
-    const allowed = ["jpg", "jpeg", "png"];
+    const allowed = ["jpg", "jpeg", "png", "pdf"];
     if (!ext || !allowed.includes(ext)) {
-      toast.error("Invalid photo format. Only JPG, JPEG, and PNG formats are allowed.");
+      toast.error("Invalid file format. Only JPG, JPEG, PNG, and PDF formats are allowed for Profile Photo.");
       return false;
     }
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("Photo is too large. Profile photo size must be less than 2MB.");
-      return false;
+    if (ext === "pdf") {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("PDF Profile Photo is too large. Size must be less than 5MB.");
+        return false;
+      }
+    } else {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("Profile photo image is too large. Size must be less than 2MB.");
+        return false;
+      }
     }
     return true;
   };
@@ -671,9 +678,16 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
         {/* Profile left sidebar summary */}
         <div className="lg:col-span-1 space-y-6">
           <Card className="rounded-2xl border-slate-100 p-6 bg-white shadow-sm flex flex-col items-center text-center">
-            <div className="w-20 h-20 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-extrabold text-2xl mb-4 shadow-sm overflow-hidden">
+            <div className="w-20 h-20 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-extrabold text-2xl mb-4 shadow-sm overflow-hidden relative group">
               {applicant.photo ? (
-                <img src={applicant.photo} alt={applicant.fullName} className="w-full h-full object-cover rounded-2xl" />
+                applicant.photo.startsWith("data:application/pdf") || applicant.photo.endsWith(".pdf") ? (
+                  <div className="flex flex-col items-center justify-center w-full h-full bg-rose-50 border border-rose-100">
+                    <FileText className="w-8 h-8 text-rose-500 animate-pulse" />
+                    <span className="text-[7px] font-bold text-rose-700 uppercase mt-0.5">PDF</span>
+                  </div>
+                ) : (
+                  <img src={applicant.photo} alt={applicant.fullName} className="w-full h-full object-cover rounded-2xl" />
+                )
               ) : (
                 applicant.fullName.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()
               )}
@@ -730,6 +744,26 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
                 </a>
               </Button>
             </div>
+
+            {applicant.photo && (applicant.photo.startsWith("data:application/pdf") || applicant.photo.endsWith(".pdf")) && (
+              <div className="w-full mt-4 pt-4 border-t border-slate-100 flex flex-col gap-2">
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wide text-left mb-1">
+                  Profile Photo (PDF)
+                </div>
+                <div className="flex gap-2">
+                  <Button asChild size="sm" variant="outline" className="flex-1 rounded-xl text-[10px] font-bold gap-1 border-rose-200 text-rose-600 hover:bg-rose-50">
+                    <a href={applicant.photo} target="_blank">
+                      <Eye className="w-3.5 h-3.5" /> View
+                    </a>
+                  </Button>
+                  <Button asChild size="sm" variant="outline" className="flex-1 rounded-xl text-[10px] font-bold gap-1 border-rose-200 text-rose-600 hover:bg-rose-50">
+                    <a href={applicant.photo} download={`${applicant.fullName.replace(/\s+/g, "_")}_Profile_Photo.pdf`}>
+                      <Download className="w-3.5 h-3.5" /> Download
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            )}
           </Card>
         </div>
 
@@ -902,7 +936,7 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
                         {canUpload && (
                           <label className="w-7 h-7 rounded-lg bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-600 cursor-pointer transition-colors" title={doc ? "Replace" : "Upload"}>
                             <UploadCloud className="w-3.5 h-3.5" />
-                            <input type="file" accept={slot.key === "Applicant Photo" ? ".jpg,.jpeg,.png" : ".pdf"} className="hidden" onChange={async (e) => { const f = e.target.files?.[0]; if (f) await handleSlotUpload(slot.key, f); e.target.value = ""; }} />
+                            <input type="file" accept={slot.key === "Applicant Photo" ? ".jpg,.jpeg,.png,.pdf" : ".pdf"} className="hidden" onChange={async (e) => { const f = e.target.files?.[0]; if (f) await handleSlotUpload(slot.key, f); e.target.value = ""; }} />
                           </label>
                         )}
                       </div>

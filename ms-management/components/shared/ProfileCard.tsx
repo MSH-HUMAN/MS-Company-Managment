@@ -103,7 +103,13 @@ export default function ProfileCard({
             <div className="flex items-center gap-3">
               <Avatar className="w-12 h-12 rounded-xl border border-slate-100 flex-shrink-0">
                 {image ? (
-                  <AvatarImage src={image} className="object-cover rounded-xl w-12 h-12" />
+                  image.startsWith("data:application/pdf") || image.endsWith(".pdf") ? (
+                    <div className="w-full h-full bg-rose-50 flex items-center justify-center text-rose-500 rounded-xl">
+                      <FileText className="w-6 h-6 animate-pulse" />
+                    </div>
+                  ) : (
+                    <AvatarImage src={image} className="object-cover rounded-xl w-12 h-12" />
+                  )
                 ) : null}
                 <AvatarFallback className="rounded-xl bg-slate-50 font-bold text-slate-700 text-sm">
                   {getInitials(name) || getPlaceholderIcon()}

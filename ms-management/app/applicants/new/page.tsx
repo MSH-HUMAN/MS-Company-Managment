@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { Plus, X, UploadCloud, Save, Trash2, ArrowLeft } from "lucide-react";
+import { Plus, X, UploadCloud, Save, Trash2, ArrowLeft, FileText } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { NATIONALITIES } from "@/lib/constants";
 import { Applicant, Document } from "@/lib/types";
@@ -100,14 +100,21 @@ export default function NewApplicantPage() {
 
   const validatePhoto = (file: File): boolean => {
     const ext = file.name.split(".").pop()?.toLowerCase();
-    const allowed = ["jpg", "jpeg", "png"];
+    const allowed = ["jpg", "jpeg", "png", "pdf"];
     if (!ext || !allowed.includes(ext)) {
-      toast.error("Invalid photo format. Only JPG, JPEG, and PNG formats are allowed.");
+      toast.error("Invalid file format. Only JPG, JPEG, PNG, and PDF formats are allowed for Profile Photo.");
       return false;
     }
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("Photo is too large. Profile photo size must be less than 2MB.");
-      return false;
+    if (ext === "pdf") {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("PDF Profile Photo is too large. Size must be less than 5MB.");
+        return false;
+      }
+    } else {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("Profile photo image is too large. Size must be less than 2MB.");
+        return false;
+      }
     }
     return true;
   };
@@ -141,7 +148,7 @@ export default function NewApplicantPage() {
     const documents: Document[] = [];
     if (passportCopy) documents.push({ id: `DOC-passport-${Date.now()}`, name: passportCopy.name, uploadedBy: currentUser.name, uploadedDate: new Date().toISOString().slice(0, 10), type: "application/pdf", url: passportCopy.url });
     if (visaPage) documents.push({ id: `DOC-visa-${Date.now()}`, name: visaPage.name, uploadedBy: currentUser.name, uploadedDate: new Date().toISOString().slice(0, 10), type: "application/pdf", url: visaPage.url });
-    if (applicantPhoto) documents.push({ id: `DOC-photo-${Date.now()}`, name: applicantPhoto.name, uploadedBy: currentUser.name, uploadedDate: new Date().toISOString().slice(0, 10), type: "image/jpeg", url: applicantPhoto.url });
+    if (applicantPhoto) documents.push({ id: `DOC-photo-${Date.now()}`, name: applicantPhoto.name, uploadedBy: currentUser.name, uploadedDate: new Date().toISOString().slice(0, 10), type: applicantPhoto.name.toLowerCase().endsWith(".pdf") ? "application/pdf" : "image/jpeg", url: applicantPhoto.url });
     if (cvFile) documents.push({ id: `DOC-cv-${Date.now()}`, name: "CV - " + cvFile.name, uploadedBy: currentUser.name, uploadedDate: new Date().toISOString().slice(0, 10), type: "application/pdf", url: cvFile.url });
     otherDocs.forEach((d, i) => documents.push({ id: `DOC-other-${Date.now()}-${i}`, name: d.name, uploadedBy: currentUser.name, uploadedDate: new Date().toISOString().slice(0, 10), type: d.type, url: d.url }));
 
@@ -612,7 +619,7 @@ export default function NewApplicantPage() {
               <div className={`border-2 rounded-xl p-4 flex flex-col items-center justify-center text-center space-y-2 hover:bg-slate-50 transition-colors relative cursor-pointer min-h-24 overflow-hidden ${applicantPhoto ? "border-emerald-400 bg-emerald-50/30" : "border-dashed border-slate-200"}`}>
                 <input
                   type="file"
-                  accept=".jpg,.jpeg,.png"
+                  accept=".jpg,.jpeg,.png,.pdf"
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (file) {
@@ -629,7 +636,14 @@ export default function NewApplicantPage() {
                   className="absolute inset-0 opacity-0 cursor-pointer h-full w-full"
                 />
                 {applicantPhoto ? (
-                  <img src={applicantPhoto.url} alt="preview" className="w-14 h-14 rounded-xl object-cover border border-emerald-200 shadow-sm" />
+                  applicantPhoto.name.toLowerCase().endsWith(".pdf") || applicantPhoto.url.startsWith("data:application/pdf") ? (
+                    <div className="flex flex-col items-center gap-1">
+                      <FileText className="w-8 h-8 text-rose-500 animate-pulse" />
+                      <span className="text-[7px] text-slate-500 font-bold truncate max-w-[80px] block">{applicantPhoto.name}</span>
+                    </div>
+                  ) : (
+                    <img src={applicantPhoto.url} alt="preview" className="w-14 h-14 rounded-xl object-cover border border-emerald-200 shadow-sm" />
+                  )
                 ) : (
                   <UploadCloud className="w-7 h-7 text-slate-400" />
                 )}
