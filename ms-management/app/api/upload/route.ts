@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth-helpers";
+import { supabaseAdmin, STORAGE_BUCKET } from "@/lib/supabase-storage";
+import prisma from "@/lib/prisma";
+
+export const maxDuration = 60; // 60 second timeout for large uploads
 
 export async function POST(request: Request) {
   try {
@@ -9,81 +12,126 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { action, uploadId, chunkIndex, data, name, type, size } = body;
+    const formData = await request.formData();
+    const file = formData.get("file") as File | null;
+    const applicantId = formData.get("applicantId") as string | null;
+    const slotLabel = formData.get("slotLabel") as string | null;
+    const documentType = formData.get("documentType") as string | null;
 
-    if (!uploadId) {
-      return NextResponse.json({ error: "uploadId is required" }, { status: 400 });
+    if (!file) {
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    if (action === "chunk") {
-      if (chunkIndex === undefined || !data) {
-        return NextResponse.json({ error: "chunkIndex and data are required for chunk upload" }, { status: 400 });
-      }
+    // Validate file type
+    const allowedTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "application/zip",
+      "application/x-zip-compressed",
+    ];
 
-      await prisma.fileChunk.create({
-        data: {
-          uploadId,
-          chunkIndex: Number(chunkIndex),
-          data: String(data),
-        },
-      });
-
-      return NextResponse.json({ success: true, chunkIndex });
+    if (!allowedTypes.includes(file.type)) {
+      return NextResponse.json(
+        { error: "File type not allowed. Supported: PDF, DOC, DOCX, JPG, PNG, ZIP" },
+        { status: 400 }
+      );
     }
 
-    if (action === "complete") {
-      if (!name || !type || size === undefined) {
-        return NextResponse.json({ error: "name, type, and size are required for complete upload" }, { status: 400 });
-      }
-
-      // Fetch all chunks ordered by index
-      const chunks = await prisma.fileChunk.findMany({
-        where: { uploadId },
-        orderBy: { chunkIndex: "asc" },
-      });
-
-      if (chunks.length === 0) {
-        return NextResponse.json({ error: "No chunks found for this uploadId" }, { status: 400 });
-      }
-
-      // Assemble chunks
-      const completeData = chunks.map((c) => c.data).join("");
-
-      // Save complete attachment
-      const attachment = await prisma.attachment.create({
-        data: {
-          id: uploadId,
-          name,
-          type,
-          size: Number(size),
-          url: `/api/documents/download/${uploadId}`,
-          createdAt: new Date().toISOString().slice(0, 10),
-          data: completeData,
-        },
-      });
-
-      // Cleanup chunks asynchronously
-      await prisma.fileChunk.deleteMany({
-        where: { uploadId },
-      });
-
-      return NextResponse.json({
-        success: true,
-        document: {
-          id: attachment.id,
-          name: attachment.name,
-          uploadedBy: user.name || "System",
-          uploadedDate: attachment.createdAt,
-          type: attachment.type,
-          url: attachment.url,
-        },
-      });
+    // Max 50 MB
+    const MAX_SIZE = 50 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      return NextResponse.json(
+        { error: "File too large. Maximum size is 50 MB." },
+        { status: 400 }
+      );
     }
 
-    return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+    // Build storage path: documents/{applicantId}/{timestamp}-{filename}
+    const timestamp = Date.now();
+    const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const storagePath = applicantId
+      ? `applicants/${applicantId}/${timestamp}-${safeFileName}`
+      : `general/${timestamp}-${safeFileName}`;
+
+    // Upload to Supabase Storage
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = new Uint8Array(arrayBuffer);
+
+    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+      .from(STORAGE_BUCKET)
+      .upload(storagePath, buffer, {
+        contentType: file.type,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error("[UPLOAD] Supabase storage error:", uploadError);
+      
+      // If bucket doesn't exist, create it and retry
+      if (uploadError.message?.includes("Bucket not found") || uploadError.message?.includes("bucket")) {
+        await supabaseAdmin.storage.createBucket(STORAGE_BUCKET, {
+          public: false,
+          fileSizeLimit: MAX_SIZE,
+          allowedMimeTypes: allowedTypes,
+        });
+
+        const { data: retryData, error: retryError } = await supabaseAdmin.storage
+          .from(STORAGE_BUCKET)
+          .upload(storagePath, buffer, {
+            contentType: file.type,
+            upsert: false,
+          });
+
+        if (retryError) {
+          return NextResponse.json({ error: "Storage upload failed: " + retryError.message }, { status: 500 });
+        }
+      } else {
+        return NextResponse.json({ error: "Storage upload failed: " + uploadError.message }, { status: 500 });
+      }
+    }
+
+    // Generate signed URL (valid for 1 year)
+    const { data: signedUrlData } = await supabaseAdmin.storage
+      .from(STORAGE_BUCKET)
+      .createSignedUrl(storagePath, 60 * 60 * 24 * 365);
+
+    const fileUrl = signedUrlData?.signedUrl || storagePath;
+
+    // Save record to DB (no base64 data — just metadata + URL)
+    const attachment = await prisma.attachment.create({
+      data: {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        url: fileUrl,
+        storagePath,
+        createdAt: new Date().toISOString().slice(0, 10),
+        uploadedBy: user.name || "System",
+        applicantId: applicantId || null,
+        slotLabel: slotLabel || null,
+        documentType: documentType || null,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      document: {
+        id: attachment.id,
+        name: attachment.name,
+        uploadedBy: attachment.uploadedBy || user.name,
+        uploadedDate: attachment.createdAt,
+        type: attachment.type,
+        size: attachment.size,
+        url: fileUrl,
+        storagePath,
+      },
+    });
   } catch (error: any) {
-    console.error("Upload API error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("[UPLOAD] Error:", error);
+    return NextResponse.json({ error: "Upload failed: " + (error.message || "Unknown error") }, { status: 500 });
   }
 }

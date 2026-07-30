@@ -1,51 +1,60 @@
 import { NextResponse } from "next/server";
+import { getSessionUser } from "@/lib/auth-helpers";
+import { supabaseAdmin, STORAGE_BUCKET } from "@/lib/supabase-storage";
 import prisma from "@/lib/prisma";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    // Await params if it is a promise (Next.js 15 compatibility)
-    const resolvedParams = await params;
-    const { id } = resolvedParams;
-
-    if (!id) {
-      return NextResponse.json({ error: "Attachment ID is required" }, { status: 400 });
+    const user = await getSessionUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const attachment = await prisma.attachment.findUnique({
-      where: { id },
+      where: { id: params.id },
     });
 
     if (!attachment) {
-      return NextResponse.json({ error: "Attachment not found" }, { status: 404 });
+      return NextResponse.json({ error: "File not found" }, { status: 404 });
     }
 
-    const rawData = attachment.data;
-    let base64Data = rawData;
-    let mimeType = attachment.type || "application/octet-stream";
+    // If file is in Supabase Storage, generate a fresh signed URL
+    if (attachment.storagePath) {
+      const { data, error } = await supabaseAdmin.storage
+        .from(STORAGE_BUCKET)
+        .createSignedUrl(attachment.storagePath, 60 * 60); // 1 hour
 
-    if (rawData.includes("base64,")) {
-      const parts = rawData.split("base64,");
-      base64Data = parts[1];
-      const match = parts[0].match(/data:([^;]+)/);
-      if (match) {
-        mimeType = match[1];
+      if (error || !data?.signedUrl) {
+        console.error("[DOWNLOAD] Signed URL error:", error);
+        return NextResponse.json({ error: "Could not generate download link" }, { status: 500 });
       }
+
+      // Redirect to signed URL
+      return NextResponse.redirect(data.signedUrl);
     }
 
-    const buffer = Buffer.from(base64Data, "base64");
+    // Legacy: file stored as base64 in DB
+    if (attachment.data) {
+      const base64Data = attachment.data.includes(",")
+        ? attachment.data.split(",")[1]
+        : attachment.data;
+      const buffer = Buffer.from(base64Data, "base64");
 
-    return new Response(buffer, {
-      headers: {
-        "Content-Type": mimeType,
-        "Content-Disposition": `inline; filename="${encodeURIComponent(attachment.name)}"`,
-        "Cache-Control": "public, max-age=31536000, immutable",
-      },
-    });
+      return new NextResponse(buffer, {
+        headers: {
+          "Content-Type": attachment.type || "application/octet-stream",
+          "Content-Disposition": `attachment; filename="${attachment.name}"`,
+          "Content-Length": buffer.length.toString(),
+        },
+      });
+    }
+
+    return NextResponse.json({ error: "File data not available" }, { status: 404 });
   } catch (error: any) {
-    console.error("Download API error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("[DOWNLOAD] Error:", error);
+    return NextResponse.json({ error: "Download failed" }, { status: 500 });
   }
 }

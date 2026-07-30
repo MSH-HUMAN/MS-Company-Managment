@@ -725,13 +725,20 @@ model VisaReminderLog {
 }
 
 model Attachment {
-  id        String   @id
-  name      String
-  type      String
-  size      Int
-  url       String
-  createdAt String
-  data      String   @db.Text
+  id           String   @id @default(cuid())
+  name         String
+  type         String
+  size         Int
+  url          String   @db.Text
+  storagePath  String?  @db.Text
+  createdAt    String
+  uploadedBy   String?
+  applicantId  String?
+  slotLabel    String?
+  documentType String?
+  data         String?  @db.Text
+
+  @@index([applicantId])
 }
 
 model FileChunk {
@@ -739,5 +746,6 @@ model FileChunk {
   uploadId   String
   chunkIndex Int
   data       String   @db.Text
-}
 
+  @@index([uploadId])
+}
