@@ -16,7 +16,7 @@ export default function StatusBadge({ status, className }: StatusBadgeProps) {
     <Badge
       variant="outline"
       className={cn(
-        "px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border select-none",
+        "px-2 py-1 rounded-full text-[9px] font-bold tracking-wide uppercase border select-none h-auto! whitespace-normal! text-center break-words shrink-0 inline-flex items-center justify-center max-w-[120px] leading-tight",
         getStatusColor(status),
         className
       )}

@@ -215,6 +215,16 @@ export default function ApplicantsPage() {
         onPrint={canPrintApplicants ? handlePrint : undefined}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
+        actions={
+          canCreateApplicants ? (
+            <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs h-10 px-4 gap-1.5 shadow-sm">
+              <Link href="/applicants/new">
+                <Plus className="w-4 h-4" />
+                Add Applicant
+              </Link>
+            </Button>
+          ) : null
+        }
       />
 
       <div className="flex-1 p-4 md:p-6">
@@ -341,6 +351,18 @@ export default function ApplicantsPage() {
       </div>
 
       <Pagination moduleKey="applicants" totalItems={totalItems} />
+
+      {/* Mobile Floating Action Button (FAB) */}
+      {canCreateApplicants && (
+        <Button
+          asChild
+          className="fixed bottom-6 right-6 md:hidden w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-2xl z-50 flex items-center justify-center p-0 border border-blue-400"
+        >
+          <Link href="/applicants/new">
+            <Plus className="w-6 h-6" />
+          </Link>
+        </Button>
+      )}
 
       {/* Delete confirm dialog */}
       <ConfirmDialog

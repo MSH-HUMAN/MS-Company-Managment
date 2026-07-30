@@ -25,6 +25,7 @@ interface FilterBarProps {
   onPrint?: () => void;
   viewMode?: "grid" | "table";
   onViewModeChange?: (mode: "grid" | "table") => void;
+  actions?: React.ReactNode;
 }
 
 export default function FilterBar({
@@ -35,7 +36,8 @@ export default function FilterBar({
   onExport,
   onPrint,
   viewMode,
-  onViewModeChange
+  onViewModeChange,
+  actions
 }: FilterBarProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const { filters, setFilter, clearFilter } = useFilterStore();
@@ -163,6 +165,9 @@ export default function FilterBar({
               </button>
             </div>
           )}
+
+          {/* Custom actions slot */}
+          {actions}
         </div>
       </div>
 
