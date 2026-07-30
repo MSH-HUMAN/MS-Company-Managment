@@ -258,10 +258,25 @@ export async function POST(request: Request) {
           branch: applicant.branch || undefined,
           templateType: "Registration",
           templateData: {
+            applicantId: applicant.id,
             recipientName: applicant.fullName,
+            applicantFullName: applicant.fullName,
             trackingCode: applicant.trackingCode || "",
-            applicationDate: new Date().toISOString().split("T")[0],
+            trackingNumber: applicant.trackingCode || "",
+            nationality: applicant.nationality || "N/A",
+            passportNumber: applicant.passportNumber || "N/A",
+            passport: applicant.passportNumber || "N/A",
+            visaStatus: applicant.visaType || "N/A",
+            status: applicant.status || "Pending",
+            currentStatus: applicant.status || "Pending",
+            applicationDate: applicant.applicationDate || new Date().toISOString().split("T")[0],
             applyingPositions: Array.isArray(applicant.applyingPositions)
+              ? (applicant.applyingPositions as string[]).join(", ")
+              : (applicant.applyingPositions ? String(applicant.applyingPositions) : ""),
+            position: Array.isArray(applicant.applyingPositions)
+              ? (applicant.applyingPositions as string[]).join(", ")
+              : (applicant.applyingPositions ? String(applicant.applyingPositions) : ""),
+            appliedPosition: Array.isArray(applicant.applyingPositions)
               ? (applicant.applyingPositions as string[]).join(", ")
               : (applicant.applyingPositions ? String(applicant.applyingPositions) : "")
           }

@@ -293,6 +293,21 @@ export async function sendEmail({
         where: { id: templateData.applicantId }
       });
     }
+    if (!applicantDetails && templateData?.trackingCode) {
+      applicantDetails = await prisma.applicant.findFirst({
+        where: { trackingCode: templateData.trackingCode }
+      });
+    }
+    if (!applicantDetails && (candidateName || to)) {
+      applicantDetails = await prisma.applicant.findFirst({
+        where: {
+          OR: [
+            ...(to ? [{ email: to }] : []),
+            ...(candidateName ? [{ fullName: candidateName }] : [])
+          ]
+        }
+      });
+    }
 
     let interviewerDesignation = templateData?.interviewerDesignation;
     if (templateData?.interviewerName && !interviewerDesignation) {
