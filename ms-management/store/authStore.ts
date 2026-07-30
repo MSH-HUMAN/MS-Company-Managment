@@ -307,38 +307,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isStoreLoading: true });
     try {
       const t = Date.now();
-      const [
+      const res = await fetch(`/api/bootstrap?t=${t}`, { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error("Bootstrap request failed");
+      }
+      const {
         companies, ownCompanies, users, branches, roles, staff, applicants, tasks,
         attendance, requests, payroll, interviews, vehicles, suppliers,
         placements, notifications, logs, archivedLogs, settings, shifts, overtime, corrections,
         emails, whatsapp, leaves
-      ] = await Promise.all([
-        fetch(`/api/companies?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/own-companies?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/users?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/branches?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/roles?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/staff?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/applicants?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/tasks?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/attendance?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/requests?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/payroll?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/interviews?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/vehicles?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/suppliers?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/placement?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/notifications?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/activity-log?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/activity-log?archived=true&t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/settings?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : null),
-        fetch(`/api/shifts?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/overtime?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/corrections?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/emails?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/whatsapp?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
-        fetch(`/api/leave?t=${t}`, { cache: "no-store" }).then(r => r.ok ? r.json() : [])
-      ]);
+      } = await res.json();
 
       const mappedShifts = (shifts || []).map((s: any) => ({
         ...s,
