@@ -70,8 +70,8 @@ export async function POST(request: Request) {
       branch: user.branch
     });
 
-    // Create log entry in database
-    await prisma.activityLog.create({
+    // Create log entry and update lastLogin asynchronously in background for ultra-fast response
+    prisma.activityLog.create({
       data: {
         dateTime: new Date().toISOString().replace("T", " ").slice(0, 19),
         userName: user.name,
@@ -83,13 +83,12 @@ export async function POST(request: Request) {
         newValue: "User signed in successfully",
         ipAddress: request.headers.get("x-forwarded-for") || "127.0.0.1"
       }
-    });
+    }).catch(err => console.error("Login activity log error:", err));
 
-    // Update lastLogin for the user
-    await prisma.user.update({
+    prisma.user.update({
       where: { id: user.id },
       data: { lastLogin: new Date().toISOString().replace("T", " ").slice(0, 19) }
-    });
+    }).catch(err => console.error("Login lastLogin update error:", err));
 
     // Set HTTP-Only Cookie
     const response = NextResponse.json({

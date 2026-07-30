@@ -46,9 +46,9 @@ export default function LoginPage() {
         return;
       }
 
-      // Successful login - set user in store
+      // Successful login - set user in store and navigate immediately!
       setCurrentUser(data.user);
-      await useAuthStore.getState().initStore();
+      useAuthStore.getState().initStore().catch(console.error);
       
       toast.success(`Welcome back, ${data.user.name.split(" ")[0]}!`);
       router.push("/dashboard");
