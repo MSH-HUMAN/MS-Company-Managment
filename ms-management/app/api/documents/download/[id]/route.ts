@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth-helpers";
-import { supabaseAdmin, STORAGE_BUCKET } from "@/lib/supabase-storage";
+import { getSupabaseAdmin, STORAGE_BUCKET } from "@/lib/supabase-storage";
 import prisma from "@/lib/prisma";
 
 export async function GET(
@@ -23,7 +23,7 @@ export async function GET(
 
     // If file is in Supabase Storage, generate a fresh signed URL
     if (attachment.storagePath) {
-      const { data, error } = await supabaseAdmin.storage
+      const { data, error } = await getSupabaseAdmin().storage
         .from(STORAGE_BUCKET)
         .createSignedUrl(attachment.storagePath, 60 * 60); // 1 hour
 
