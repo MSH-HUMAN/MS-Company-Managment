@@ -881,7 +881,7 @@ export default function PlacementPage() {
               <td>
                 <div class="header">
                   <h2>Payment & Placement Service Agreement</h2>
-                  <p>MS HORIZON F.Z.E  •  Website: msjobs.net</p>
+                  <p>MS HORIZON F.Z.E  •  Website: mshorizonuae.com</p>
                   <div class="stamp">
                     <span>MS Horizon</span>
                     <span style="font-size: 6px;">F.Z.E</span>
@@ -1655,7 +1655,7 @@ export default function PlacementPage() {
                   {/* Company Stamp Header */}
                   <div className="text-center space-y-1.5 border-b border-slate-200 pb-4 relative">
                     <h2 className="text-sm font-extrabold text-slate-900 tracking-tight uppercase">Payment & Placement Service Agreement</h2>
-                    <p className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">MS HORIZON F.Z.E  •  Website: msjobs.net</p>
+                    <p className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">MS HORIZON F.Z.E  •  Website: mshorizonuae.com</p>
                     
                     {/* Fake Stamp logo */}
                     <div className="absolute right-2 top-0 border-2 border-blue-500/30 rounded-full w-14 h-14 flex items-center justify-center text-[7px] text-blue-600/40 uppercase font-extrabold select-none rotate-12 flex-col leading-tight print:border-blue-500/40">

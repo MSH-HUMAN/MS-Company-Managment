@@ -441,7 +441,7 @@ export async function sendEmail({
       companyAddress,
       companyLicense,
       logoText,
-      website: `https://${(companyEmail.match(/@(.+)$/)||["","msjobs.net"])[1]}`,
+      website: `https://${(companyEmail.match(/@(.+)$/)||["","mshorizonuae.com"])[1]}`,
       year: new Date().getFullYear(),
       companyPrimaryColor: templateData?.companyPrimaryColor || companyPrimaryColor || process.env.PRIMARY_COLOR || '#2563eb',
       body,
@@ -633,7 +633,7 @@ export async function previewEmail({
       companyPhone: templateData?.companyPhone || "+971000000",
       companyAddress: templateData?.companyAddress || "",
       logoText,
-      website: `https://${(templateData?.companyEmail || 'msjobs.net').match(/@(.+)$/)?.[1] || 'msjobs.net'}`,
+      website: `https://${(templateData?.companyEmail || 'mshorizonuae.com').match(/@(.+)$/)?.[1] || 'mshorizonuae.com'}`,
       year: new Date().getFullYear(),
       companyPrimaryColor: process.env.PRIMARY_COLOR || '#2563eb',
       body,
@@ -1041,7 +1041,7 @@ Thank you for applying with *${company}*. We have successfully registered your j
 
 📍 *TRACK YOUR STATUS:*
 You can track your real-time selection status anytime at:
-https://msjobs.net/apply?code=${data.trackingCode || ""}
+https://mshorizonuae.com/apply?code=${data.trackingCode || ""}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 Best regards,
@@ -1063,7 +1063,7 @@ Your job application status with *${company}* has been updated.
 • *New Status:* *${data.status || "Updated"}*
 ${data.placedCompany ? `• *Placed Company:* ${data.placedCompany}\n` : ""}${data.reason ? `• *Details:* ${data.reason}\n` : ""}
 📍 *TRACK YOUR STATUS:*
-View live updates at: https://msjobs.net/apply?code=${data.trackingCode || ""}
+View live updates at: https://mshorizonuae.com/apply?code=${data.trackingCode || ""}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 Best regards,

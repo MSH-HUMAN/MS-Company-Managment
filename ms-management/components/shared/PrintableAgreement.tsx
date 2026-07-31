@@ -59,8 +59,9 @@ function buildAgreementHtml(placement: Placement, terms: any[], settings: any): 
     finalTerms.push({ title: "Replacement Policy", content: settings.replacementPolicy });
   }
 
-  const refId = (placement.id || "").substring(0, 8).toUpperCase();
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://msjobs.net/tracking?code=${placement.id}`;
+  const siteDomain = process.env.NEXT_PUBLIC_SITE_URL || "https://mshorizonuae.com";
+  const trackingTarget = placement.applicantId ? `${siteDomain}/tracking?id=${placement.applicantId}` : `${siteDomain}/tracking?id=${placement.id}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=${encodeURIComponent(trackingTarget)}`;
 
   // Helper to produce a safe value for HTML display
   const v = (val: any, fallback = "—") => {
