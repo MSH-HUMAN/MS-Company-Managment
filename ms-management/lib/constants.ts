@@ -25,7 +25,7 @@ export const MEETING_MODES = [
 ];
 
 export const MODULE_STATUS_OPTIONS = {
-  applicants: ["Pending", "Processing", "Placed", "Rejected", "Returned"],
+  applicants: ["Pending", "Screening", "Processing", "Offered", "Visa Processing", "Placed", "Rejected", "Returned"],
   staff: ["Active", "Inactive", "Suspended"],
   tasks: ["Pending", "Processing", "Completed", "Incomplete", "Reassigned", "Cancelled"],
   leave: ["Pending", "Processing", "Approved", "Rejected"],

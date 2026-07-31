@@ -592,13 +592,13 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
 
             {[
               { label: "Applied", status: "Pending", desc: "Form Received" },
-              { label: "Screening", status: "Processing", desc: "Documents Review" },
-              { label: "Evaluation", status: "Interview Scheduled", desc: "Interview Sync" },
-              { label: "Offered", status: "Selected", desc: "Offer Letter signed" },
+              { label: "Screening", status: "Screening", desc: "Documents Review" },
+              { label: "Evaluation", status: "Processing", desc: "Interview Sync" },
+              { label: "Offered", status: "Offered", desc: "Offer Letter signed" },
               { label: "Visa Processing", status: "Visa Processing", desc: "Government Entry" },
               { label: "Placed", status: "Placed", desc: "Onboarded & Placed" },
             ].map((step, idx) => {
-              const stages = ["Pending", "Processing", "Interview Scheduled", "Selected", "Visa Processing", "Placed"];
+              const stages = ["Pending", "Screening", "Processing", "Offered", "Visa Processing", "Placed"];
               const currentIdx = stages.indexOf(applicant.status);
               const isRejected = applicant.status === "Rejected";
               const isReturned = applicant.status === "Returned";
@@ -1595,9 +1595,12 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
                   value={targetStatus}
                   onChange={(e) => setTargetStatus(e.target.value as any)}
                 >
-                  <option value="Pending">Pending</option>
+                  <option value="Pending">Pending (Applied)</option>
+                  <option value="Screening">Screening (Documents Review)</option>
                   <option value="Processing">Processing (Under Interview)</option>
-                  <option value="Placed">Placed (Active Job)</option>
+                  <option value="Offered">Offered (Offer Letter Signed)</option>
+                  <option value="Visa Processing">Visa Processing (Government Entry)</option>
+                  <option value="Placed">Placed (Active Job / Onboarded)</option>
                   <option value="Rejected">Rejected</option>
                   <option value="Returned">Returned (Missing documents)</option>
                 </select>
