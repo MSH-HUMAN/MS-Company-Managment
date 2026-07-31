@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 "use client";
 
 import { useState } from "react";
@@ -224,7 +224,7 @@ export default function NewApplicantPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full select-none pb-24 md:">
+    <div className="flex flex-col h-full overflow-hidden select-none pb-24 md:">
       <PageHeader
         title="Add New Applicant"
         subtitle="Register a new applicant form and upload documents"

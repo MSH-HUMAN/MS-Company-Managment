@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import PageHeader from "@/components/shared/PageHeader";
@@ -129,7 +129,7 @@ export default function PlacementTermsSettings() {
   }
 
   return (
-    <div className="flex flex-col min-h-full bg-slate-50/50">
+    <div className="flex flex-col h-full overflow-hidden bg-slate-50/50">
       <PageHeader 
         title="Placement Agreement Terms" 
         subtitle="Manage dynamic terms & conditions for the legal agreement print layout"

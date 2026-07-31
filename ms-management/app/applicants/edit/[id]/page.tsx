@@ -121,7 +121,7 @@ export default function EditApplicantPage({ params }: { params: Promise<{ id: st
 
   if (!applicant) {
     return (
-      <div className="flex flex-col min-h-full select-none">
+      <div className="flex flex-col h-full overflow-hidden select-none">
         <PageHeader title="Edit Applicant" showBack={true} />
         <div className="p-12">
           <div className="border border-slate-100 rounded-2xl p-8 bg-white text-center shadow-sm">
@@ -254,7 +254,7 @@ export default function EditApplicantPage({ params }: { params: Promise<{ id: st
   };
 
   return (
-    <div className="flex flex-col min-h-full select-none pb-24 md:">
+    <div className="flex flex-col h-full overflow-hidden select-none pb-24 md:">
       <PageHeader
         title="Edit Applicant Profile"
         subtitle={`Editing details for tracking code: ${applicant.trackingCode}`}

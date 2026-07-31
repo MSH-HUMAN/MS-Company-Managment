@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo, useRef } from "react";
 import { useAuthStore } from "@/store/authStore";
@@ -226,7 +226,7 @@ export default function WhatsAppPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <PageHeader
         title="WhatsApp Messages"
         subtitle="Send messages to staff, applicants, and contacts"

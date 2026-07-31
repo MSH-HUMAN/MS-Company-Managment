@@ -218,7 +218,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full select-none">
+    <div className="flex flex-col h-full overflow-hidden select-none">
       <PageHeader 
         title="Notification Center" 
         subtitle="Automated reminders, email outbox, and WhatsApp API alerts"
@@ -276,7 +276,7 @@ export default function NotificationsPage() {
         )}
       </div>
 
-      <div className="flex-1 p-4 md:p-6 w-[95vw] sm:w-full max-w-4xl mx-auto w-full overflow-y-auto min-h-0">
+      <div className="flex-1 p-4 md:p-6 w-full max-w-4xl mx-auto overflow-y-auto min-h-0 pb-28 md:pb-6">
         
         {/* ─── DASHBOARD ALERTS TAB ─── */}
         {activeTab === "dashboard" && (

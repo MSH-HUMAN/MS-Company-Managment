@@ -154,7 +154,7 @@ export default function SuppliersPage() {
   );
 
   return (
-    <div className="flex flex-col min-h-full select-none">
+    <div className="flex flex-col h-full overflow-hidden select-none">
       <PageHeader 
         title="Supplier Management" 
         subtitle="Manage external manpower suppliers and agencies"
@@ -180,7 +180,7 @@ export default function SuppliersPage() {
       />
       <FilterBar moduleKey="suppliers" statusOptions={["Active","Inactive"]} showNationality onExport={() => { exportToCSV(list.map(s=>({ID:s.id,Name:s.name,Nationality:s.nationality,Mobile:s.mobile,Email:s.email,Status:s.status})),"suppliers"); toast.success("Exported"); }} />
 
-      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0">
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
         {paginated.length === 0 ? (
           <EmptyState title="No suppliers found" action={<Button onClick={() => setModal(true)} className="bg-blue-600 text-white rounded-xl text-xs px-4 h-9">Add Supplier</Button>} />
         ) : (

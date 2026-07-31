@@ -39,7 +39,7 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
 
   if (!supplier) {
     return (
-      <div className="flex flex-col min-h-full">
+      <div className="flex flex-col h-full overflow-hidden">
         <PageHeader title="Supplier Profile" showBack={true} />
         <div className="p-12">
           <EmptyState title="Supplier profile not found" description="The supplier profile you are trying to view does not exist or has been deleted." />
@@ -113,7 +113,7 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
   };
 
   return (
-    <div className="flex flex-col min-h-full select-none">
+    <div className="flex flex-col h-full overflow-hidden select-none">
       <PageHeader 
         title={`Supplier Profile: ${supplier.name}`} 
         subtitle={`ID: ${supplier.id} · Created By: ${supplier.createdBy}`}

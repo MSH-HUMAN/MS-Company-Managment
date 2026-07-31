@@ -63,7 +63,7 @@ export default function ActivityLogPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <PageHeader title="Activity Logs" subtitle="Audit trail of all system actions and user events"
         actions={
           isSuperAdmin ? (
@@ -114,7 +114,7 @@ export default function ActivityLogPage() {
 
       <FilterBar moduleKey="activityLog" statusOptions={["Created","Edited","Deleted","Status Changed","Login","Logout"]} onExport={() => { exportToCSV(list.map((l: any)=>({ID:l.id,Time:l.dateTime,User:l.userName,Role:l.role,Company:l.company,Module:l.module,Action:l.action,Details:l.newValue,IP:l.ipAddress})),"activity-logs"); toast.success("Exported"); }} />
 
-      <div className="flex-1 p-4 md:p-6">
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
         {paginated.length === 0 ? (
           <Card className="rounded-2xl border-slate-100 bg-white shadow-sm overflow-hidden">
             <EmptyState

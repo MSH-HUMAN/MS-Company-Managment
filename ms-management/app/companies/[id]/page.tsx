@@ -86,7 +86,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ id: st
 
   if (!company) {
     return (
-      <div className="flex flex-col min-h-full">
+      <div className="flex flex-col h-full overflow-hidden">
         <PageHeader title="Client Company Details" showBack={true} />
         <div className="p-12">
           <EmptyState title="Company not found" description="The company you are trying to view does not exist or has been deleted." />
@@ -201,7 +201,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ id: st
   };
 
   return (
-    <div className="flex flex-col min-h-full select-none">
+    <div className="flex flex-col h-full overflow-hidden select-none">
       <PageHeader 
         title={company.name} 
         subtitle={`ID: ${company.id} · Created By: ${company.createdBy}`}

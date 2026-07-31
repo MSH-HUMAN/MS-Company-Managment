@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useAuthStore } from "@/store/authStore";
@@ -164,7 +164,7 @@ export default function VisaExpiryPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <PageHeader title="Visa Expiry Tracking" subtitle="Monitor visa expirations for staff and applicants" />
       
       <div className="p-4 md:p-6 pb-0">

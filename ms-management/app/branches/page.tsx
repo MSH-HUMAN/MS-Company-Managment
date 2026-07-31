@@ -83,13 +83,13 @@ export default function BranchesPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full select-none">
+    <div className="flex flex-col h-full overflow-hidden select-none">
       <PageHeader title="Branch Management" subtitle="Manage company branches and locations"
         actions={canCreateBranches ? <Button onClick={() => { setEditBranch(null); setForm({ name:"",company:"",companyId:"",address:"",phone:"",email:"",tradeLicenseNumber:"",location:"",contactPerson:"",status:"Active" }); setModal(true); }} className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs h-9 px-4 gap-1.5"><Plus className="w-4 h-4"/>Add Branch</Button> : null}
       />
       <FilterBar moduleKey="branches" statusOptions={["Active","Inactive"]} onExport={() => { exportToCSV(list.map(b=>({ID:b.id,Name:b.name,Company:b.company,Status:b.status,Staff:b.staff})),"branches"); toast.success("Exported"); }} />
 
-      <div className="flex-1 p-4 md:p-6">
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
         {paginated.length === 0 ? (
           <EmptyState title="No branches found" action={<Button onClick={() => setModal(true)} className="bg-blue-600 text-white rounded-xl text-xs px-4 h-9">Add Branch</Button>} />
         ) : (

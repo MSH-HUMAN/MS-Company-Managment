@@ -57,7 +57,7 @@ export default function PayrollPage() {
   }, [currentRole]);
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <PageHeader
         title="Payroll Management"
         subtitle={isStaff ? "View your payslips and salary history" : "Manage salaries, deductions, and issue payslips"}
@@ -81,7 +81,7 @@ export default function PayrollPage() {
         </div>
       </div>
 
-      <div className="flex-1 p-4 md:p-6 w-full max-w-7xl mx-auto space-y-6">
+      <div className="flex-1 p-4 md:p-6 w-full max-w-7xl mx-auto space-y-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
         {activeTab === "Dashboard" && isAdminLevel && <PayrollDashboard />}
         {activeTab === "Salary Setup" && isAdminLevel && <SalarySetup />}
         {activeTab === "Process Payroll" && isAdminLevel && canProcess && <ProcessPayroll />}

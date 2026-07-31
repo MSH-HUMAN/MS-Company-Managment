@@ -966,7 +966,7 @@ export default function PlacementPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full select-none print:bg-white print:p-0">
+    <div className="flex flex-col h-full overflow-hidden select-none print:bg-white print:p-0">
       
       {/* HEADER SECTION (HIDDEN ON PRINT) */}
       <div className="print:hidden">
@@ -1081,7 +1081,7 @@ export default function PlacementPage() {
       </div>
 
       {/* PLACEMENT DIRECTORY GRID (HIDDEN ON PRINT) */}
-      <div className="flex-1 p-4 md:p-6 print:hidden bg-slate-50/20">
+      <div className="flex-1 p-4 md:p-6 print:hidden bg-slate-50/20 overflow-y-auto min-h-0 pb-28 md:pb-6">
         {filteredPlacements.length === 0 ? (
           <EmptyState 
             title="No placement agreements match filters. Try updating your search query or register a new applicant." 

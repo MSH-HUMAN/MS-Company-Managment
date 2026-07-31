@@ -162,7 +162,7 @@ export default function StaffRequestsPage() {
     : staff.filter(s => s.company.trim().toLowerCase() === currentUser.company.trim().toLowerCase());
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <PageHeader title="Staff Requests" subtitle="Process advances, complaints, loans, and general requests"
         actions={
           hasPermission("requests", "create") && (
@@ -172,7 +172,7 @@ export default function StaffRequestsPage() {
       />
       <FilterBar moduleKey="requests" statusOptions={["Pending","Processing","Approved","Rejected","Returned"]} onExport={() => { exportToCSV(list.map(r=>({ID:r.id,Staff:r.staffName,Type:r.requestType,Date:r.date,Status:r.status})),"staff-requests"); toast.success("Exported"); }} />
 
-      <div className="flex-1 p-4 md:p-6">
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
         {paginated.length === 0 ? (
           <EmptyState title="No staff requests" description="No requests have been submitted yet." action={<Button onClick={handleOpenModal} className="bg-blue-600 text-white rounded-xl text-xs px-4 h-9">Submit Request</Button>} />
         ) : (

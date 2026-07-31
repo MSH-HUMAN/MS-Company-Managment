@@ -107,7 +107,7 @@ export default function StaffPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <PageHeader
         title="Staff Management"
         subtitle="Manage all onboarded employees and their profiles"
@@ -128,7 +128,7 @@ export default function StaffPage() {
         onViewModeChange={(mode) => setViewMode(mode)}
       />
 
-      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0">
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
         {paginated.length === 0 ? (
           <EmptyState
             title="No staff members found"

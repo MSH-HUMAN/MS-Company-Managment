@@ -199,7 +199,7 @@ export default function StaffDetailPage({ params }: { params: Promise<{ id: stri
 
   if (!member) {
     return (
-      <div className="flex flex-col min-h-full">
+      <div className="flex flex-col h-full overflow-hidden">
         <PageHeader title="Staff Profile" showBack={true} />
         <div className="p-12">
           <EmptyState title="Staff profile not found" description="The staff profile you are trying to view does not exist or has been deleted." />
@@ -338,7 +338,7 @@ export default function StaffDetailPage({ params }: { params: Promise<{ id: stri
   ];
 
   return (
-    <div className="flex flex-col min-h-full select-none">
+    <div className="flex flex-col h-full overflow-hidden select-none">
       <PageHeader 
         title={`Staff Profile: ${member.name}`} 
         subtitle={`ID: ${member.id} · ${member.position}`}

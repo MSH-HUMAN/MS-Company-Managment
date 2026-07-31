@@ -406,7 +406,7 @@ export default function TasksPage() {
   const priorityColor = (p: string) => p === "High" ? "text-rose-600 bg-rose-50 border-rose-100" : p === "Medium" ? "text-amber-600 bg-amber-50 border-amber-100" : "text-slate-500 bg-slate-50 border-slate-200";
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <PageHeader 
         title={isAdmin ? "Task Management Dashboard" : "My Work Dashboard"} 
         subtitle={isAdmin ? "Assign, track, and manage company-wide operational tasks" : "Review and update tasks assigned to you"}
@@ -456,7 +456,7 @@ export default function TasksPage() {
 
       <FilterBar moduleKey="tasks" statusOptions={["Pending","Processing","Completed","Incomplete","Reassigned","Cancelled"]} showAssignee onExport={() => { exportToCSV(list.map(t=>({ID:t.id,Title:t.title,Assignee:t.assignedTo,Priority:t.priority,Deadline:t.deadline,Status:t.status})),"tasks"); toast.success("Exported"); }} />
 
-      <div className="flex-1 p-4 md:p-6 overflow-x-auto">
+      <div className="flex-1 p-4 md:p-6 overflow-x-auto overflow-y-auto min-h-0 pb-28 md:pb-6">
         {taskTab === "history" ? (
           /* ── Completed Tasks View ── */
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">

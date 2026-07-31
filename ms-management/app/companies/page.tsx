@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -58,7 +58,7 @@ export default function CompaniesPage() {
   // Super Admin only can see companies page
   if (currentRole !== "Super Admin") {
     return (
-      <div className="flex flex-col min-h-full">
+      <div className="flex flex-col h-full overflow-hidden">
         <PageHeader title="Client Companies" />
         <div className="p-12"><EmptyState title="Access Restricted" description="You do not have permission to view the client company management module. Contact your Super Admin." /></div>
       </div>

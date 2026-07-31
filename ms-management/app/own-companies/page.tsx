@@ -41,7 +41,7 @@ export default function OwnCompaniesPage() {
   // Super Admin only can see own companies page
   if (currentRole !== "Super Admin") {
     return (
-      <div className="flex flex-col min-h-full">
+      <div className="flex flex-col h-full overflow-hidden">
         <PageHeader title="Internal SaaS Companies" />
         <div className="p-12"><EmptyState title="Access Restricted" description="You do not have permission to view the SaaS tenant management module. Contact your Super Admin." /></div>
       </div>
@@ -102,13 +102,13 @@ export default function OwnCompaniesPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <PageHeader title="Own Company Management" subtitle="Manage internal SaaS tenants and agencies"
         actions={<Button onClick={() => { setEditCompany(null); setLogoPreview(null); setForm({ name:"",telephone:"",email:"",address:"",notes:"",subscriptionPlan:"Basic",licenseExpiry:"",maxUsers:10,maxStorage:5,logo:null, type: "", branch: "", location: "", country: "", district: "", province: "", city: "" }); setAddModal(true); }} className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs h-9 px-4 gap-1.5"><Plus className="w-4 h-4"/>Add Internal Company</Button>}
       />
       <FilterBar moduleKey="companies" statusOptions={["Active","Inactive","Suspended"]} />
 
-      <div className="flex-1 p-4 md:p-6">
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
         {paginated.length === 0 ? (
           <EmptyState title="No internal companies found" action={<Button onClick={() => setAddModal(true)} className="bg-blue-600 text-white rounded-xl text-xs px-4 h-9">Add Internal Company</Button>} />
         ) : (

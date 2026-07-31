@@ -267,7 +267,7 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
 
   if (isAccessDenied) {
     return (
-      <div className="flex flex-col min-h-full select-none">
+      <div className="flex flex-col h-full overflow-hidden select-none">
         <PageHeader title="Access Restricted" showBack={true} />
         <div className="p-12">
           <EmptyState title="Access Restricted" description="You do not have permission to view this applicant's profile." />
@@ -278,7 +278,7 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
 
   if (!applicant) {
     return (
-      <div className="flex flex-col min-h-full select-none">
+      <div className="flex flex-col h-full overflow-hidden select-none">
         <PageHeader title="Applicant Profile" showBack={true} />
         <div className="p-12">
           <EmptyState title="Applicant profile not found" description="The applicant you are trying to view does not exist or has been deleted." />
@@ -502,7 +502,7 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
-    <div className="flex flex-col min-h-full select-none">
+    <div className="flex flex-col h-full overflow-hidden select-none">
       <PageHeader
         title={`Profile: ${applicant.fullName}`}
         subtitle={`Tracking: ${applicant.trackingCode}`}

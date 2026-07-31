@@ -119,12 +119,12 @@ export default function EmailTemplatesPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-full bg-slate-50/50">
+    <div className="flex flex-col h-full overflow-hidden bg-slate-50/50">
       <div className="flex-none p-4 md:p-6 border-b bg-white">
         <PageHeader title="Email Templates" />
       </div>
 
-      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0">
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {templates.map(template => (
             <Card key={template.id} className="hover:shadow-md transition-shadow">

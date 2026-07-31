@@ -155,7 +155,7 @@ export default function LeavePage() {
     : staff.filter(s => s.company.trim().toLowerCase() === currentUser.company.trim().toLowerCase());
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <PageHeader title="Leave Requests" subtitle="Manage and approve staff leave applications"
         actions={
           <div className="flex gap-2">
@@ -171,7 +171,7 @@ export default function LeavePage() {
       />
       <FilterBar moduleKey="leave" statusOptions={["Pending","Processing","Approved","Rejected"]} onExport={() => { exportToCSV(list.map(r=>({ID:r.id,Staff:r.staffName,Type:r.leaveType,From:r.fromDate,To:r.toDate,Days:r.days,Status:r.status})),"leave-requests"); toast.success("Exported"); }} />
 
-      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0">
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
         {viewType === "grid" ? (
           paginated.length === 0 ? (
             <EmptyState title="No leave requests" description="No leave requests have been submitted yet." action={<Button onClick={handleOpenModal} className="bg-blue-600 text-white rounded-xl text-xs px-4 h-9">Submit Request</Button>} />

@@ -238,8 +238,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <Breadcrumb />
         </div>
 
-        {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto print:overflow-visible overflow-x-hidden pb-32 md:pb-6 bg-transparent">
+        {/* Main Content Area — overflow-hidden so each page controls its own scrollable region */}
+        <main className="flex-1 overflow-hidden min-h-0 print:overflow-visible bg-transparent flex flex-col">
           {pageContent}
         </main>
 

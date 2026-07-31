@@ -150,13 +150,13 @@ export default function VehiclesPage() {
   const filteredStaff = currentRole === "Super Admin" ? staff : staff.filter(s => s.company === currentUser.company);
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <PageHeader title="Vehicle Management" subtitle="Manage company fleet, assignments, and document expiries"
         actions={<Button onClick={() => { setEditVehicle(null); setForm({ vehicleType:"Sedan",brand:"",plateNumber:"",plateCode:"Dubai",registrationCountry:"UAE",emirate:"Dubai",colour:"",km:0,insuranceExpiry:"",registrationExpiry:"",licenseExpiry:"",notes:"",picture:null }); setModal(true); }} className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs h-9 px-4 gap-1.5"><Plus className="w-4 h-4"/>Add Vehicle</Button>}
       />
       <FilterBar moduleKey="vehicles" statusOptions={["Available","Assigned","Maintenance","Returned"]} onExport={() => { exportToCSV(list.map(v=>({ID:v.id,Brand:v.brand,Plate:v.plateNumber,Status:v.status,AssignedTo:v.assignedTo||"",InsuranceExpiry:v.insuranceExpiry})),"vehicles"); toast.success("Exported"); }} />
 
-      <div className="flex-1 p-4 md:p-6">
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
         {paginated.length === 0 ? (
           <EmptyState title="No vehicles found" action={<Button onClick={() => setModal(true)} className="bg-blue-600 text-white rounded-xl text-xs px-4 h-9">Add Vehicle</Button>} />
         ) : (

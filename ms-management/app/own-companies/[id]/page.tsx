@@ -23,7 +23,7 @@ export default function OwnCompanyDetailPage({ params }: { params: Promise<{ id:
 
   if (!company) {
     return (
-      <div className="flex flex-col min-h-full">
+      <div className="flex flex-col h-full overflow-hidden">
         <PageHeader title="SaaS Tenant Details" showBack={true} />
         <div className="p-12">
           <EmptyState title="Tenant not found" description="The agency you are trying to view does not exist or has been deleted." />
@@ -36,7 +36,7 @@ export default function OwnCompanyDetailPage({ params }: { params: Promise<{ id:
   const isExpired = new Date(company.licenseExpiry) < new Date();
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <PageHeader 
         title="Tenant Details" 
         showBack={true}

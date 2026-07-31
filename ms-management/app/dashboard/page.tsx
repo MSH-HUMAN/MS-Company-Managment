@@ -225,7 +225,7 @@ function StaffDashboard({ currentUser, now, tasks, leaveRequests, notifications,
   );
 
   return (
-    <div className="space-y-5">
+    <div className="h-full overflow-y-auto min-h-0 p-4 md:p-6 pb-32 md:pb-8 space-y-5">
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <StatCard title="My Pending Tasks" value={myPendingTasks.length} icon={CheckSquare} sub="Open tasks" theme="amber" />

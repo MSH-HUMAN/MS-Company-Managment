@@ -190,7 +190,7 @@ export default function MembersPage() {
   );
 
   return (
-    <div className="flex flex-col min-h-full select-none">
+    <div className="flex flex-col h-full overflow-hidden select-none">
       <PageHeader 
         title="Member Management" 
         subtitle="List of all registered candidates automatically enrolled as platform members" 
@@ -229,7 +229,7 @@ export default function MembersPage() {
       </div>
 
       {/* Card Grid */}
-      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0">
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
         {paginated.length === 0 ? (
           <EmptyState title="No members found" description="Try adjusting your search criteria." />
         ) : (

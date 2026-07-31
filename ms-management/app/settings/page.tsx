@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -168,7 +168,7 @@ export default function SettingsPage() {
 
   if (!isSuperAdmin) {
     return (
-      <div className="flex flex-col min-h-full">
+      <div className="flex flex-col h-full overflow-hidden">
         <PageHeader title="Site Settings" />
         <div className="p-12 w-[95vw] sm:w-full max-w-2xl mx-auto w-full">
           <Card className="rounded-2xl border-amber-200 bg-amber-50 p-8 text-center flex flex-col items-center shadow-sm">
@@ -182,7 +182,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <PageHeader title="Global Settings" subtitle="Configure platform-wide settings, branding, and per-company modules"
         actions={<Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs h-9 px-4 gap-1.5"><Save className="w-4 h-4"/>Save Configuration</Button>}
       />

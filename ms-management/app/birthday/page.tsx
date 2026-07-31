@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useAuthStore } from "@/store/authStore";
@@ -115,7 +115,7 @@ export default function BirthdayPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <PageHeader 
         title="Staff Birthdays" 
         subtitle="Track upcoming birthdays and automated wishes"

@@ -318,7 +318,7 @@ export default function UsersPage() {
     : branches.filter(b => b.company === currentUser.company && (currentUser.branch === "All" || b.name === currentUser.branch));
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <PageHeader title="User Management" subtitle="Manage system users, roles, and access levels"
         actions={canCreateUsers ? (
           <Button onClick={() => { setEditUser(null); setForm({ name:"", email:"", mobile:"", whatsapp:"", role:"Recruiter", company:currentUser.company, branch: currentRole === "Branch Admin" ? currentUser.branch : "", photo: null, status: "Active", department: "", designation: "", shiftId: "", basicSalary: 0, allowances: 0, deductions: 0, permissions: null }); setModal(true); }} className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs h-9 px-4 gap-1.5"><Plus className="w-4 h-4"/>Add User</Button>
@@ -326,7 +326,7 @@ export default function UsersPage() {
       />
       <FilterBar moduleKey="users" statusOptions={["Active","Disabled","Suspended","Pending"]} onExport={canExportUsers ? () => { exportToCSV(list.map(u=>({ID:u.id,Name:u.name,Email:u.email,Role:u.role,Status:u.status,Company:u.company,Branch:u.branch})),"users"); toast.success("Exported"); } : undefined} />
 
-      <div className="flex-1 p-4 md:p-6">
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
         {paginated.length === 0 ? (
           <EmptyState title="No users found" action={canCreateUsers ? <Button onClick={() => setModal(true)} className="bg-blue-600 text-white rounded-xl text-xs px-4 h-9">Add User</Button> : null} />
         ) : (

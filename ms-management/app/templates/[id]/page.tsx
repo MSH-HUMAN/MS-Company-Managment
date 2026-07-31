@@ -93,7 +93,7 @@ export default function TemplateEditor() {
   if (loading) return <div className="p-12 text-center">Loading editor...</div>;
 
   return (
-    <div className="flex flex-col min-h-full bg-slate-50">
+    <div className="flex flex-col h-full overflow-hidden bg-slate-50">
       <PageHeader 
         title={isNew ? "Create Template" : "Edit Template"} 
         subtitle="Design and configure your email or system template"

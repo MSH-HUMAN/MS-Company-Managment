@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { Shield, CheckCircle, XCircle, Save, Info, Plus, Trash2 } from "lucide-react";
@@ -182,7 +182,7 @@ export default function RolesPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       <PageHeader title="Roles & Permissions" subtitle="Configure module-level access for each system role"
         actions={canEditRoles ? <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs h-9 px-4 gap-1.5"><Save className="w-4 h-4"/>Save Permissions</Button> : null}
       />

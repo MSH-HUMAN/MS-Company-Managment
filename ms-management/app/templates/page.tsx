@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -76,7 +76,7 @@ export default function TemplatesPage() {
 
   if (currentRole !== "Super Admin") {
     return (
-      <div className="flex flex-col min-h-full">
+      <div className="flex flex-col h-full overflow-hidden">
         <PageHeader title="Template Management" />
         <div className="p-12"><EmptyState title="Access Restricted" description="You do not have permission to view the template management module. Contact your Super Admin." /></div>
       </div>
@@ -84,7 +84,7 @@ export default function TemplatesPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-full bg-slate-50">
+    <div className="flex flex-col h-full overflow-hidden bg-slate-50">
       <PageHeader 
         title="Template Management" 
         subtitle="Manage email and system notification templates dynamically"
