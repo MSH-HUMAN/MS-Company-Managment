@@ -53,6 +53,14 @@ export default function TrackingPage() {
 
   const canView = hasPermission("tracking", "view");
   if (!canView) {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryCode = urlParams.get("code") || urlParams.get("id") || urlParams.get("q");
+      if (queryCode) {
+        window.location.href = `/apply?code=${encodeURIComponent(queryCode)}`;
+        return null;
+      }
+    }
     return <AccessDenied />;
   }
 
