@@ -256,43 +256,39 @@ export async function PUT(request: Request, { params }: RouteParams) {
         </div>
       `;
 
-      try {
-        await sendEmail({
-          to: updated.email,
-          subject,
+      sendEmail({
+        to: updated.email,
+        subject,
+        body: emailBody,
+        candidateName: updated.fullName,
+        company: companyName,
+        branch: updated.branch,
+        type: "Status Update",
+        templateType,
+        templateData: {
+          applicantId: updated.id,
+          recipientName: updated.fullName,
+          applicantFullName: updated.fullName,
+          nationality: updated.nationality || "N/A",
+          passportNumber: updated.passportNumber || "N/A",
+          passport: updated.passportNumber || "N/A",
+          visaStatus: updated.visaType || "N/A",
           body: emailBody,
-          candidateName: updated.fullName,
-          company: companyName,
-          branch: updated.branch,
-          type: "Status Update",
-          templateType,
-          templateData: {
-            applicantId: updated.id,
-            recipientName: updated.fullName,
-            applicantFullName: updated.fullName,
-            nationality: updated.nationality || "N/A",
-            passportNumber: updated.passportNumber || "N/A",
-            passport: updated.passportNumber || "N/A",
-            visaStatus: updated.visaType || "N/A",
-            body: emailBody,
-            actionLink: `http://localhost:3000/apply?code=${updated.trackingCode}`,
-            trackingCode: updated.trackingCode,
-            status: updated.status,
-            currentStatus: updated.status,
-            newStatus: updated.status,
-            previousStatus: existing.status,
-            positions: positionsStr,
-            position: positionsStr,
-            appliedPosition: positionsStr,
-            salary: updated.salaryExpectation ? String(updated.salaryExpectation) : "As agreed",
-            joiningDate: "Immediate or as per visa processing",
-            allowances: "Standard accommodation and transport as per UAE Labor Law",
-            offerLetterLink: `http://localhost:3000/apply?code=${updated.trackingCode}`
-          }
-        });
-      } catch (err) {
-        console.error("Async status update email error:", err);
-      }
+          actionLink: `http://localhost:3000/apply?code=${updated.trackingCode}`,
+          trackingCode: updated.trackingCode,
+          status: updated.status,
+          currentStatus: updated.status,
+          newStatus: updated.status,
+          previousStatus: existing.status,
+          positions: positionsStr,
+          position: positionsStr,
+          appliedPosition: positionsStr,
+          salary: updated.salaryExpectation ? String(updated.salaryExpectation) : "As agreed",
+          joiningDate: "Immediate or as per visa processing",
+          allowances: "Standard accommodation and transport as per UAE Labor Law",
+          offerLetterLink: `http://localhost:3000/apply?code=${updated.trackingCode}`
+        }
+      }).catch(err => console.error("Background status update email error:", err));
     } else if (updated.email && Object.keys(data).some(key => data[key] !== undefined && data[key] !== (existing as any)[key])) {
       // General profile update
       const companyName = updated.company && updated.company !== "Not Placed" ? updated.company : "MS Human Resource Consultancies";
@@ -321,26 +317,22 @@ export async function PUT(request: Request, { params }: RouteParams) {
             </ul>
           </div>
         `;
-      try {
-        await sendEmail({
-          to: updated.email,
-          subject: `Application Profile Updated - Tracking Code: ${updated.trackingCode}`,
-          body: emailBody,
-          candidateName: updated.fullName,
-          company: companyName,
-          branch: updated.branch,
-          templateType: "Status_Changed",
-          templateData: {
-            recipientName: updated.fullName,
-            newStatus: "Profile Updated",
-            notes: "Your general application profile details have been successfully updated in our recruitment system.",
-            actionLink: `http://localhost:3000/apply?code=${updated.trackingCode}`,
-            trackingCode: updated.trackingCode
-          }
-        });
-      } catch (err) {
-        console.error("Async general update email error:", err);
-      }
+      sendEmail({
+        to: updated.email,
+        subject: `Application Profile Updated - Tracking Code: ${updated.trackingCode}`,
+        body: emailBody,
+        candidateName: updated.fullName,
+        company: companyName,
+        branch: updated.branch,
+        templateType: "Status_Changed",
+        templateData: {
+          recipientName: updated.fullName,
+          newStatus: "Profile Updated",
+          notes: "Your general application profile details have been successfully updated in our recruitment system.",
+          actionLink: `http://localhost:3000/apply?code=${updated.trackingCode}`,
+          trackingCode: updated.trackingCode
+        }
+      }).catch(err => console.error("Background profile update email error:", err));
     }
 
     if (data.status && data.status !== existing.status && (updated.whatsapp || updated.mobile)) {

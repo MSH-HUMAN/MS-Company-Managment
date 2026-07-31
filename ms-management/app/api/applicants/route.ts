@@ -248,42 +248,38 @@ export async function POST(request: Request) {
         extraDetails: applicant.trackingCode ? String(applicant.trackingCode) : undefined
       });
 
-      try {
-        await sendEmail({
-          to: applicant.email,
-          subject: generated.subject,
-          body: generated.body,
-          candidateName: applicant.fullName,
-          company: companyName,
-          branch: applicant.branch || undefined,
-          templateType: "Registration",
-          templateData: {
-            applicantId: applicant.id,
-            recipientName: applicant.fullName,
-            applicantFullName: applicant.fullName,
-            trackingCode: applicant.trackingCode || "",
-            trackingNumber: applicant.trackingCode || "",
-            nationality: applicant.nationality || "N/A",
-            passportNumber: applicant.passportNumber || "N/A",
-            passport: applicant.passportNumber || "N/A",
-            visaStatus: applicant.visaType || "N/A",
-            status: applicant.status || "Pending",
-            currentStatus: applicant.status || "Pending",
-            applicationDate: applicant.applicationDate || new Date().toISOString().split("T")[0],
-            applyingPositions: Array.isArray(applicant.applyingPositions)
-              ? (applicant.applyingPositions as string[]).join(", ")
-              : (applicant.applyingPositions ? String(applicant.applyingPositions) : ""),
-            position: Array.isArray(applicant.applyingPositions)
-              ? (applicant.applyingPositions as string[]).join(", ")
-              : (applicant.applyingPositions ? String(applicant.applyingPositions) : ""),
-            appliedPosition: Array.isArray(applicant.applyingPositions)
-              ? (applicant.applyingPositions as string[]).join(", ")
-              : (applicant.applyingPositions ? String(applicant.applyingPositions) : "")
-          }
-        });
-      } catch (err) {
-        console.error("Async email sending error:", err);
-      }
+      sendEmail({
+        to: applicant.email,
+        subject: generated.subject,
+        body: generated.body,
+        candidateName: applicant.fullName,
+        company: companyName,
+        branch: applicant.branch || undefined,
+        templateType: "Registration",
+        templateData: {
+          applicantId: applicant.id,
+          recipientName: applicant.fullName,
+          applicantFullName: applicant.fullName,
+          trackingCode: applicant.trackingCode || "",
+          trackingNumber: applicant.trackingCode || "",
+          nationality: applicant.nationality || "N/A",
+          passportNumber: applicant.passportNumber || "N/A",
+          passport: applicant.passportNumber || "N/A",
+          visaStatus: applicant.visaType || "N/A",
+          status: applicant.status || "Pending",
+          currentStatus: applicant.status || "Pending",
+          applicationDate: applicant.applicationDate || new Date().toISOString().split("T")[0],
+          applyingPositions: Array.isArray(applicant.applyingPositions)
+            ? (applicant.applyingPositions as string[]).join(", ")
+            : (applicant.applyingPositions ? String(applicant.applyingPositions) : ""),
+          position: Array.isArray(applicant.applyingPositions)
+            ? (applicant.applyingPositions as string[]).join(", ")
+            : (applicant.applyingPositions ? String(applicant.applyingPositions) : ""),
+          appliedPosition: Array.isArray(applicant.applyingPositions)
+            ? (applicant.applyingPositions as string[]).join(", ")
+            : (applicant.applyingPositions ? String(applicant.applyingPositions) : "")
+        }
+      }).catch(err => console.error("Background email sending error:", err));
     }
 
     if (applicant.whatsapp || applicant.mobile) {
@@ -298,17 +294,13 @@ export async function POST(request: Request) {
         trackingCode: applicant.trackingCode
       });
 
-      try {
-        await sendWhatsApp({
-          to: waNumber,
-          message: waMessage,
-          candidateName: applicant.fullName,
-          company: applicant.company,
-          branch: applicant.branch
-        });
-      } catch (err) {
-        console.error("Async WhatsApp sending error:", err);
-      }
+      sendWhatsApp({
+        to: waNumber,
+        message: waMessage,
+        candidateName: applicant.fullName,
+        company: applicant.company,
+        branch: applicant.branch
+      }).catch(err => console.error("Background WhatsApp sending error:", err));
     }
 
     return NextResponse.json(applicant);
