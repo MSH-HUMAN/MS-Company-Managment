@@ -43,10 +43,32 @@ export default function ApplicantsPage() {
  
   if (!isStoreLoaded && applicants.length === 0) {
     return (
-      <div className="min-h-full bg-slate-50 flex items-center justify-center p-12 select-none">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-500 text-sm font-medium">Loading applicants data...</p>
+      <div className="flex flex-col min-h-full select-none">
+        <PageHeader
+          title="Applicant Management"
+          subtitle="Manage recruitments, profile cards, and placement pipelines"
+        />
+        <div className="p-4 md:p-6 space-y-6">
+          <div className="h-14 bg-white border border-slate-100 rounded-2xl animate-pulse" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div key={i} className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-3 animate-pulse">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-slate-200" />
+                  <div className="space-y-1.5 flex-1">
+                    <div className="h-4 bg-slate-200 rounded w-3/4" />
+                    <div className="h-3 bg-slate-100 rounded w-1/2" />
+                  </div>
+                </div>
+                <div className="h-3 bg-slate-100 rounded w-full" />
+                <div className="h-3 bg-slate-100 rounded w-2/3" />
+                <div className="pt-2 border-t border-slate-50 flex justify-between">
+                  <div className="h-6 w-16 bg-slate-200 rounded-full" />
+                  <div className="h-6 w-16 bg-slate-200 rounded-full" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );

@@ -401,28 +401,30 @@ function ApplyContent() {
           </p>
 
           {/* Navigation Controls */}
-          <div className="flex justify-center gap-3 pt-6">
-            <button
-              onClick={() => { setActiveTab("apply"); setGeneratedCode(null); }}
-              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md ${
-                activeTab === "apply"
-                  ? "bg-blue-600 text-white shadow-blue-600/20"
-                  : "bg-slate-800/80 text-slate-300 border border-slate-700 hover:bg-slate-800"
-              }`}
-            >
-              1. Register Application
-            </button>
-            <button
-              onClick={() => { setActiveTab("track"); }}
-              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md ${
-                activeTab === "track"
-                  ? "bg-blue-600 text-white shadow-blue-600/20"
-                  : "bg-slate-800/80 text-slate-300 border border-slate-700 hover:bg-slate-800"
-              }`}
-            >
-              2. Track Progress
-            </button>
-          </div>
+          {!(searchParams.get("code") || searchParams.get("mode") === "track") && (
+            <div className="flex justify-center gap-3 pt-6">
+              <button
+                onClick={() => { setActiveTab("apply"); setGeneratedCode(null); }}
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md ${
+                  activeTab === "apply"
+                    ? "bg-blue-600 text-white shadow-blue-600/20"
+                    : "bg-slate-800/80 text-slate-300 border border-slate-700 hover:bg-slate-800"
+                }`}
+              >
+                1. Register Application
+              </button>
+              <button
+                onClick={() => { setActiveTab("track"); }}
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md ${
+                  activeTab === "track"
+                    ? "bg-blue-600 text-white shadow-blue-600/20"
+                    : "bg-slate-800/80 text-slate-300 border border-slate-700 hover:bg-slate-800"
+                }`}
+              >
+                2. Track Progress
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
