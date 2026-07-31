@@ -274,7 +274,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
           passport: updated.passportNumber || "N/A",
           visaStatus: updated.visaType || "N/A",
           body: emailBody,
-          actionLink: `http://localhost:3000/apply?code=${updated.trackingCode}`,
+          actionLink: `${process.env.NEXT_PUBLIC_SITE_URL || "https://mshorizonuae.com"}/apply?code=${updated.trackingCode}`,
           trackingCode: updated.trackingCode,
           status: updated.status,
           currentStatus: updated.status,
@@ -286,7 +286,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
           salary: updated.salaryExpectation ? String(updated.salaryExpectation) : "As agreed",
           joiningDate: "Immediate or as per visa processing",
           allowances: "Standard accommodation and transport as per UAE Labor Law",
-          offerLetterLink: `http://localhost:3000/apply?code=${updated.trackingCode}`
+          offerLetterLink: `${process.env.NEXT_PUBLIC_SITE_URL || "https://mshorizonuae.com"}/apply?code=${updated.trackingCode}`
         }
       }).catch(err => console.error("Background status update email error:", err));
     } else if (updated.email && Object.keys(data).some(key => data[key] !== undefined && data[key] !== (existing as any)[key])) {
@@ -329,7 +329,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
           recipientName: updated.fullName,
           newStatus: "Profile Updated",
           notes: "Your general application profile details have been successfully updated in our recruitment system.",
-          actionLink: `http://localhost:3000/apply?code=${updated.trackingCode}`,
+          actionLink: `${process.env.NEXT_PUBLIC_SITE_URL || "https://mshorizonuae.com"}/apply?code=${updated.trackingCode}`,
           trackingCode: updated.trackingCode
         }
       }).catch(err => console.error("Background profile update email error:", err));

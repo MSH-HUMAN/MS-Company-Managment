@@ -434,6 +434,14 @@ export async function sendEmail({
     const showPlacementDetails = hasApplicantDetails && safeData.salary !== "N/A";
     const showClientCompany = hasApplicantDetails && safeData.clientCompany !== "N/A";
 
+    const siteDomain = process.env.NEXT_PUBLIC_SITE_URL || "https://mshorizonuae.com";
+    const rawActionLink = templateData?.actionLink || (safeData as any)?.actionLink;
+    const finalActionLink = (rawActionLink && !rawActionLink.includes("localhost"))
+      ? rawActionLink
+      : (templateData?.trackingCode || (safeData as any)?.trackingCode)
+        ? `${siteDomain}/apply?code=${templateData?.trackingCode || (safeData as any)?.trackingCode}`
+        : `${siteDomain}/apply`;
+
     const context = {
       companyName: company || "MS Management",
       companyEmail,
@@ -451,6 +459,7 @@ export async function sendEmail({
       showInterviewDetails,
       showPlacementDetails,
       showClientCompany,
+      actionLink: finalActionLink,
       ...templateData,
     };
 
@@ -897,7 +906,7 @@ Here are your registration details:
 - Position(s) Applied: ${data.role || "N/A"}
 - Application Tracking Code: ${data.extraDetails || "N/A"}
  
-Please keep your mobile number and email active for further updates. You can track your status anytime at http://localhost:3000/apply.
+Please keep your mobile number and email active for further updates. You can track your status anytime at https://mshorizonuae.com/apply.
  
 We look forward to helping you find the right opportunity.
  
