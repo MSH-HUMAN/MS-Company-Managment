@@ -1706,7 +1706,20 @@ export default function DashboardPage() {
     }
   }, [initStore]);
 
-  if (!mounted) return null;
+  if (!mounted || !isStoreLoaded) {
+    return (
+      <div className="min-h-screen bg-slate-50 p-6 flex flex-col gap-6 animate-pulse select-none">
+        <div className="h-36 rounded-3xl bg-slate-200/80 w-full" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="h-28 rounded-2xl bg-slate-200/80" />
+          <div className="h-28 rounded-2xl bg-slate-200/80" />
+          <div className="h-28 rounded-2xl bg-slate-200/80" />
+          <div className="h-28 rounded-2xl bg-slate-200/80" />
+        </div>
+        <div className="h-64 rounded-3xl bg-slate-200/80 w-full" />
+      </div>
+    );
+  }
 
   const loggedInStaffRecord = staff ? staff.find(s =>
     s.email.toLowerCase() === currentUser.email.toLowerCase() ||

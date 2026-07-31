@@ -197,6 +197,8 @@ model Applicant {
 
   @@index([company])
   @@index([branch])
+  @@index([status])
+  @@index([applicationDate])
 }
 
 model Task {
@@ -287,6 +289,8 @@ model LeaveRequest {
 
   @@index([company])
   @@index([branch])
+  @@index([staffId])
+  @@index([status])
 }
 
 model StaffRequest {
@@ -310,6 +314,7 @@ model StaffRequest {
 
   @@index([company])
   @@index([branch])
+  @@index([staffId])
 }
 
 model Vehicle {
@@ -473,6 +478,8 @@ model Placement {
 
   @@index([company])
   @@index([branch])
+  @@index([applicantId])
+  @@index([status])
 }
 
 model Notification {
@@ -537,6 +544,8 @@ model PayrollRecord {
 
   @@index([company])
   @@index([branch])
+  @@index([staffId])
+  @@index([month])
 }
 
 model StaffAttendance {
@@ -551,6 +560,8 @@ model StaffAttendance {
 
   @@index([company])
   @@index([branch])
+  @@index([staffId])
+  @@index([month])
 }
 
 model Shift {
@@ -586,6 +597,7 @@ model OvertimeRequest {
 
   @@index([company])
   @@index([branch])
+  @@index([staffId])
 }
 
 model AttendanceCorrection {
@@ -603,6 +615,7 @@ model AttendanceCorrection {
 
   @@index([company])
   @@index([branch])
+  @@index([staffId])
 }
 
 model PasswordResetRequest {

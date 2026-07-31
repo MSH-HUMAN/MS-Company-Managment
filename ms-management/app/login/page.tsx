@@ -49,13 +49,11 @@ export default function LoginPage() {
 
       // Successful login - set user in store and navigate immediately!
       setCurrentUser(data.user);
-      
       toast.success(`Welcome back, ${data.user.name.split(" ")[0]}!`);
       router.push("/dashboard");
     } catch (err) {
       console.error("Login request error:", err);
       setError("Unable to connect to the login service. Please try again later.");
-    } finally {
       setIsLoading(false);
     }
   };
