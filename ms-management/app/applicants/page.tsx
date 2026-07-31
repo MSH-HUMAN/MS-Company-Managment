@@ -215,16 +215,6 @@ export default function ApplicantsPage() {
         onPrint={canPrintApplicants ? handlePrint : undefined}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
-        actions={
-          canCreateApplicants ? (
-            <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs h-10 px-4 gap-1.5 shadow-sm">
-              <Link href="/applicants/new">
-                <Plus className="w-4 h-4" />
-                Add Applicant
-              </Link>
-            </Button>
-          ) : null
-        }
       />
 
       <div className="flex-1 p-4 md:p-6">

@@ -1706,7 +1706,16 @@ export default function DashboardPage() {
     }
   }, [initStore]);
 
-  if (!mounted || !isStoreLoaded) {
+  if (!mounted) return null;
+
+  if (!currentUser) {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+    return null;
+  }
+
+  if (!isStoreLoaded) {
     return (
       <div className="min-h-screen bg-slate-50 p-6 flex flex-col gap-6 animate-pulse select-none">
         <div className="h-36 rounded-3xl bg-slate-200/80 w-full" />
@@ -1722,8 +1731,8 @@ export default function DashboardPage() {
   }
 
   const loggedInStaffRecord = staff ? staff.find(s =>
-    s.email.toLowerCase() === currentUser.email.toLowerCase() ||
-    s.name.toLowerCase() === currentUser.name.toLowerCase()
+    (s.email && currentUser.email && s.email.toLowerCase() === currentUser.email.toLowerCase()) ||
+    (s.name && currentUser.name && s.name.toLowerCase() === currentUser.name.toLowerCase())
   ) : null;
 
   const staffPosition = loggedInStaffRecord?.position?.toLowerCase() || "";

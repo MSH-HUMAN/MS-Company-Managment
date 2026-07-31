@@ -375,7 +375,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         applyThemeCssVars(settings);
       }
     } catch (e) {
-      set({ isStoreLoading: false });
+      set({ isStoreLoading: false, isStoreLoaded: true });
       console.error("initStore failed:", e);
     }
   },
