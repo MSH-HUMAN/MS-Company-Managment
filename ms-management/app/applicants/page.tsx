@@ -41,7 +41,7 @@ export default function ApplicantsPage() {
   const canPrintApplicants = hasPermission("applicants", "print");
   const canEditApplicants = hasPermission("applicants", "edit");
  
-  if (!isStoreLoaded) {
+  if (!isStoreLoaded && applicants.length === 0) {
     return (
       <div className="min-h-full bg-slate-50 flex items-center justify-center p-12 select-none">
         <div className="flex flex-col items-center gap-3">

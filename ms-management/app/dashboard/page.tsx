@@ -1715,7 +1715,7 @@ export default function DashboardPage() {
     return null;
   }
 
-  if (!isStoreLoaded) {
+  if (!isStoreLoaded && applicants.length === 0 && staff.length === 0) {
     return (
       <div className="min-h-screen bg-slate-50 p-6 flex flex-col gap-6 animate-pulse select-none">
         <div className="h-36 rounded-3xl bg-slate-200/80 w-full" />
