@@ -38,7 +38,7 @@ const isOverdue = (task: Task) => {
 };
 
 export default function TasksPage() {
-  const { currentRole, currentUser, tasks, staff, companies, ownCompanies, applicants, addTask, updateTask, deleteTask, hasPermission, addActivityLog } = useAuthStore();
+  const { currentRole, currentUser, tasks, staff, companies, ownCompanies, branches, applicants, addTask, updateTask, deleteTask, hasPermission, addActivityLog } = useAuthStore();
   const { filters } = useFilterStore();
 
   const canViewTasks = hasPermission("tasks", "view");
@@ -168,13 +168,28 @@ export default function TasksPage() {
   if (f.company && f.company !== "all") list = list.filter(t => t.company === f.company);
   if (f.assignedTo && f.assignedTo !== "all") list = list.filter(t => t.assignedTo === f.assignedTo || t.assignedToId === f.assignedTo);
 
+  // Unique list of all companies for task targeting (both internal ownCompanies and client companies)
+  const allCompaniesForTasks = Array.from(
+    new Map(
+      [...(ownCompanies || []), ...(companies || [])].map(c => [c.name, c])
+    ).values()
+  );
+
+  const targetCompanyToUse = formCompany || (isSystemWide ? "" : currentUser.company);
+
+  // Available branches for current target company selection
+  const allowedBranchesForTasks = (branches || []).filter(b => 
+    !targetCompanyToUse || b.company === targetCompanyToUse
+  );
+
   // Staff available for task assignment
-  // System-wide users see all staff; company-scoped users see their company's staff only
-  const allowedStaffForTasks = isSystemWide
-    ? (formCompany ? staff.filter(s => s.company === formCompany) : staff)
-    : (currentRole !== "Company Admin" && currentUser.branch && currentUser.branch !== "All"
-        ? staff.filter(s => s.company === currentUser.company && s.branch === currentUser.branch)
-        : staff.filter(s => s.company === currentUser.company));
+  const allowedStaffForTasks = (staff || []).filter(s => {
+    // If target company is selected/set, match company
+    if (targetCompanyToUse && s.company !== targetCompanyToUse) return false;
+    // If target branch is selected/set, match branch
+    if (formBranch && formBranch !== "All" && s.branch && s.branch !== formBranch) return false;
+    return true;
+  });
 
   const totalItems = list.length;
   const page = f.page || 1;
@@ -200,6 +215,45 @@ export default function TasksPage() {
     } catch (e) {
       return dtStr;
     }
+  };
+
+  const handleOpenTaskModal = (task?: Task | null) => {
+    if (task) {
+      setEditTask(task);
+      setFormCompany(task.company || currentUser.company || "");
+      setFormBranch(task.branch || "");
+      setForm({
+        title: task.title,
+        description: task.description,
+        priority: task.priority,
+        assignedTo: task.assignedTo,
+        assignedDate: formatForInputDateTime(task.assignedDate),
+        deadline: formatForInputDateTime(task.deadline),
+        applicantId: task.applicantId || null,
+        applicantName: task.applicantName || null,
+        targetDocument: task.targetDocument || null,
+        notes: task.notes || "",
+        attachmentName: task.attachmentName || ""
+      });
+    } else {
+      setEditTask(null);
+      setFormCompany(currentUser.company !== "System" ? currentUser.company : (ownCompanies[0]?.name || ""));
+      setFormBranch(currentUser.branch !== "All" ? (currentUser.branch || "") : "");
+      setForm({
+        title: "",
+        description: "",
+        priority: "Medium",
+        assignedTo: null,
+        assignedDate: formatForInputDateTime(new Date().toISOString()),
+        deadline: "",
+        applicantId: null,
+        applicantName: null,
+        targetDocument: null,
+        notes: "",
+        attachmentName: ""
+      });
+    }
+    setModal(true);
   };
 
   const sendMockEmail = (assigneeName: string, taskTitle: string) => {
@@ -427,7 +481,7 @@ export default function TasksPage() {
               ))}
             </div>
             {canCreateTasks && (
-              <Button onClick={() => { setEditTask(null); setForm({ title:"",description:"",priority:"Medium",assignedTo:null,assignedDate: formatForInputDateTime(new Date().toISOString()), deadline:"", applicantId: null, applicantName: null, targetDocument: null, notes: "", attachmentName: "" }); setModal(true); }} className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs h-9 px-4 gap-1.5 shadow-md shadow-blue-600/10"><Plus className="w-4 h-4"/>New Task</Button>
+              <Button onClick={() => handleOpenTaskModal()} className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs h-9 px-4 gap-1.5 shadow-md shadow-blue-600/10"><Plus className="w-4 h-4"/>New Task</Button>
             )}
           </div>
         }
@@ -560,7 +614,7 @@ export default function TasksPage() {
                       ) : colTasks.map(t => {
                         const overdue = isOverdue(t);
                         return (
-                          <Card key={t.id} className={`rounded-xl p-3.5 bg-white shadow-sm hover:shadow-md transition-all cursor-pointer ${overdue ? "border border-rose-300 shadow-rose-500/10" : "border-slate-100"}`} onClick={() => { setEditTask(t); setForm({ title: t.title, description: t.description, priority: t.priority, assignedTo: t.assignedTo, assignedDate: formatForInputDateTime(t.assignedDate), deadline: formatForInputDateTime(t.deadline), applicantId: t.applicantId || null, applicantName: t.applicantName || null, targetDocument: t.targetDocument || null, notes: t.notes || "", attachmentName: t.attachmentName || "" }); setModal(true); }}>
+                          <Card key={t.id} className={`rounded-xl p-3.5 bg-white shadow-sm hover:shadow-md transition-all cursor-pointer ${overdue ? "border border-rose-300 shadow-rose-500/10" : "border-slate-100"}`} onClick={() => handleOpenTaskModal(t)}>
                             <div className="flex items-start justify-between gap-2 mb-2">
                               <div className="flex gap-1 flex-wrap">
                                 <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded border uppercase ${priorityColor(t.priority)}`}>{t.priority}</span>
@@ -723,53 +777,85 @@ export default function TasksPage() {
                 <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Description</Label>
                 <textarea rows={2} value={form.description} onChange={e => setForm(f => ({...f, description: e.target.value}))} className="w-full bg-white border border-slate-200 rounded-xl text-xs p-3 outline-none focus:border-blue-400 resize-none" />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Target Company & Target Branch Selectors */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-2xl bg-blue-50/60 border border-blue-100/80">
                 <div className="space-y-1">
-                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Priority</Label>
-                  <Select value={form.priority} onValueChange={v => setForm(f => ({...f, priority: v as Task["priority"]}))}>
-                    <SelectTrigger className="bg-white border-slate-200 rounded-xl text-xs h-9"><SelectValue/></SelectTrigger>
-                    <SelectContent className="bg-white rounded-xl text-xs">
-                      {["Urgent", "High", "Medium", "Low"].map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <Label className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
+                    Target Company <span className="text-rose-500">*</span>
+                  </Label>
+                  <select
+                    value={formCompany}
+                    onChange={e => {
+                      const val = e.target.value;
+                      setFormCompany(val);
+                      setFormBranch("");
+                      setForm(f => ({ ...f, assignedTo: null }));
+                    }}
+                    disabled={editTask ? !canEditTasks : false}
+                    className="w-full bg-white border border-blue-200 rounded-xl text-xs h-9 px-3 outline-none focus:border-blue-400 font-semibold text-slate-700 disabled:opacity-50"
+                  >
+                    <option value="">Select Company...</option>
+                    {allCompaniesForTasks.map(c => (
+                      <option key={c.id || c.name} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Assign To <span className="text-rose-500">*</span></Label>
-                  <Select value={form.assignedTo ?? ""} onValueChange={v => setForm(f => ({...f, assignedTo: v}))} disabled={editTask ? !canEditTasks : !canCreateTasks}>
-                    <SelectTrigger className="bg-white border-slate-200 rounded-xl text-xs h-9"><SelectValue placeholder="Select staff member"/></SelectTrigger>
-                    <SelectContent className="bg-white rounded-xl text-xs max-h-48">
-                      {allowedStaffForTasks.map(s => <SelectItem key={s.id} value={s.name}>{s.name} · {s.position}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <Label className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
+                    Target Branch
+                  </Label>
+                  <select
+                    value={formBranch}
+                    onChange={e => {
+                      const val = e.target.value;
+                      setFormBranch(val);
+                      setForm(f => ({ ...f, assignedTo: null }));
+                    }}
+                    disabled={editTask ? !canEditTasks : false}
+                    className="w-full bg-white border border-blue-200 rounded-xl text-xs h-9 px-3 outline-none focus:border-blue-400 font-semibold text-slate-700 disabled:opacity-50"
+                  >
+                    <option value="">All / Main Branch</option>
+                    {allowedBranchesForTasks.map(b => (
+                      <option key={b.id || b.name} value={b.name}>{b.name}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
-              {/* Company & Branch selectors — only for System-wide users creating a new task */}
-              {isSystemWide && !editTask && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl bg-blue-50 border border-blue-100">
-                  <div className="space-y-1">
-                    <Label className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Target Company <span className="text-rose-500">*</span></Label>
-                    <Select
-                      value={formCompany}
-                      onValueChange={v => { setFormCompany(v || ""); setFormBranch(""); setForm(f => ({ ...f, assignedTo: null })); }}
-                    >
-                      <SelectTrigger className="bg-white border-blue-200 rounded-xl text-xs h-9"><SelectValue placeholder="Select company"/></SelectTrigger>
-                      <SelectContent className="bg-white rounded-xl text-xs max-h-48">
-                        {ownCompanies.map(c => <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Branch</Label>
-                    <Input
-                      value={formBranch}
-                      onChange={e => setFormBranch(e.target.value)}
-                      className="bg-white border-blue-200 rounded-xl text-xs h-9"
-                      placeholder="e.g. Main Branch"
-                    />
-                  </div>
+              {/* Priority & Assign To Selectors */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Priority</Label>
+                  <select
+                    value={form.priority}
+                    onChange={e => setForm(f => ({ ...f, priority: e.target.value as Task["priority"] }))}
+                    className="w-full bg-white border border-slate-200 rounded-xl text-xs h-9 px-3 outline-none focus:border-blue-400 font-semibold text-slate-700"
+                  >
+                    {["Urgent", "High", "Medium", "Low"].map(p => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
                 </div>
-              )}
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    Assign To <span className="text-rose-500">*</span>
+                  </Label>
+                  <select
+                    required
+                    value={form.assignedTo || ""}
+                    onChange={e => setForm(f => ({ ...f, assignedTo: e.target.value || null }))}
+                    disabled={editTask ? !canEditTasks : !canCreateTasks}
+                    className="w-full bg-white border border-slate-200 rounded-xl text-xs h-9 px-3 outline-none focus:border-blue-400 font-semibold text-slate-700 disabled:opacity-50"
+                  >
+                    <option value="">Select staff member...</option>
+                    {allowedStaffForTasks.map(s => (
+                      <option key={s.id} value={s.name}>
+                        {s.name} · {s.position} ({s.company}{s.branch ? ` - ${s.branch}` : ""})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
@@ -783,9 +869,10 @@ export default function TasksPage() {
               </div>
               <div className="space-y-1">
                 <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Linked Candidate / Applicant (Optional)</Label>
-                <Select
+                <select
                   value={form.applicantId || "none"}
-                  onValueChange={(val) => {
+                  onChange={(e) => {
+                    const val = e.target.value;
                     if (val === "none") {
                       setForm(f => ({ ...f, applicantId: null, applicantName: null, targetDocument: null }));
                     } else {
@@ -794,40 +881,33 @@ export default function TasksPage() {
                     }
                   }}
                   disabled={editTask ? !canEditTasks : !canCreateTasks}
+                  className="w-full bg-white border border-slate-200 rounded-xl text-xs h-9 px-3 outline-none focus:border-blue-400 font-semibold text-slate-700 disabled:opacity-50"
                 >
-                  <SelectTrigger className="bg-white border-slate-200 rounded-xl text-xs h-9 focus:border-blue-400">
-                    <SelectValue placeholder="Select an applicant" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white rounded-xl text-xs max-h-48">
-                    <SelectItem value="none">None / No Applicant</SelectItem>
-                    {applicants.map(app => (
-                      <SelectItem key={app.id} value={app.id}>{app.fullName} ({app.trackingCode})</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <option value="none">None / No Applicant</option>
+                  {applicants.map(app => (
+                    <option key={app.id} value={app.id}>{app.fullName} ({app.trackingCode})</option>
+                  ))}
+                </select>
               </div>
 
               {form.applicantId && (
                 <div className="space-y-1">
                   <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Document to Verify (Optional)</Label>
-                  <Select
+                  <select
                     value={form.targetDocument || "none"}
-                    onValueChange={(val) => {
+                    onChange={(e) => {
+                      const val = e.target.value;
                       setForm(f => ({ ...f, targetDocument: val === "none" ? null : val }));
                     }}
                     disabled={editTask ? !canEditTasks : !canCreateTasks}
+                    className="w-full bg-white border border-slate-200 rounded-xl text-xs h-9 px-3 outline-none focus:border-blue-400 font-semibold text-slate-700 disabled:opacity-50"
                   >
-                    <SelectTrigger className="bg-white border-slate-200 rounded-xl text-xs h-9 focus:border-blue-400">
-                      <SelectValue placeholder="Select target document" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white rounded-xl text-xs">
-                      <SelectItem value="none">All Documents / General Review</SelectItem>
-                      <SelectItem value="Passport Copy">Passport Copy</SelectItem>
-                      <SelectItem value="Visa Page">Visa Page</SelectItem>
-                      <SelectItem value="Applicant Photo">Applicant Photo</SelectItem>
-                      <SelectItem value="Other">Other / Additional Documents</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <option value="none">All Documents / General Review</option>
+                    <option value="Passport Copy">Passport Copy</option>
+                    <option value="Visa Page">Visa Page</option>
+                    <option value="Applicant Photo">Applicant Photo</option>
+                    <option value="Other">Other / Additional Documents</option>
+                  </select>
                 </div>
               )}
 
@@ -918,33 +998,25 @@ export default function TasksPage() {
               {editTask && (
                 <div className="space-y-1">
                   <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</Label>
-                  <Select
+                  <select
                     value={editTask.status}
-                    onValueChange={v => {
-                      const newStatus = v as Task["status"];
-                      // Update local editTask state so dropdown shows new value
+                    onChange={e => {
+                      const newStatus = e.target.value as Task["status"];
                       setEditTask(prev => prev ? { ...prev, status: newStatus } : prev);
-                      // Only auto-submit if it's not "Completed" (since Completed needs proof upload)
                       if (newStatus !== "Completed") {
                         handleStatusChange(editTask, newStatus, true);
                       }
                     }}
                     disabled={!canEditTasks && currentUser.name !== editTask.assignedTo}
+                    className={`w-full border border-slate-200 rounded-xl text-xs h-9 px-3 outline-none focus:border-blue-400 font-semibold text-slate-700 disabled:opacity-50 ${editTask.status === "Completed" ? "border-emerald-300 bg-emerald-50" : editTask.status === "Processing" ? "border-blue-300 bg-blue-50" : "bg-white"}`}
                   >
-                    <SelectTrigger className={`bg-white border-slate-200 rounded-xl text-xs h-9 ${editTask.status === "Completed" ? "border-emerald-300 bg-emerald-50" : editTask.status === "Processing" ? "border-blue-300 bg-blue-50" : ""}`}>
-                      <SelectValue/>
-                    </SelectTrigger>
-                    <SelectContent className="bg-white rounded-xl text-xs">
-                      {[
-                        { value: "Pending", label: "⏳ Pending" },
-                        { value: "Processing", label: "🔄 In Progress" },
-                        { value: "Completed", label: "✅ Completed" },
-                        { value: "Incomplete", label: "❌ Incomplete" },
-                        { value: "Reassigned", label: "↔️ Reassigned" },
-                        { value: "Cancelled", label: "🚫 Cancelled" },
-                      ].map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                    <option value="Pending">⏳ Pending</option>
+                    <option value="Processing">🔄 In Progress</option>
+                    <option value="Completed">✅ Completed</option>
+                    <option value="Incomplete">❌ Incomplete</option>
+                    <option value="Reassigned">↔️ Reassigned</option>
+                    <option value="Cancelled">🚫 Cancelled</option>
+                  </select>
                   {editTask.status !== "Completed" && editTask.status !== "Cancelled" && (
                     <p className="text-[9px] text-slate-400 mt-1">Changing to <strong>Completed</strong> or <strong>Cancelled</strong> will move this task to the Task Archive.</p>
                   )}
@@ -1053,12 +1125,17 @@ export default function TasksPage() {
             </DialogHeader>
             <div className="space-y-1">
               <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Reassign To <span className="text-rose-500">*</span></Label>
-              <Select value={reassignStaffName} onValueChange={(v) => setReassignStaffName(v ?? "")}>
-                <SelectTrigger className="bg-white border-slate-200 rounded-xl text-xs h-9"><SelectValue placeholder="Select staff member"/></SelectTrigger>
-                <SelectContent className="bg-white rounded-xl text-xs max-h-48">
-                  {allowedStaffForTasks.map(s => <SelectItem key={s.id} value={s.name}>{s.name} · {s.position}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <select
+                required
+                value={reassignStaffName}
+                onChange={e => setReassignStaffName(e.target.value)}
+                className="w-full bg-white border border-slate-200 rounded-xl text-xs h-9 px-3 outline-none focus:border-blue-400 font-semibold text-slate-700"
+              >
+                <option value="">Select staff member...</option>
+                {allowedStaffForTasks.map(s => (
+                  <option key={s.id} value={s.name}>{s.name} · {s.position} ({s.company})</option>
+                ))}
+              </select>
             </div>
             <DialogFooter className="flex gap-2 justify-end pt-2">
               <Button type="button" variant="ghost" onClick={() => setReassignModalOpen(false)} className="text-xs rounded-xl px-4">Cancel</Button>
