@@ -5,6 +5,7 @@ import { Plus, MessageSquare, FileText, CheckCircle, XCircle, Trash2, CornerUpLe
 import { useAuthStore } from "@/store/authStore";
 import { useFilterStore } from "@/store/filterStore";
 import AccessDenied from "@/components/shared/AccessDenied";
+import { filterRecordsByPermission } from "@/lib/rbac";
 import { formatDate, exportToCSV } from "@/lib/utils";
 import PageHeader from "@/components/shared/PageHeader";
 import FilterBar from "@/components/shared/FilterBar";
@@ -95,12 +96,7 @@ export default function StaffRequestsPage() {
   };
 
   const f = filters.requests;
-  let list = staffRequests;
-  if (!isAdmin) {
-    list = list.filter(r => r.staffId === currentStaff?.id);
-  } else if (currentRole !== "Super Admin" && currentUser.company !== "System") {
-    list = list.filter(r => r.company === currentUser.company);
-  }
+  let list = filterRecordsByPermission("requests", staffRequests, currentUser, currentRole, hasPermission);
   if (f.search) { const q = f.search.toLowerCase(); list = list.filter(r => r.staffName.toLowerCase().includes(q) || r.requestType.toLowerCase().includes(q)); }
   if (f.status && f.status !== "all") list = list.filter(r => r.status === f.status);
   if (f.company && f.company !== "all") list = list.filter(r => r.company === f.company);

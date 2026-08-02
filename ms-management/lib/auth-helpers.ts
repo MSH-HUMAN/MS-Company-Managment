@@ -92,9 +92,10 @@ export function getTenantScopeFilter(user: SessionUser, companyField = "company"
     filter[companyField] = user.company;
   }
   
-  if (user.role !== "Company Admin") {
-    // Branch Admin, HR, Staff MUST be restricted to their branch
-    filter[branchField] = (user.branch && user.branch !== "All") ? user.branch : "RESTRICTED_ACCESS";
+  if (user.role !== "Company Admin" && user.role !== "HR Manager" && user.role !== "Admin" && user.role !== "Accountant") {
+    if (user.branch && user.branch !== "All") {
+      filter[branchField] = user.branch;
+    }
   }
   
   return filter;
@@ -177,14 +178,8 @@ export async function hasPermissionBackend(user: SessionUser, moduleKey: string,
     }
   }
 
-  // 3. Fallback for Super Admin (general CRUD is allowed, but approve/reject/assign must be explicit)
+  // 3. Fallback for Super Admin (Full system administration access)
   if (user.role === "Super Admin") {
-    if (["approve", "reject", "assign"].includes(action)) {
-      if (["attendance", "payroll", "leave"].includes(moduleKey.toLowerCase())) {
-        return true;
-      }
-      return false;
-    }
     return true;
   }
 

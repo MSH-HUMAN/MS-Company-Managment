@@ -13,6 +13,7 @@ import EmptyState from "@/components/shared/EmptyState";
 import Pagination from "@/components/shared/Pagination";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import AccessDenied from "@/components/shared/AccessDenied";
+import { filterRecordsByPermission } from "@/lib/rbac";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -56,13 +57,7 @@ export default function StaffPage() {
 
   const f = filters.staff || {};
 
-  let list = Array.isArray(staff) ? [...staff] : [];
-  if (currentRole !== "Super Admin" && currentUser.company !== "System") {
-    list = list.filter(s => s.company === currentUser.company);
-    if (currentRole !== "Company Admin" && currentUser.branch && currentUser.branch !== "All") {
-      list = list.filter(s => s.branch === currentUser.branch);
-    }
-  }
+  let list = filterRecordsByPermission("staff", Array.isArray(staff) ? staff : [], currentUser, currentRole, hasPermission);
 
   if (f.search) {
     const q = f.search.toLowerCase();

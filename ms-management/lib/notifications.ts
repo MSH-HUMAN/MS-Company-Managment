@@ -1080,3 +1080,174 @@ Best regards,
     }
   }
 }
+
+/**
+ * Sends branded HTML task lifecycle emails to assigned staff
+ */
+export async function sendTaskEmailNotification({
+  to,
+  assigneeName,
+  taskTitle,
+  taskDescription,
+  priority,
+  assignedBy,
+  company,
+  branch,
+  assignedDate,
+  dueDate,
+  status,
+  eventType = "Task Assigned",
+  taskId
+}: {
+  to: string;
+  assigneeName: string;
+  taskTitle: string;
+  taskDescription?: string;
+  priority: string;
+  assignedBy: string;
+  company: string;
+  branch: string;
+  assignedDate: string;
+  dueDate: string;
+  status: string;
+  eventType?: "Task Assigned" | "Task Updated" | "Task Reassigned" | "Due Date Changed" | "Task Completed" | "Task Cancelled" | "Task Overdue";
+  taskId?: string;
+}) {
+  if (!to || !to.includes("@")) return;
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://portal.mshorizon.ae";
+  const actionLink = `${siteUrl}/tasks`;
+  const compName = company || "MS Management";
+
+  const priorityColorMap: Record<string, string> = {
+    Urgent: "#e11d48",
+    High: "#ea580c",
+    Medium: "#d97706",
+    Low: "#475569"
+  };
+  const priorityColor = priorityColorMap[priority] || "#2563eb";
+
+  const eventBadgeMap: Record<string, { label: string; bg: string; color: string }> = {
+    "Task Assigned": { label: "📌 NEW TASK ASSIGNED", bg: "#eff6ff", color: "#1d4ed8" },
+    "Task Updated": { label: "📝 TASK UPDATED", bg: "#f0f9ff", color: "#0369a1" },
+    "Task Reassigned": { label: "↔️ TASK REASSIGNED", bg: "#f5f3ff", color: "#6d28d9" },
+    "Due Date Changed": { label: "⏰ DUE DATE UPDATED", bg: "#fff7ed", color: "#c2410c" },
+    "Task Completed": { label: "✅ TASK COMPLETED", bg: "#f0fdf4", color: "#15803d" },
+    "Task Cancelled": { label: "🚫 TASK CANCELLED", bg: "#fef2f2", color: "#b91c1c" },
+    "Task Overdue": { label: "⚠️ TASK OVERDUE NOTICE", bg: "#fff1f2", color: "#be123c" }
+  };
+  const badge = eventBadgeMap[eventType] || { label: `📌 ${eventType.toUpperCase()}`, bg: "#eff6ff", color: "#1d4ed8" };
+
+  const emailHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>${eventType}: ${taskTitle}</title>
+    </head>
+    <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; color: #1e293b;">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+        <!-- Header Banner -->
+        <tr>
+          <td align="center" style="background-color: #0f172a; padding: 24px; text-align: center;">
+            <div style="display: inline-block; background-color: #2563eb; color: #ffffff; width: 44px; height: 44px; line-height: 44px; border-radius: 12px; font-weight: 900; font-size: 20px; margin-bottom: 8px;">MS</div>
+            <h2 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.5px;">${compName}</h2>
+            <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 12px; font-weight: 500;">Task Management & Operations Portal</p>
+          </td>
+        </tr>
+        <!-- Alert Badge -->
+        <tr>
+          <td style="padding: 24px 32px 12px 32px;">
+            <div style="background-color: ${badge.bg}; border: 1px solid ${badge.color}30; border-radius: 12px; padding: 10px 16px; display: inline-block; color: ${badge.color}; font-weight: 800; font-size: 12px; letter-spacing: 0.5px;">
+              ${badge.label}
+            </div>
+            <h1 style="color: #0f172a; font-size: 18px; font-weight: 800; margin: 16px 0 6px 0;">${taskTitle}</h1>
+            <p style="color: #64748b; font-size: 14px; margin: 0;">Dear <strong>${assigneeName}</strong>, please find the updated task details below.</p>
+          </td>
+        </tr>
+        <!-- Details Card -->
+        <tr>
+          <td style="padding: 12px 32px 24px 32px;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+              ${taskDescription ? `
+              <tr>
+                <td colspan="2" style="padding-bottom: 12px; border-bottom: 1px border #e2e8f0; font-size: 13px; color: #334155; line-height: 1.5;">
+                  <strong>Description / Instructions:</strong><br>${taskDescription}
+                </td>
+              </tr>
+              ` : ""}
+              <tr>
+                <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;" width="40%">Priority:</td>
+                <td style="padding: 6px 0; font-size: 13px; color: ${priorityColor}; font-weight: 800;">${priority}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Status:</td>
+                <td style="padding: 6px 0; font-size: 13px; color: #0f172a; font-weight: 700;">${status}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Assigned By:</td>
+                <td style="padding: 6px 0; font-size: 13px; color: #0f172a; font-weight: 600;">${assignedBy}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Target Company:</td>
+                <td style="padding: 6px 0; font-size: 13px; color: #0f172a; font-weight: 600;">${company || "System"}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Branch:</td>
+                <td style="padding: 6px 0; font-size: 13px; color: #0f172a; font-weight: 600;">${branch || "Main Branch"}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Assigned Date:</td>
+                <td style="padding: 6px 0; font-size: 13px; color: #0f172a; font-weight: 600;">${assignedDate}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-size: 13px; color: #64748b; font-weight: 600;">Due Date:</td>
+                <td style="padding: 6px 0; font-size: 13px; color: #e11d48; font-weight: 800;">${dueDate}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <!-- Action Button -->
+        <tr>
+          <td align="center" style="padding: 0 32px 32px 32px;">
+            <a href="${actionLink}" target="_blank" style="background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 10px; font-weight: 700; font-size: 14px; display: inline-block; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);">
+              🚀 View & Update Task in Portal
+            </a>
+          </td>
+        </tr>
+        <!-- Footer -->
+        <tr>
+          <td align="center" style="background-color: #f1f5f9; padding: 16px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 11px;">
+            This is an automated operational notification from ${compName}.<br>
+            Please do not reply directly to this email.
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to,
+    subject: `[${eventType}] ${taskTitle} - ${compName}`,
+    body: emailHtml,
+    candidateName: assigneeName,
+    company,
+    branch,
+    templateType: "Task_Assigned",
+    templateData: {
+      recipientName: assigneeName,
+      title: taskTitle,
+      description: taskDescription || "",
+      priority,
+      status,
+      assignedBy,
+      company,
+      branch,
+      assignedDate,
+      dueDate,
+      actionLink
+    }
+  }).catch(err => console.error("Error sending task lifecycle email:", err));
+}
+

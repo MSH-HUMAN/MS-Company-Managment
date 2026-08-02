@@ -21,6 +21,7 @@ import { Supplier } from "@/lib/types";
 import { NATIONALITIES } from "@/lib/constants";
 import { toast } from "sonner";
 import AccessDenied from "@/components/shared/AccessDenied";
+import { filterRecordsByPermission } from "@/lib/rbac";
 
 export default function SuppliersPage() {
   const { currentRole, currentUser, suppliers, addSupplier, updateSupplier, deleteSupplier, addActivityLog, hasPermission } = useAuthStore();
@@ -49,8 +50,8 @@ export default function SuppliersPage() {
   const allAvailableCompanies = Array.from(new Set(suppliers.map(s => (s as any).company).filter(Boolean)));
 
   const f = filters.suppliers || { page: 1, pageSize: 10 };
-  // Apply company scoping for non-SA roles
-  let list = isSuperAdmin ? suppliers : suppliers.filter(s => (s as any).company === currentUser.company || !(s as any).company);
+  // Apply company and permission scoping (VIEW vs VIEW ALL)
+  let list = filterRecordsByPermission("suppliers", suppliers, currentUser, currentRole, hasPermission);
   if (f.search) { const q = f.search.toLowerCase(); list = list.filter(s => (s.name ?? "").toLowerCase().includes(q) || (s.email ?? "").toLowerCase().includes(q)); }
   if (f.status && f.status !== "all") list = list.filter(s => s.status === f.status);
   if (f.company && f.company !== "all") list = list.filter(s => (s as any).company === f.company);

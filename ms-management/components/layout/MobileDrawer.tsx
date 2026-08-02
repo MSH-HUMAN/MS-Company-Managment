@@ -57,6 +57,8 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
 
   const canSeeGroup = (group: NavGroup): boolean => {
     if (group.allowedRoles && !group.allowedRoles.includes(currentRole) && !isSuperAdmin) return false;
+    const visibleItems = group.items.filter(canSeeItem);
+    if (visibleItems.length === 0) return false;
     return true;
   };
 

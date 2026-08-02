@@ -23,18 +23,18 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const REPORT_TABS = [
-  { key: "overview", label: "Overview", icon: BarChart3 },
-  { key: "applicants", label: "Applicants", icon: Users },
-  { key: "staff", label: "Staff", icon: Briefcase },
-  { key: "companies", label: "Companies", icon: Building2 },
-  { key: "suppliers", label: "Suppliers", icon: Package },
-  { key: "tasks", label: "Tasks", icon: CheckSquare },
-  { key: "interviews", label: "Interviews", icon: Calendar },
-  { key: "visaPassport", label: "Visa & Passport", icon: Shield },
-  { key: "vehicles", label: "Vehicles", icon: Car },
-  { key: "attendance", label: "Attendance", icon: Activity },
-  { key: "payroll", label: "Payroll", icon: DollarSign },
-  { key: "activityLog", label: "Activity Log", icon: FileText },
+  { key: "overview", label: "Overview", icon: BarChart3, permissionKey: "reports" },
+  { key: "applicants", label: "Applicants", icon: Users, permissionKey: "applicants" },
+  { key: "staff", label: "Staff", icon: UserCheck, permissionKey: "staff" },
+  { key: "companies", label: "Companies", icon: Building2, permissionKey: "companies" },
+  { key: "suppliers", label: "Suppliers", icon: Package, permissionKey: "suppliers" },
+  { key: "tasks", label: "Tasks", icon: CheckSquare, permissionKey: "tasks" },
+  { key: "interviews", label: "Interviews", icon: Calendar, permissionKey: "interviews" },
+  { key: "visaPassport", label: "Visa & Passport", icon: Shield, permissionKey: "visaExpiry" },
+  { key: "vehicles", label: "Vehicles", icon: Car, permissionKey: "vehicles" },
+  { key: "attendance", label: "Attendance", icon: Activity, permissionKey: "attendance" },
+  { key: "payroll", label: "Payroll", icon: DollarSign, permissionKey: "payroll" },
+  { key: "activityLog", label: "Activity Log", icon: FileText, permissionKey: "activityLog" },
 ];
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#64748b'];
@@ -47,6 +47,8 @@ export default function ReportsPage() {
   if (!canView) {
     return <AccessDenied />;
   }
+
+  const allowedTabs = REPORT_TABS.filter(t => t.key === "overview" || hasPermission(t.permissionKey, "view"));
   const [activeTab, setActiveTab] = useState("overview");
 
   const isSuperAdmin = currentRole === "Super Admin";
@@ -310,7 +312,7 @@ export default function ReportsPage() {
 
       {/* Tab Navigation */}
       <div className="bg-white border-b border-slate-100 px-4 flex gap-0.5 overflow-x-auto scrollbar-none py-1.5 flex-shrink-0">
-        {REPORT_TABS.map(tab => {
+        {allowedTabs.map(tab => {
           const Icon = tab.icon;
           return (
             <button

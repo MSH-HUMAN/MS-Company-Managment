@@ -12,11 +12,16 @@ import EmptyState from "@/components/shared/EmptyState";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
+import AccessDenied from "@/components/shared/AccessDenied";
 
 export default function OwnCompanyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const { ownCompanies, branches } = useAuthStore();
+  const { ownCompanies, branches, currentRole } = useAuthStore();
+
+  if (currentRole !== "Super Admin") {
+    return <AccessDenied />;
+  }
 
   const company = ownCompanies.find(c => c.id === id);
   const [activeTab, setActiveTab] = useState("overview");

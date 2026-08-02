@@ -1,4 +1,4 @@
-﻿"use strict";
+"use strict";
 "use client";
 
 import { useState } from "react";
@@ -36,9 +36,16 @@ interface FormData {
   passportNumber: string;
 }
 
+import AccessDenied from "@/components/shared/AccessDenied";
+
 export default function NewApplicantPage() {
   const router = useRouter();
-  const { addApplicant, addActivityLog, currentUser, ownCompanies, branches } = useAuthStore();
+  const { addApplicant, addActivityLog, currentUser, ownCompanies, branches, hasPermission } = useAuthStore();
+
+  const canCreate = hasPermission("applicants", "create");
+  if (!canCreate) {
+    return <AccessDenied />;
+  }
 
   const [positions, setPositions] = useState<string[]>([]);
   const [positionInput, setPositionInput] = useState("");

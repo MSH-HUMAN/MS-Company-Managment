@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useFilterStore } from "@/store/filterStore";
 import { formatDate, exportToCSV, cn } from "@/lib/utils";
 import AccessDenied from "@/components/shared/AccessDenied";
+import { filterRecordsByPermission } from "@/lib/rbac";
 import PageHeader from "@/components/shared/PageHeader";
 import FilterBar from "@/components/shared/FilterBar";
 import StatusBadge from "@/components/shared/StatusBadge";
@@ -20,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Task } from "@/lib/types";
 import { toast } from "sonner";
+import ScrollArrows from "@/components/shared/ScrollArrows";
 
 const KANBAN_COLS = [
   { key: "Pending", label: "Pending", icon: Clock, color: "border-t-amber-400 bg-amber-50/30" },
@@ -38,8 +40,8 @@ const isOverdue = (task: Task) => {
 };
 
 export default function TasksPage() {
-  const { currentRole, currentUser, tasks, staff, companies, ownCompanies, branches, applicants, addTask, updateTask, deleteTask, hasPermission, addActivityLog } = useAuthStore();
-  const { filters } = useFilterStore();
+  const { currentRole, currentUser, tasks, staff, companies, ownCompanies, branches, applicants, addTask, updateTask, deleteTask, hasPermission, addActivityLog, addNotification } = useAuthStore();
+  const { filters, setFilter } = useFilterStore();
 
   const canViewTasks = hasPermission("tasks", "view");
   const canCreateTasks = hasPermission("tasks", "create") || hasPermission("tasks", "assign");
@@ -101,22 +103,8 @@ export default function TasksPage() {
     return <AccessDenied />;
   }
 
-  // Role scope filter
-  if (!isSystemWide) {
-    if (isAdmin) {
-      list = list.filter(t => t.company === currentUser.company);
-      if (currentRole !== "Company Admin" && currentUser.branch && currentUser.branch !== "All") {
-        list = list.filter(t => t.branch === currentUser.branch);
-      }
-    } else {
-      // Staff can see only tasks assigned to or created by them
-      list = list.filter(t => 
-        t.assignedToId === currentUser.id || 
-        t.assignedTo.toLowerCase() === currentUser.name.toLowerCase() ||
-        t.createdBy === currentUser.name
-      );
-    }
-  }
+  // Role and permission scope filter (VIEW vs VIEW ALL & Company/Branch isolation)
+  list = filterRecordsByPermission("tasks", tasks, currentUser, currentRole, hasPermission);
 
   // Stats calculation scoped per user visibility (always from full scoped list, before tab/search filter)
   const stats = {
@@ -129,19 +117,18 @@ export default function TasksPage() {
   };
 
   const statsItems = isAdmin ? [
-    { label: "Total Tasks", value: stats.total, color: "text-blue-600 bg-blue-50 border-blue-100", tab: "active" as const },
-    { label: "Pending", value: stats.pending, color: "text-amber-600 bg-amber-50 border-amber-100", tab: "active" as const },
-    { label: "In Progress", value: stats.processing, color: "text-sky-600 bg-sky-50 border-sky-100", tab: "active" as const },
-    { label: "Overdue", value: stats.overdue, color: "text-rose-600 bg-rose-50 border-rose-100 font-extrabold", tab: "active" as const },
-    { label: "Incomplete", value: stats.incomplete, color: "text-rose-600 bg-rose-50 border-rose-100", tab: "active" as const },
-    { label: "Completed", value: stats.completed, color: "text-emerald-700 bg-emerald-50 border-emerald-200 ring-1 ring-emerald-300", tab: "history" as const },
+    { label: "Total Tasks", value: stats.total, color: "text-blue-600 bg-blue-50 border-blue-100", tab: "active" as const, statusFilter: "all" },
+    { label: "Pending", value: stats.pending, color: "text-amber-600 bg-amber-50 border-amber-100", tab: "active" as const, statusFilter: "Pending" },
+    { label: "In Progress", value: stats.processing, color: "text-sky-600 bg-sky-50 border-sky-100", tab: "active" as const, statusFilter: "Processing" },
+    { label: "Overdue", value: stats.overdue, color: "text-rose-600 bg-rose-50 border-rose-100 font-extrabold", tab: "active" as const, statusFilter: "overdue" },
+    { label: "Incomplete", value: stats.incomplete, color: "text-rose-600 bg-rose-50 border-rose-100", tab: "active" as const, statusFilter: "Incomplete" },
+    { label: "Completed", value: stats.completed, color: "text-emerald-700 bg-emerald-50 border-emerald-200 ring-1 ring-emerald-300", tab: "history" as const, statusFilter: "Completed" },
   ] : [
-    { label: "My Total Tasks", value: stats.total, color: "text-blue-600 bg-blue-50 border-blue-100", tab: "active" as const },
-    { label: "My Open Tasks", value: stats.pending + stats.processing + stats.incomplete, color: "text-amber-600 bg-amber-50 border-amber-100", tab: "active" as const },
-    { label: "My Overdue Tasks", value: stats.overdue, color: "text-rose-600 bg-rose-50 border-rose-100 font-extrabold", tab: "active" as const },
-    { label: "My Completed", value: stats.completed, color: "text-emerald-700 bg-emerald-50 border-emerald-200 ring-1 ring-emerald-300", tab: "history" as const },
+    { label: "My Total Tasks", value: stats.total, color: "text-blue-600 bg-blue-50 border-blue-100", tab: "active" as const, statusFilter: "all" },
+    { label: "My Open Tasks", value: stats.pending + stats.processing + stats.incomplete, color: "text-amber-600 bg-amber-50 border-amber-100", tab: "active" as const, statusFilter: "all" },
+    { label: "My Overdue Tasks", value: stats.overdue, color: "text-rose-600 bg-rose-50 border-rose-100 font-extrabold", tab: "active" as const, statusFilter: "overdue" },
+    { label: "My Completed", value: stats.completed, color: "text-emerald-700 bg-emerald-50 border-emerald-200 ring-1 ring-emerald-300", tab: "history" as const, statusFilter: "Completed" },
   ];
-
 
   if (showOnlyMyTasks) {
     list = list.filter(t => t.assignedTo === currentUser.name);
@@ -154,7 +141,9 @@ export default function TasksPage() {
   }
 
   // Status filter (or tab filter)
-  if (f.status && f.status !== "all") {
+  if (f.status === "overdue") {
+    list = list.filter(t => isOverdue(t));
+  } else if (f.status && f.status !== "all") {
     list = list.filter(t => t.status === f.status);
   } else {
     if (taskTab === "active") {
@@ -256,9 +245,51 @@ export default function TasksPage() {
     setModal(true);
   };
 
-  const sendMockEmail = (assigneeName: string, taskTitle: string) => {
-    toast.success(`Email notification dispatched to ${assigneeName}`, { icon: <Send className="w-4 h-4" /> });
-    addActivityLog({ id: `LOG-${Date.now()}`, dateTime: new Date().toISOString().replace("T"," ").slice(0,19), userName: currentUser.name, role: currentUser.role, company: currentUser.company, branch: currentUser.branch, action: "Email Sent", module: "Tasks", oldValue: null, newValue: `Email assigned task notification to ${assigneeName}: ${taskTitle}`, ipAddress: "192.168.1.102" });
+  const dispatchTaskNotifications = (
+    task: { title: string; description?: string; priority: string; assignedTo: string; company: string; branch: string; assignedDate: string; deadline: string; status: string; id?: string },
+    eventType: "Task Assigned" | "Task Updated" | "Task Reassigned" | "Due Date Changed" | "Task Completed" | "Task Cancelled" | "Task Overdue" = "Task Assigned"
+  ) => {
+    const assignedStaff = staff.find(s => s.name === task.assignedTo || s.id === task.assignedTo);
+    const recipientEmail = assignedStaff?.email || currentUser.email;
+
+    if (recipientEmail) {
+      fetch("/api/emails", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: recipientEmail,
+          templateType: "Task_Assigned",
+          templateData: {
+            recipientName: task.assignedTo,
+            title: task.title,
+            description: task.description || "",
+            priority: task.priority,
+            status: task.status,
+            assignedBy: currentUser.name,
+            company: task.company,
+            branch: task.branch,
+            assignedDate: task.assignedDate,
+            dueDate: task.deadline,
+            eventType,
+            taskId: task.id
+          }
+        })
+      }).catch(err => console.error("Error dispatching task email:", err));
+    }
+
+    addNotification({
+      id: `NOTIF-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      title: `${eventType}: ${task.title}`,
+      message: `[${task.priority}] ${task.title} (Assigned by ${currentUser.name}). Due: ${task.deadline}`,
+      type: "task",
+      link: "/tasks",
+      read: false,
+      company: task.company,
+      branch: task.branch,
+      createdAt: new Date().toISOString()
+    });
+
+    toast.success(`Notification & Email dispatched to ${task.assignedTo}`, { icon: <Send className="w-4 h-4" /> });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -268,7 +299,6 @@ export default function TasksPage() {
     // Client-side validations — normalize to full ISO for Safari/mobile compatibility
     const normalizeDateTime = (dt: string) => {
       if (!dt) return "";
-      // Replace space with T, pad to full ISO format (add :00 seconds if missing)
       const clean = dt.replace(" ", "T");
       if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(clean)) return `${clean}:00`;
       return clean;
@@ -311,9 +341,15 @@ export default function TasksPage() {
       }
 
       const history = editTask.history || [];
+      let isReassigned = false;
+      let isDueDateChanged = false;
       if (editTask.assignedTo !== form.assignedTo) {
          history.push({ action: "Reassigned", date: now, by: currentUser.name, note: `Reassigned from ${editTask.assignedTo} to ${form.assignedTo}` });
-         sendMockEmail(form.assignedTo, form.title);
+         isReassigned = true;
+      }
+      if (editTask.deadline !== formattedDeadline) {
+         history.push({ action: "Due Date Changed", date: now, by: currentUser.name, note: `Due date changed to ${formattedDeadline}` });
+         isDueDateChanged = true;
       }
       
       let updatedTask = { 
@@ -352,9 +388,13 @@ export default function TasksPage() {
 
       updateTask(updatedTask);
       toast.success("Task updated");
+
+      const eventType = isReassigned ? "Task Reassigned" : isDueDateChanged ? "Due Date Changed" : "Task Updated";
+      dispatchTaskNotifications(updatedTask, eventType);
     } else {
       const id = `TSK-${Math.floor(100+Math.random()*900)}`;
-      const history = [{ action: "Created", date: now, by: currentUser.name, note: `Assigned to ${form.assignedTo}` }];      let newFeedback = { comments: "", proofs: [] as any[] };
+      const history = [{ action: "Created", date: now, by: currentUser.name, note: `Assigned to ${form.assignedTo}` }];
+      let newFeedback = { comments: "", proofs: [] as any[] };
       if (uploadedProofFiles.length > 0) {
          const proofNames = uploadedProofFiles.map(f => f.name).join(", ");
          const proofData = uploadedProofFiles.map(f => ({ name: f.name, url: `/uploads/${f.name}`, date: now, by: currentUser.name }));
@@ -362,7 +402,7 @@ export default function TasksPage() {
          history.push({ action: "Attached Files", date: now, by: currentUser.name, note: `Uploaded Documents: ${proofNames}` });
       }
 
-      addTask({ 
+      const newTaskData = { 
         ...form, 
         assignedTo: form.assignedTo ?? "",
         id, 
@@ -373,17 +413,19 @@ export default function TasksPage() {
         applicantId: form.applicantId || undefined,
         applicantName: form.applicantName || undefined,
         targetDocument: form.targetDocument || undefined,
-        status: "Pending", 
+        status: "Pending" as Task["status"], 
         history,
         company: taskCompany, 
         branch: taskBranch, 
         createdBy: currentUser.name, 
         createdAt: now,
         feedback: JSON.stringify(newFeedback)
-      });
+      };
+
+      addTask(newTaskData);
       addActivityLog({ id: `LOG-${Date.now()}`, dateTime: now, userName: currentUser.name, role: currentUser.role, company: currentUser.company, branch: currentUser.branch, action: "Created", module: "Tasks", oldValue: null, newValue: `Created task: ${form.title} for ${taskCompany}`, ipAddress: "192.168.1.102" });
       toast.success(`Task "${form.title}" created`);
-      sendMockEmail(form.assignedTo, form.title);
+      dispatchTaskNotifications(newTaskData, "Task Assigned");
     }
     setModal(false); setEditTask(null);
       setFormCompany(""); setFormBranch("");
@@ -420,6 +462,10 @@ export default function TasksPage() {
       updateTask(updatedTask);
       addActivityLog({ id: `LOG-${Date.now()}`, dateTime: now, userName: currentUser.name, role: currentUser.role, company: currentUser.company, branch: currentUser.branch, action: "Status Changed", module: "Tasks", oldValue: task.status, newValue: status, ipAddress: "192.168.1.102" });
       toast.success(status === "Completed" ? `✅ Task marked as Completed!` : `Task status → ${status}`);
+      
+      const eventType = status === "Completed" ? "Task Completed" : status === "Cancelled" ? "Task Cancelled" : "Task Updated";
+      dispatchTaskNotifications(updatedTask, eventType);
+
       // Close modal if status changed from inside the edit modal
       if (fromModal) {
         setModal(false);
@@ -435,9 +481,11 @@ export default function TasksPage() {
     if (incompleteTask) {
       const now = new Date().toISOString().replace("T"," ").slice(0,19);
       const history = [...(incompleteTask.history || []), { action: "Status: Incomplete", date: now, by: currentUser.name, note: incompleteReasonInput }];
-      updateTask({ ...incompleteTask, status: "Incomplete", incompleteReason: incompleteReasonInput, history });
+      const updatedTask = { ...incompleteTask, status: "Incomplete" as Task["status"], incompleteReason: incompleteReasonInput, history };
+      updateTask(updatedTask);
       addActivityLog({ id: `LOG-${Date.now()}`, dateTime: now, userName: currentUser.name, role: currentUser.role, company: currentUser.company, branch: currentUser.branch, action: "Status Changed", module: "Tasks", oldValue: incompleteTask.status, newValue: "Incomplete", ipAddress: "192.168.1.102" });
       toast.success("Task marked incomplete");
+      dispatchTaskNotifications(updatedTask, "Task Updated");
       setIncompleteModalOpen(false); setIncompleteTask(null); setIncompleteReasonInput("");
     }
   };
@@ -449,10 +497,11 @@ export default function TasksPage() {
       const assignedStaff = staff.find(s => s.name === reassignStaffName);
       const now = new Date().toISOString().replace("T"," ").slice(0,19);
       const history = [...(reassignTask.history || []), { action: "Reassigned", date: now, by: currentUser.name, note: `From ${reassignTask.assignedTo} to ${reassignStaffName}` }];
-      updateTask({ ...reassignTask, status: "Reassigned", assignedTo: reassignStaffName, assignedToId: assignedStaff?.id || "", history });
+      const updatedTask = { ...reassignTask, status: "Reassigned" as Task["status"], assignedTo: reassignStaffName, assignedToId: assignedStaff?.id || "", history };
+      updateTask(updatedTask);
       addActivityLog({ id: `LOG-${Date.now()}`, dateTime: now, userName: currentUser.name, role: currentUser.role, company: currentUser.company, branch: currentUser.branch, action: "Status Changed", module: "Tasks", oldValue: reassignTask.status, newValue: `Reassigned task to ${reassignStaffName}`, ipAddress: "192.168.1.102" });
       toast.success(`Task reassigned to ${reassignStaffName}`);
-      sendMockEmail(reassignStaffName, reassignTask.title);
+      dispatchTaskNotifications(updatedTask, "Task Reassigned");
       setReassignModalOpen(false); setReassignTask(null); setReassignStaffName("");
     }
   };
@@ -492,8 +541,11 @@ export default function TasksPage() {
         {statsItems.map((item, idx) => (
           <Card
             key={idx}
-            onClick={() => setTaskTab(item.tab)}
-            className={cn("p-4 rounded-2xl border flex flex-col items-center justify-center text-center shadow-xs cursor-pointer hover:scale-[1.03] transition-transform duration-150", item.color, taskTab === item.tab && item.tab === "history" ? "ring-2 ring-emerald-400" : "")}
+            onClick={() => {
+              setTaskTab(item.tab);
+              setFilter("tasks", { status: item.statusFilter, page: 1 });
+            }}
+            className={cn("p-4 rounded-2xl border flex flex-col items-center justify-center text-center shadow-xs cursor-pointer hover:scale-[1.03] transition-transform duration-150", item.color, (f.status === item.statusFilter || (item.statusFilter === "all" && (!f.status || f.status === "all"))) ? "ring-2 ring-blue-500 shadow-md" : "")}
           >
             <div className="text-2xl font-black mb-0.5">{item.value}</div>
             <div className="text-[9px] font-bold uppercase tracking-wider opacity-85">{item.label}</div>
@@ -594,78 +646,80 @@ export default function TasksPage() {
             )}
           </div>
         ) : view === "kanban" ? (
-          <div className="flex gap-4 min-w-max">
-            {KANBAN_COLS.map(col => {
-              const Icon = col.icon;
-              const colTasks = list.filter(t => t.status === col.key);
-              return (
-                <div key={col.key} className="w-72 flex-shrink-0">
-                  <div className={`rounded-2xl border-t-4 bg-white border border-slate-100 shadow-sm p-4 ${col.color}`}>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <Icon className="w-4 h-4 text-slate-500"/>
-                        <span className="text-xs font-bold text-slate-800">{col.label}</span>
+          <ScrollArrows>
+            <div className="flex gap-4 min-w-max">
+              {KANBAN_COLS.map(col => {
+                const Icon = col.icon;
+                const colTasks = list.filter(t => t.status === col.key);
+                return (
+                  <div key={col.key} className="w-72 flex-shrink-0">
+                    <div className={`rounded-2xl border-t-4 bg-white border border-slate-100 shadow-sm p-4 ${col.color}`}>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Icon className="w-4 h-4 text-slate-500"/>
+                          <span className="text-xs font-bold text-slate-800">{col.label}</span>
+                        </div>
+                        <span className="text-[10px] font-extrabold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{colTasks.length}</span>
                       </div>
-                      <span className="text-[10px] font-extrabold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{colTasks.length}</span>
-                    </div>
-                    <div className="space-y-2.5 max-h-[calc(100vh-300px)] overflow-y-auto pr-0.5">
-                      {colTasks.length === 0 ? (
-                        <div className="text-center py-6 text-[10px] text-slate-400 font-semibold">No tasks here</div>
-                      ) : colTasks.map(t => {
-                        const overdue = isOverdue(t);
-                        return (
-                          <Card key={t.id} className={`rounded-xl p-3.5 bg-white shadow-sm hover:shadow-md transition-all cursor-pointer ${overdue ? "border border-rose-300 shadow-rose-500/10" : "border-slate-100"}`} onClick={() => handleOpenTaskModal(t)}>
-                            <div className="flex items-start justify-between gap-2 mb-2">
-                              <div className="flex gap-1 flex-wrap">
-                                <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded border uppercase ${priorityColor(t.priority)}`}>{t.priority}</span>
-                                {overdue && <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded border uppercase text-rose-600 bg-rose-50 border-rose-200 flex items-center gap-1"><AlertTriangle className="w-3 h-3"/> Overdue</span>}
+                      <div className="space-y-2.5 max-h-[calc(100vh-300px)] overflow-y-auto pr-0.5">
+                        {colTasks.length === 0 ? (
+                          <div className="text-center py-6 text-[10px] text-slate-400 font-semibold">No tasks here</div>
+                        ) : colTasks.map(t => {
+                          const overdue = isOverdue(t);
+                          return (
+                            <Card key={t.id} className={`rounded-xl p-3.5 bg-white shadow-sm hover:shadow-md transition-all cursor-pointer ${overdue ? "border border-rose-300 shadow-rose-500/10" : "border-slate-100"}`} onClick={() => handleOpenTaskModal(t)}>
+                              <div className="flex items-start justify-between gap-2 mb-2">
+                                <div className="flex gap-1 flex-wrap">
+                                  <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded border uppercase ${priorityColor(t.priority)}`}>{t.priority}</span>
+                                  {overdue && <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded border uppercase text-rose-600 bg-rose-50 border-rose-200 flex items-center gap-1"><AlertTriangle className="w-3 h-3"/> Overdue</span>}
+                                </div>
+                                <div className="flex gap-1 items-center">
+                                  <button onClick={e => { e.stopPropagation(); setHistoryTask(t); setHistoryModalOpen(true); }} className="text-slate-400 hover:text-indigo-500 transition-colors" title="View History"><History className="w-3.5 h-3.5"/></button>
+                                  {canDeleteTasks && <button onClick={e => { e.stopPropagation(); setDeleteId(t.id); }} className="text-slate-300 hover:text-rose-500 transition-colors"><Trash2 className="w-3.5 h-3.5"/></button>}
+                                </div>
                               </div>
-                              <div className="flex gap-1 items-center">
-                                <button onClick={e => { e.stopPropagation(); setHistoryTask(t); setHistoryModalOpen(true); }} className="text-slate-400 hover:text-indigo-500 transition-colors" title="View History"><History className="w-3.5 h-3.5"/></button>
-                                {canDeleteTasks && <button onClick={e => { e.stopPropagation(); setDeleteId(t.id); }} className="text-slate-300 hover:text-rose-500 transition-colors"><Trash2 className="w-3.5 h-3.5"/></button>}
+                              <div className="text-xs font-bold text-slate-800 leading-tight mb-1">{t.title}</div>
+                              <div className="text-[10px] text-slate-500 mb-2 line-clamp-2">{t.description}</div>
+                              {t.incompleteReason && <div className="text-[9px] text-rose-600 font-bold bg-rose-50 border border-rose-100 rounded px-1.5 py-0.5 mb-2 leading-tight">Reason: {t.incompleteReason}</div>}
+                              {t.applicantName && (
+                                <div className="text-[9px] text-blue-700 font-bold bg-blue-50 border border-blue-100 rounded px-1.5 py-0.5 mb-2 leading-tight flex flex-col gap-1 select-none">
+                                  <div className="flex items-center gap-1">👤 Candidate: {t.applicantName}</div>
+                                  {t.targetDocument && (
+                                    <div className="text-[9px] text-indigo-700 font-extrabold bg-indigo-50 border border-indigo-100 rounded px-1 py-0.5 mt-1 flex items-center gap-1 select-none w-fit">
+                                      📄 Verify: {t.targetDocument}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                              {t.attachmentName && (
+                                <div className="text-[9px] text-emerald-700 font-bold bg-emerald-50 border border-emerald-100 rounded px-1.5 py-0.5 mb-2 leading-tight flex items-center gap-1 w-fit select-none">
+                                  📎 {t.attachmentName}
+                                </div>
+                              )}
+                              {t.notes && (
+                                <div className="text-[9px] text-slate-500 italic bg-slate-50 border border-slate-100 rounded px-1.5 py-0.5 mb-2 leading-tight">
+                                  📝 {t.notes}
+                                </div>
+                              )}
+                              <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400 border-t border-slate-50 pt-2">
+                                <span>→ {t.assignedTo}</span>
+                                <span className={`text-[9px] ${overdue ? "text-rose-600" : ""}`}>📅 {formatDateTime(t.deadline)}</span>
                               </div>
-                            </div>
-                            <div className="text-xs font-bold text-slate-800 leading-tight mb-1">{t.title}</div>
-                            <div className="text-[10px] text-slate-500 mb-2 line-clamp-2">{t.description}</div>
-                            {t.incompleteReason && <div className="text-[9px] text-rose-600 font-bold bg-rose-50 border border-rose-100 rounded px-1.5 py-0.5 mb-2 leading-tight">Reason: {t.incompleteReason}</div>}
-                            {t.applicantName && (
-                              <div className="text-[9px] text-blue-700 font-bold bg-blue-50 border border-blue-100 rounded px-1.5 py-0.5 mb-2 leading-tight flex flex-col gap-1 select-none">
-                                <div className="flex items-center gap-1">👤 Candidate: {t.applicantName}</div>
-                                {t.targetDocument && (
-                                  <div className="text-[9px] text-indigo-700 font-extrabold bg-indigo-50 border border-indigo-100 rounded px-1 py-0.5 mt-1 flex items-center gap-1 select-none w-fit">
-                                    📄 Verify: {t.targetDocument}
-                                  </div>
-                                )}
+                              <div className="mt-2 flex gap-1 flex-wrap">
+                                {(["Pending","Processing","Completed","Incomplete","Reassigned","Cancelled"] as Task["status"][]).filter(s => s !== t.status).map(s => (
+                                  <button key={s} onClick={e => { e.stopPropagation(); handleStatusChange(t, s); }} className="text-[8px] font-bold px-1.5 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors">→{s}</button>
+                                ))}
                               </div>
-                            )}
-                            {t.attachmentName && (
-                              <div className="text-[9px] text-emerald-700 font-bold bg-emerald-50 border border-emerald-100 rounded px-1.5 py-0.5 mb-2 leading-tight flex items-center gap-1 w-fit select-none">
-                                📎 {t.attachmentName}
-                              </div>
-                            )}
-                            {t.notes && (
-                              <div className="text-[9px] text-slate-500 italic bg-slate-50 border border-slate-100 rounded px-1.5 py-0.5 mb-2 leading-tight">
-                                📝 {t.notes}
-                              </div>
-                            )}
-                            <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400 border-t border-slate-50 pt-2">
-                              <span>→ {t.assignedTo}</span>
-                              <span className={`text-[9px] ${overdue ? "text-rose-600" : ""}`}>📅 {formatDateTime(t.deadline)}</span>
-                            </div>
-                            <div className="mt-2 flex gap-1 flex-wrap">
-                              {(["Pending","Processing","Completed","Incomplete","Reassigned","Cancelled"] as Task["status"][]).filter(s => s !== t.status).map(s => (
-                                <button key={s} onClick={e => { e.stopPropagation(); handleStatusChange(t, s); }} className="text-[8px] font-bold px-1.5 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors">→{s}</button>
-                              ))}
-                            </div>
-                          </Card>
-                        );
-                      })}
+                            </Card>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </ScrollArrows>
         ) : (
           <div className="flex-1 flex flex-col min-h-0">
             {list.length === 0 ? (

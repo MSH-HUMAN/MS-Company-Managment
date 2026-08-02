@@ -15,9 +15,7 @@ import EmptyState from "@/components/shared/EmptyState";
 import Pagination from "@/components/shared/Pagination";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import AccessDenied from "@/components/shared/AccessDenied";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { toast } from "sonner";
+import { filterRecordsByPermission } from "@/lib/rbac";
 
 export default function ApplicantsPage() {
   const { currentRole, currentUser, applicants, deleteApplicant, updateApplicant, hasPermission, companies, isStoreLoaded } = useAuthStore();
@@ -78,17 +76,8 @@ export default function ApplicantsPage() {
     return <AccessDenied />;
   }
  
-  // 1. Role-based filtering
-  let allowedApplicants: Applicant[] = applicants;
-  
-  if (currentRole !== "Super Admin") {
-    allowedApplicants = applicants.filter(a => a.company === currentUser.company);
-    
-    // Strict Branch Validation: If not a Company Admin, restrict to own branch.
-    if (currentRole !== "Company Admin" && currentUser.branch && currentUser.branch !== "All") {
-      allowedApplicants = allowedApplicants.filter(a => a.branch === currentUser.branch);
-    }
-  }
+  // 1. Role and permission-based list filtering (VIEW vs VIEW ALL & Company/Branch isolation)
+  const allowedApplicants: Applicant[] = filterRecordsByPermission("applicants", applicants, currentUser, currentRole, hasPermission);
 
   // 2. Apply filters
   let filtered = allowedApplicants.filter((item) => {

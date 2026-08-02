@@ -5,6 +5,8 @@ import { Plus, Car, Key, AlertTriangle, Trash2, UserCheck, Edit3, FileText, Cale
 import { useAuthStore } from "@/store/authStore";
 import { useFilterStore } from "@/store/filterStore";
 import { formatDate, exportToCSV } from "@/lib/utils";
+import AccessDenied from "@/components/shared/AccessDenied";
+import { filterRecordsByPermission } from "@/lib/rbac";
 import PageHeader from "@/components/shared/PageHeader";
 import FilterBar from "@/components/shared/FilterBar";
 import StatusBadge from "@/components/shared/StatusBadge";
@@ -51,8 +53,7 @@ export default function VehiclesPage() {
   const [includePayment, setIncludePayment] = useState(false);
 
   const f = filters.vehicles;
-  let list = vehicles;
-  if (currentRole !== "Super Admin" && currentUser.company !== "System") list = list.filter(v => v.company === currentUser.company);
+  let list = filterRecordsByPermission("vehicles", vehicles, currentUser, currentRole, hasPermission);
   if (f.search) { const q = f.search.toLowerCase(); list = list.filter(v => v.brand.toLowerCase().includes(q) || v.plateNumber.toLowerCase().includes(q) || (v.assignedTo||"").toLowerCase().includes(q)); }
   if (f.status && f.status !== "all") list = list.filter(v => v.status === f.status);
 

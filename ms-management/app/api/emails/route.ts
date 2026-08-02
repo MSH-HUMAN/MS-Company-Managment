@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser, getTenantScopeFilter, hasPermissionBackend, createAuditLog } from "@/lib/auth-helpers";
-import { sendEmail, generateEmailContent } from "@/lib/notifications";
+import { sendEmail, generateEmailContent, sendTaskEmailNotification } from "@/lib/notifications";
 
 export async function GET(request: Request) {
   try {
@@ -50,6 +50,25 @@ export async function POST(request: Request) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(data.to)) {
       return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
+    }
+
+    if (data.templateType === "Task_Assigned" && data.templateData) {
+      await sendTaskEmailNotification({
+        to: data.to,
+        assigneeName: data.templateData.recipientName || data.templateData.assigneeName || "Staff Member",
+        taskTitle: data.templateData.title || "Task Alert",
+        taskDescription: data.templateData.description,
+        priority: data.templateData.priority || "Medium",
+        assignedBy: data.templateData.assignedBy || user.name,
+        company: data.templateData.company || user.company,
+        branch: data.templateData.branch || user.branch,
+        assignedDate: data.templateData.assignedDate || new Date().toISOString().slice(0, 10),
+        dueDate: data.templateData.dueDate || data.templateData.deadline || "",
+        status: data.templateData.status || "Pending",
+        eventType: data.templateData.eventType || "Task Assigned",
+        taskId: data.templateData.taskId
+      });
+      return NextResponse.json({ success: true, message: "Task notification email dispatched successfully" });
     }
 
     let finalSubject = data.subject;

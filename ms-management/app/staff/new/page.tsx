@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
+import AccessDenied from "@/components/shared/AccessDenied";
 
 interface FormData {
   name: string; email: string; mobile: string; whatsapp: string;
@@ -31,7 +33,12 @@ interface FormData {
 
 export default function NewStaffPage() {
   const router = useRouter();
-  const { addStaff, addActivityLog, currentUser, currentRole, ownCompanies, companies, branches, roles, shifts } = useAuthStore();
+  const { addStaff, addActivityLog, currentUser, currentRole, ownCompanies, companies, branches, roles, shifts, hasPermission } = useAuthStore();
+
+  const canCreate = hasPermission("staff", "create");
+  if (!canCreate) {
+    return <AccessDenied />;
+  }
   
   // Real documents array
   const [realDocs, setRealDocs] = useState<Document[]>([]);

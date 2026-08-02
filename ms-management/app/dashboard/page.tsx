@@ -466,6 +466,7 @@ function RecruiterDashboard({ fApplicants, fInterviews, placements, now, compani
   companies: ReturnType<typeof useAuthStore.getState>["companies"];
   currentUser: ReturnType<typeof useAuthStore.getState>["currentUser"];
 }) {
+  const { hasPermission } = useAuthStore();
   const todayStr = now.toISOString().slice(0, 10);
   const pendingApp = fApplicants.filter(a => a.status === "Pending").length;
   const processingApp = fApplicants.filter(a => a.status === "Processing").length;
@@ -488,54 +489,58 @@ function RecruiterDashboard({ fApplicants, fInterviews, placements, now, compani
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard title="Total Applicants" value={fApplicants.length} icon={Users} sub={`${pendingApp} pending`} theme="blue" />
-        <StatCard title="Processing" value={processingApp} icon={Activity} sub="In pipeline" theme="amber" />
-        <StatCard title="Placed" value={placedApp} icon={UserCheck} sub="Successfully placed" theme="emerald" />
-        <StatCard title="Visa Alerts" value={visaAlerts.length} icon={Shield} sub="Expiring ≤ 20 days" theme="rose" />
+        {hasPermission("applicants", "view") && <StatCard title="Total Applicants" value={fApplicants.length} icon={Users} sub={`${pendingApp} pending`} theme="blue" />}
+        {hasPermission("applicants", "view") && <StatCard title="Processing" value={processingApp} icon={Activity} sub="In pipeline" theme="amber" />}
+        {hasPermission("applicants", "view") && <StatCard title="Placed" value={placedApp} icon={UserCheck} sub="Successfully placed" theme="emerald" />}
+        {hasPermission("visaExpiry", "view") && <StatCard title="Visa Alerts" value={visaAlerts.length} icon={Shield} sub="Expiring ≤ 20 days" theme="rose" />}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <Card className="rounded-2xl border-0 shadow-md bg-white p-5 flex flex-col">
-          <SectionHeader icon={Users} title="Applicant Pipeline" />
-          <div className="h-52">
-            {pieData.length === 0
-              ? <div className="flex h-full items-center justify-center text-xs text-slate-400">No data</div>
-              : <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={pieData} cx="50%" cy="50%" innerRadius={52} outerRadius={72} paddingAngle={3} dataKey="value">
-                      {pieData.map((e, i) => <Cell key={i} fill={e.color} />)}
-                    </Pie>
-                    <Tooltip contentStyle={{ fontSize: "10px", borderRadius: "12px", border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.12)" }} />
-                    <Legend verticalAlign="bottom" iconSize={8} formatter={v => <span style={{ fontSize: "9px", fontWeight: 700, color: "#64748b" }}>{v}</span>} />
-                  </PieChart>
-                </ResponsiveContainer>
-            }
-          </div>
-        </Card>
+        {hasPermission("applicants", "view") && (
+          <Card className="rounded-2xl border-0 shadow-md bg-white p-5 flex flex-col">
+            <SectionHeader icon={Users} title="Applicant Pipeline" />
+            <div className="h-52">
+              {pieData.length === 0
+                ? <div className="flex h-full items-center justify-center text-xs text-slate-400">No data</div>
+                : <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={pieData} cx="50%" cy="50%" innerRadius={52} outerRadius={72} paddingAngle={3} dataKey="value">
+                        {pieData.map((e, i) => <Cell key={i} fill={e.color} />)}
+                      </Pie>
+                      <Tooltip contentStyle={{ fontSize: "10px", borderRadius: "12px", border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.12)" }} />
+                      <Legend verticalAlign="bottom" iconSize={8} formatter={v => <span style={{ fontSize: "9px", fontWeight: 700, color: "#64748b" }}>{v}</span>} />
+                    </PieChart>
+                  </ResponsiveContainer>
+              }
+            </div>
+          </Card>
+        )}
 
-        <Card className="rounded-2xl border-0 shadow-md bg-white p-5 flex flex-col">
-          <SectionHeader icon={Calendar} title="Today's Interviews" href="/interviews" />
-          {todayInterviews.length === 0
-            ? <div className="flex-1 flex items-center justify-center py-8 text-xs text-slate-400">No interviews today</div>
-            : <div className="space-y-2.5 overflow-y-auto max-h-56 pr-1">
-                {todayInterviews.map(int => (
-                  <div key={int.id} className="p-3.5 rounded-xl bg-gradient-to-r from-blue-50 to-slate-50 border border-blue-100">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <div className="text-xs font-bold text-slate-800 truncate">{int.personName}</div>
-                        <div className="text-[10px] text-slate-500">{int.type} · {int.position || int.meetingType}</div>
+        {hasPermission("interviews", "view") && (
+          <Card className="rounded-2xl border-0 shadow-md bg-white p-5 flex flex-col">
+            <SectionHeader icon={Calendar} title="Today's Interviews" href="/interviews" />
+            {todayInterviews.length === 0
+              ? <div className="flex-1 flex items-center justify-center py-8 text-xs text-slate-400">No interviews today</div>
+              : <div className="space-y-2.5 overflow-y-auto max-h-56 pr-1">
+                  {todayInterviews.map(int => (
+                    <div key={int.id} className="p-3.5 rounded-xl bg-gradient-to-r from-blue-50 to-slate-50 border border-blue-100">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold text-slate-800 truncate">{int.personName}</div>
+                          <div className="text-[10px] text-slate-500">{int.type} · {int.position || int.meetingType}</div>
+                        </div>
+                        <StatusBadge status={int.status} />
                       </div>
-                      <StatusBadge status={int.status} />
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <span className="text-[9px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{int.dateTime.split(" ")[1]}</span>
+                        <span className="text-[9px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{int.mode}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <span className="text-[9px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{int.dateTime.split(" ")[1]}</span>
-                      <span className="text-[9px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{int.mode}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-          }
-        </Card>
+                  ))}
+                </div>
+            }
+          </Card>
+        )}
       </div>
 
       <div>
@@ -562,6 +567,7 @@ function HRDashboard({ fStaff, leaveRequests, staffRequests, staffAttendance, no
   upcomingBirthdays: ReturnType<typeof useAuthStore.getState>["staff"];
   currentUser: ReturnType<typeof useAuthStore.getState>["currentUser"];
 }) {
+  const { hasPermission } = useAuthStore();
   const userCompany = currentUser.company;
   const companyLeave = leaveRequests.filter(l => l.company === userCompany);
   const companyRequests = staffRequests.filter(r => r.company === userCompany);
@@ -579,76 +585,82 @@ function HRDashboard({ fStaff, leaveRequests, staffRequests, staffAttendance, no
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard title="Active Staff" value={activeStaff} icon={UserCheck} sub={`${fStaff.length} total`} theme="emerald" />
-        <StatCard title="Leave Pending" value={pendingLeave} icon={Clock} sub="Awaiting approval" theme="amber" />
-        <StatCard title="Staff Requests" value={pendingRequests} icon={ClipboardList} sub="Pending review" theme="purple" />
-        <StatCard title="Visa Alerts" value={visaExpiring} icon={Shield} sub="Expiring ≤ 20 days" theme="rose" />
+        {hasPermission("staff", "view") && <StatCard title="Active Staff" value={activeStaff} icon={UserCheck} sub={`${fStaff.length} total`} theme="emerald" />}
+        {hasPermission("leave", "view") && <StatCard title="Leave Pending" value={pendingLeave} icon={Clock} sub="Awaiting approval" theme="amber" />}
+        {hasPermission("requests", "view") && <StatCard title="Staff Requests" value={pendingRequests} icon={ClipboardList} sub="Pending review" theme="purple" />}
+        {hasPermission("visaExpiry", "view") && <StatCard title="Visa Alerts" value={visaExpiring} icon={Shield} sub="Expiring ≤ 20 days" theme="rose" />}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Pending Leave */}
-        <Card className="rounded-2xl border-0 shadow-md bg-white p-5 flex flex-col">
-          <SectionHeader icon={Clock} title="Pending Leave Requests" href="/leave" />
-          {companyLeave.filter(l => l.status === "Pending").length === 0
-            ? <div className="flex-1 flex items-center justify-center py-8 text-xs text-slate-400">No pending requests</div>
-            : <div className="space-y-2 overflow-y-auto max-h-60 pr-1">
-                {companyLeave.filter(l => l.status === "Pending").slice(0, 5).map(l => (
-                  <div key={l.id} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-                    <div>
-                      <div className="text-xs font-bold text-slate-800">{l.staffName}</div>
-                      <div className="text-[10px] text-slate-400">{l.leaveType} · {formatDate(l.fromDate)}</div>
+        {hasPermission("leave", "view") && (
+          <Card className="rounded-2xl border-0 shadow-md bg-white p-5 flex flex-col">
+            <SectionHeader icon={Clock} title="Pending Leave Requests" href="/leave" />
+            {companyLeave.filter(l => l.status === "Pending").length === 0
+              ? <div className="flex-1 flex items-center justify-center py-8 text-xs text-slate-400">No pending requests</div>
+              : <div className="space-y-2 overflow-y-auto max-h-60 pr-1">
+                  {companyLeave.filter(l => l.status === "Pending").slice(0, 5).map(l => (
+                    <div key={l.id} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                      <div>
+                        <div className="text-xs font-bold text-slate-800">{l.staffName}</div>
+                        <div className="text-[10px] text-slate-400">{l.leaveType} · {formatDate(l.fromDate)}</div>
+                      </div>
+                      <StatusBadge status={l.status} />
                     </div>
-                    <StatusBadge status={l.status} />
-                  </div>
-                ))}
-              </div>
-          }
-        </Card>
+                  ))}
+                </div>
+            }
+          </Card>
+        )}
 
         {/* Staff Requests */}
-        <Card className="rounded-2xl border-0 shadow-md bg-white p-5 flex flex-col">
-          <SectionHeader icon={ClipboardList} title="Staff Requests" href="/requests" />
-          {companyRequests.filter(r => r.status === "Pending").length === 0
-            ? <div className="flex-1 flex items-center justify-center py-8 text-xs text-slate-400">No pending requests</div>
-            : <div className="space-y-2 overflow-y-auto max-h-60 pr-1">
-                {companyRequests.filter(r => r.status === "Pending").slice(0, 5).map(r => (
-                  <div key={r.id} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-                    <div>
-                      <div className="text-xs font-bold text-slate-800">{r.staffName}</div>
-                      <div className="text-[10px] text-slate-400">{r.requestType}</div>
+        {hasPermission("requests", "view") && (
+          <Card className="rounded-2xl border-0 shadow-md bg-white p-5 flex flex-col">
+            <SectionHeader icon={ClipboardList} title="Staff Requests" href="/requests" />
+            {companyRequests.filter(r => r.status === "Pending").length === 0
+              ? <div className="flex-1 flex items-center justify-center py-8 text-xs text-slate-400">No pending requests</div>
+              : <div className="space-y-2 overflow-y-auto max-h-60 pr-1">
+                  {companyRequests.filter(r => r.status === "Pending").slice(0, 5).map(r => (
+                    <div key={r.id} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                      <div>
+                        <div className="text-xs font-bold text-slate-800">{r.staffName}</div>
+                        <div className="text-[10px] text-slate-400">{r.requestType}</div>
+                      </div>
+                      <StatusBadge status={r.status} />
                     </div>
-                    <StatusBadge status={r.status} />
-                  </div>
-                ))}
-              </div>
-          }
-        </Card>
+                  ))}
+                </div>
+            }
+          </Card>
+        )}
 
         {/* Birthdays */}
-        <Card className="rounded-2xl border-0 shadow-md bg-white p-5 flex flex-col">
-          <SectionHeader icon={Cake} title="Upcoming Birthdays" href="/birthday" />
-          {upcomingBirthdays.length === 0
-            ? <div className="flex-1 flex items-center justify-center py-8 text-xs text-slate-400">No birthdays this week</div>
-            : <div className="space-y-2 overflow-y-auto max-h-60 pr-1">
-                {upcomingBirthdays.map(s => {
-                  const b = new Date(s.birthday);
-                  const isToday = b.getDate() === now.getDate() && b.getMonth() === now.getMonth();
-                  return (
-                    <div key={s.id} className={cn("p-3 rounded-xl border flex items-center gap-3", isToday ? "bg-pink-50 border-pink-200" : "bg-slate-50 border-slate-100")}>
-                      <div className="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center text-pink-600 font-black text-sm">{s.name.charAt(0)}</div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5 truncate">
-                          {s.name}
-                          {isToday && <span className="inline-flex items-center gap-0.5 text-[8px] font-extrabold bg-pink-500 text-white px-1.5 py-0.5 rounded-full uppercase"><Sparkles className="w-2.5 h-2.5" /> Today</span>}
+        {hasPermission("birthday", "view") && (
+          <Card className="rounded-2xl border-0 shadow-md bg-white p-5 flex flex-col">
+            <SectionHeader icon={Cake} title="Upcoming Birthdays" href="/birthday" />
+            {upcomingBirthdays.length === 0
+              ? <div className="flex-1 flex items-center justify-center py-8 text-xs text-slate-400">No birthdays this week</div>
+              : <div className="space-y-2 overflow-y-auto max-h-60 pr-1">
+                  {upcomingBirthdays.map(s => {
+                    const b = new Date(s.birthday);
+                    const isToday = b.getDate() === now.getDate() && b.getMonth() === now.getMonth();
+                    return (
+                      <div key={s.id} className={cn("p-3 rounded-xl border flex items-center gap-3", isToday ? "bg-pink-50 border-pink-200" : "bg-slate-50 border-slate-100")}>
+                        <div className="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center text-pink-600 font-black text-sm">{s.name.charAt(0)}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5 truncate">
+                            {s.name}
+                            {isToday && <span className="inline-flex items-center gap-0.5 text-[8px] font-extrabold bg-pink-500 text-white px-1.5 py-0.5 rounded-full uppercase"><Sparkles className="w-2.5 h-2.5" /> Today</span>}
+                          </div>
+                          <div className="text-[10px] text-slate-400">{s.position}</div>
                         </div>
-                        <div className="text-[10px] text-slate-400">{s.position}</div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-          }
-        </Card>
+                    );
+                  })}
+                </div>
+            }
+          </Card>
+        )}
       </div>
 
       <div>
@@ -671,6 +683,7 @@ function AccountantDashboard({ payroll, fStaff, currentUser }: {
   fStaff: ReturnType<typeof useAuthStore.getState>["staff"];
   currentUser: ReturnType<typeof useAuthStore.getState>["currentUser"];
 }) {
+  const { hasPermission } = useAuthStore();
   const userCompany = currentUser.company;
   const companyPayroll = payroll.filter(p => p.company === userCompany);
   const draftPayroll = companyPayroll.filter(p => p.status === "Draft").length;
@@ -682,13 +695,13 @@ function AccountantDashboard({ payroll, fStaff, currentUser }: {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard title="Draft Payroll" value={draftPayroll} icon={FileSpreadsheet} sub="Pending preparation" theme="slate" />
-        <StatCard title="Pending Approval" value={pendingPayroll} icon={AlertTriangle} sub="Awaiting sign-off" theme="amber" />
-        <StatCard title="Approved" value={approvedPayroll} icon={UserCheck} sub="Ready for payment" theme="emerald" />
-        <StatCard title="Total Staff" value={fStaff.filter(s => s.status === "Active").length} icon={Users} sub="Active staff" theme="blue" />
+        {hasPermission("payroll", "view") && <StatCard title="Draft Payroll" value={draftPayroll} icon={FileSpreadsheet} sub="Pending preparation" theme="slate" />}
+        {hasPermission("payroll", "view") && <StatCard title="Pending Approval" value={pendingPayroll} icon={AlertTriangle} sub="Awaiting sign-off" theme="amber" />}
+        {hasPermission("payroll", "view") && <StatCard title="Approved" value={approvedPayroll} icon={UserCheck} sub="Ready for payment" theme="emerald" />}
+        {hasPermission("staff", "view") && <StatCard title="Total Staff" value={fStaff.filter(s => s.status === "Active").length} icon={Users} sub="Active staff" theme="blue" />}
       </div>
 
-      {approvedPayroll > 0 && (
+      {hasPermission("payroll", "view") && approvedPayroll > 0 && (
         <Card className="rounded-2xl border-0 shadow-md bg-white p-5">
           <div className="flex items-center justify-between">
             <div>
@@ -703,44 +716,48 @@ function AccountantDashboard({ payroll, fStaff, currentUser }: {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <Card className="rounded-2xl border-0 shadow-md bg-white p-5 flex flex-col">
-          <SectionHeader icon={DollarSign} title="Recent Payroll Records" href="/payroll" />
-          {companyPayroll.length === 0
-            ? <div className="flex-1 flex items-center justify-center py-8 text-xs text-slate-400">No payroll records</div>
-            : <div className="space-y-2 overflow-y-auto max-h-64 pr-1">
-                {companyPayroll.slice(0, 6).map(p => (
-                  <div key={p.id} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-                    <div>
-                      <div className="text-xs font-bold text-slate-800">{p.staffName}</div>
-                      <div className="text-[10px] text-slate-400">{p.month} {p.year}</div>
+        {hasPermission("payroll", "view") && (
+          <Card className="rounded-2xl border-0 shadow-md bg-white p-5 flex flex-col">
+            <SectionHeader icon={DollarSign} title="Recent Payroll Records" href="/payroll" />
+            {companyPayroll.length === 0
+              ? <div className="flex-1 flex items-center justify-center py-8 text-xs text-slate-400">No payroll records</div>
+              : <div className="space-y-2 overflow-y-auto max-h-64 pr-1">
+                  {companyPayroll.slice(0, 6).map(p => (
+                    <div key={p.id} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                      <div>
+                        <div className="text-xs font-bold text-slate-800">{p.staffName}</div>
+                        <div className="text-[10px] text-slate-400">{p.month} {p.year}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs font-bold text-slate-800">AED {(p.netSalary || 0).toLocaleString()}</div>
+                        <StatusBadge status={p.status} />
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-xs font-bold text-slate-800">AED {(p.netSalary || 0).toLocaleString()}</div>
-                      <StatusBadge status={p.status} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-          }
-        </Card>
+                  ))}
+                </div>
+            }
+          </Card>
+        )}
 
-        <Card className="rounded-2xl border-0 shadow-md bg-white p-5 flex flex-col">
-          <SectionHeader icon={Users} title="Active Staff" href="/staff" />
-          {fStaff.filter(s => s.status === "Active").length === 0
-            ? <div className="flex-1 flex items-center justify-center py-8 text-xs text-slate-400">No active staff</div>
-            : <div className="space-y-2 overflow-y-auto max-h-64 pr-1">
-                {fStaff.filter(s => s.status === "Active").slice(0, 6).map(s => (
-                  <div key={s.id} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center">{s.name.charAt(0)}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs font-bold text-slate-800 truncate">{s.name}</div>
-                      <div className="text-[10px] text-slate-400 truncate">{s.position}</div>
+        {hasPermission("staff", "view") && (
+          <Card className="rounded-2xl border-0 shadow-md bg-white p-5 flex flex-col">
+            <SectionHeader icon={Users} title="Active Staff" href="/staff" />
+            {fStaff.filter(s => s.status === "Active").length === 0
+              ? <div className="flex-1 flex items-center justify-center py-8 text-xs text-slate-400">No active staff</div>
+              : <div className="space-y-2 overflow-y-auto max-h-64 pr-1">
+                  {fStaff.filter(s => s.status === "Active").slice(0, 6).map(s => (
+                    <div key={s.id} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center">{s.name.charAt(0)}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-bold text-slate-800 truncate">{s.name}</div>
+                        <div className="text-[10px] text-slate-400 truncate">{s.position}</div>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-          }
-        </Card>
+                  ))}
+                </div>
+            }
+          </Card>
+        )}
       </div>
 
       <div>
@@ -1924,13 +1941,14 @@ export default function DashboardPage() {
           </div>
         ) : (
           <>
-            {(!isStaff && !isAccountant) && (
+            {(!isStaff && !isAccountant && hasPermission("applicants", "view")) && (
               <ApplicantAnalyticsWidget applicants={fApplicants} isSuperAdmin={isSuperAdmin} isCompanyAdmin={isCompanyAdmin} />
             )}
 
             {/* Attendance widget — Super Admin sees system-wide summary; others see personal check-in */}
-            <div className="mb-2">
-              {isSuperAdmin ? (() => {
+            {hasPermission("attendance", "view") && (
+              <div className="mb-2">
+                {isSuperAdmin ? (() => {
                 const todayStr = now.toISOString().slice(0, 10);
                 let present = 0, absent = 0, late = 0, leave = 0;
                 staffAttendance.forEach(sa => {
@@ -2005,6 +2023,7 @@ export default function DashboardPage() {
                 />
               )}
             </div>
+            )}
 
             {/* Role-based dashboard content */}
             {isStaff ? (

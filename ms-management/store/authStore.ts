@@ -478,11 +478,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     }
 
-    // 3. Fallback for Super Admin (general CRUD is allowed, but approve/reject/assign must be explicit)
+    // 3. Fallback for Super Admin (Full system administration access)
     if (state.currentRole === "Super Admin") {
-      if (["approve", "reject", "assign"].includes(action)) {
-        return false;
-      }
       return true;
     }
 

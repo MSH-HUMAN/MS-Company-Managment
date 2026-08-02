@@ -61,36 +61,16 @@ export async function POST(request: Request) {
       }
     }
 
-    // Validate email uniqueness in Staff, Applicant, and User tables
+    // Validate email uniqueness strictly against existing Staff members
     if (data.email && data.email.trim() !== "") {
       const emailLower = data.email.trim().toLowerCase();
       
-      const existingUser = await prisma.user.findUnique({
-        where: { email: emailLower }
-      });
-      if (existingUser) {
-        return NextResponse.json(
-          { error: "A user account with this email address already exists." },
-          { status: 400 }
-        );
-      }
-
       const existingStaff = await prisma.staff.findFirst({
         where: { email: emailLower }
       });
       if (existingStaff) {
         return NextResponse.json(
-          { error: "A staff member with this email address already exists." },
-          { status: 400 }
-        );
-      }
-
-      const existingApplicant = await prisma.applicant.findFirst({
-        where: { email: emailLower }
-      });
-      if (existingApplicant) {
-        return NextResponse.json(
-          { error: "An applicant with this email address already exists." },
+          { error: `A staff member with email address (${emailLower}) already exists.` },
           { status: 400 }
         );
       }
@@ -202,7 +182,7 @@ export async function POST(request: Request) {
       }
     });
 
-    // Create a corresponding User account for logins if email is provided and system access is enabled
+    // Create or update corresponding User account for logins if email is provided and system access is enabled
     if (newStaff.email && newStaff.email.trim() !== "" && hasSystemAccess) {
       let role = data.role;
       if (!role) {
@@ -216,11 +196,22 @@ export async function POST(request: Request) {
         else if (pos.includes("admin")) role = "Admin";
       }
 
-      await prisma.user.create({
-        data: {
+      const emailLower = newStaff.email.trim().toLowerCase();
+      await prisma.user.upsert({
+        where: { email: emailLower },
+        update: {
           name: newStaff.name,
-          email: newStaff.email.trim().toLowerCase(),
-          password: hashedPassword,
+          role,
+          company: newStaff.company,
+          branch: newStaff.branch,
+          status: "Active",
+          ...(hashedPassword ? { password: hashedPassword } : {}),
+          permissions: data.permissions || undefined
+        },
+        create: {
+          name: newStaff.name,
+          email: emailLower,
+          password: hashedPassword || bcrypt.hashSync("ms123456", 10),
           mobile: newStaff.mobile || "",
           whatsapp: newStaff.whatsapp || "",
           role,

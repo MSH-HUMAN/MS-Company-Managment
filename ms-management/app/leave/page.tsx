@@ -12,6 +12,7 @@ import EmptyState from "@/components/shared/EmptyState";
 import Pagination from "@/components/shared/Pagination";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import AccessDenied from "@/components/shared/AccessDenied";
+import { filterRecordsByPermission } from "@/lib/rbac";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -80,12 +81,7 @@ export default function LeavePage() {
   };
 
   const f = filters.leave;
-  let list = leaveRequests;
-  if (!isAdmin) {
-    list = list.filter(r => r.staffId === currentStaff?.id);
-  } else if (currentRole !== "Super Admin" && !isSystemUser) {
-    list = list.filter(r => r.company === currentUser.company);
-  }
+  let list = filterRecordsByPermission("leave", leaveRequests, currentUser, currentRole, hasPermission);
   if (f.search) { const q = f.search.toLowerCase(); list = list.filter(r => r.staffName.toLowerCase().includes(q)); }
   if (f.status && f.status !== "all") list = list.filter(r => r.status === f.status);
   if (f.company && f.company !== "all") list = list.filter(r => r.company === f.company);

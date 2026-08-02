@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -22,6 +22,8 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { formatDate, cn } from "@/lib/utils";
 import AccessDenied from "@/components/shared/AccessDenied";
+import { filterRecordsByPermission } from "@/lib/rbac";
+import ScrollArrows from "@/components/shared/ScrollArrows";
 
 const STAGES = ["Pending", "Screening", "Processing", "Offered", "Visa Processing", "Placed", "Returned", "Rejected"];
 
@@ -115,14 +117,8 @@ export default function TrackingPage() {
   const isSuperAdmin = currentRole === "Super Admin";
   const isCompanyAdmin = currentRole === "Company Admin";
 
-  // Base list depending on role and soft delete / visibility
-  let baseApplicants = applicants;
-  if (!isSuperAdmin) {
-    baseApplicants = baseApplicants.filter(a => a.company === currentUser.company);
-    if (!isCompanyAdmin && currentUser.branch && currentUser.branch !== "All") {
-      baseApplicants = baseApplicants.filter(a => a.branch === currentUser.branch);
-    }
-  }
+  // Base list depending on role, VIEW vs VIEW ALL, and Company/Branch isolation
+  const baseApplicants = filterRecordsByPermission("tracking", applicants, currentUser, currentRole, hasPermission);
 
   // Apply filters
   let filteredList = [...baseApplicants];
@@ -961,8 +957,9 @@ export default function TrackingPage() {
 
       {viewMode === "grid" ? (
         /* Kanban Board Container */
-        <div className="flex-1 p-4 md:p-6 overflow-x-auto overflow-y-auto bg-slate-50/50 min-h-0">
-          <div className="flex gap-4 h-full min-w-max pb-4">
+        <div className="flex-1 p-4 md:p-6 bg-slate-50/50 min-h-0 flex flex-col">
+          <ScrollArrows>
+            <div className="flex gap-4 h-full min-w-max pb-4">
             {(statusFilter === "all" ? STAGES : STAGES.filter(s => s.trim().toLowerCase() === statusFilter.trim().toLowerCase())).map(stage => {
               const stageApplicants = filteredList.filter(a => a.status && a.status.trim().toLowerCase() === stage.trim().toLowerCase());
               return (
@@ -1029,7 +1026,8 @@ export default function TrackingPage() {
               );
             })}
           </div>
-        </div>
+        </ScrollArrows>
+      </div>
       ) : (
         /* Table View Container */
         <div className="flex-1 p-4 md:p-6 overflow-y-auto bg-slate-50/50 flex flex-col justify-between min-h-0">

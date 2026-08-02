@@ -20,9 +20,15 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { InternalCompany } from "@/lib/types";
 
+import AccessDenied from "@/components/shared/AccessDenied";
+
 export default function OwnCompaniesPage() {
   const { currentRole, currentUser, ownCompanies, addOwnCompany, updateOwnCompany, deleteOwnCompany, addActivityLog } = useAuthStore();
   const { filters } = useFilterStore();
+
+  if (currentRole !== "Super Admin") {
+    return <AccessDenied />;
+  }
   const [addModal, setAddModal] = useState(false);
   const [editCompany, setEditCompany] = useState<InternalCompany | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
