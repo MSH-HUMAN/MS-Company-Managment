@@ -311,7 +311,7 @@ export async function recalculateMonthlyPayroll(staffId: string, month: string, 
       
       if (Array.isArray(records)) {
         for (const r of records) {
-          totalOvertimeHours += Number(r.overtime) || 0;
+          totalOvertimeHours += Number(r.overtimeHours) || Number(r.overtime) || 0;
         }
       }
     }
