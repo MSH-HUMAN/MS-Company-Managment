@@ -1910,7 +1910,7 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {!isStoreLoaded ? (
+        {!isStoreLoaded && applicants.length === 0 && staff.length === 0 && tasks.length === 0 ? (
           <div className="space-y-6">
             {/* Skeletal KPI metrics */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
