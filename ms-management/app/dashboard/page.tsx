@@ -603,7 +603,7 @@ function HRDashboard({ fStaff, leaveRequests, staffRequests, staffAttendance, no
                     <div key={l.id} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
                       <div>
                         <div className="text-xs font-bold text-slate-800">{l.staffName}</div>
-                        <div className="text-[10px] text-slate-400">{l.leaveType} · {formatDate(l.fromDate)}</div>
+                        <div className="text-[10px] text-slate-400">{(l as any).type || (l as any).leaveType || "Leave"} · {formatDate((l as any).startDate || (l as any).fromDate || "")}</div>
                       </div>
                       <StatusBadge status={l.status} />
                     </div>
@@ -811,7 +811,7 @@ function CompanyDashboard({ fApplicants, fStaff, fTasks, fInterviews, leaveReque
   const urgentTasks = activeTasks.filter(t => t.priority === "High" || t.priority === "Urgent").length;
   const pendingLeave = companyLeave.filter(l => l.status === "Pending").length;
   const pendingRequests = companyRequests.filter(r => r.status === "Pending").length;
-  const todayInterviews = fInterviews.filter(i => i.dateTime.startsWith(todayStr));
+  const todayInterviews = fInterviews.filter(i => i.dateTime && i.dateTime.startsWith(todayStr));
   const availableVehicles = companyVehicles.filter(v => v.status === "Available").length;
   const pendingPayroll = companyPayroll.filter(p => p.status === "Draft" || p.status === "Pending Approval").length;
   const unreadNotifs = notifications.filter(n => !n.read && n.company === userCompany).length;
@@ -836,15 +836,18 @@ function CompanyDashboard({ fApplicants, fStaff, fTasks, fInterviews, leaveReque
   const delayedTasks = fTasks.filter(t => {
     if (t.status === "Completed" || t.status === "Cancelled" || !t.deadline) return false;
     const dl = new Date(t.deadline.replace(" ", "T")).getTime();
-    return dl < now.getTime();
+    return !isNaN(dl) && dl < now.getTime();
   });
 
   const employeePerformance = fStaff.map(member => {
-    const memberTasks = fTasks.filter(t => t.assignedToId === member.id || t.assignedTo.toLowerCase() === member.name.toLowerCase());
+    const memberTasks = fTasks.filter(t => 
+      (member.id && t.assignedToId === member.id) ||
+      (member.name && t.assignedTo && t.assignedTo.toLowerCase() === member.name.toLowerCase())
+    );
     const completed = memberTasks.filter(t => t.status === "Completed").length;
     return {
-      name: member.name,
-      position: member.position,
+      name: member.name || "Staff",
+      position: member.position || "",
       completed,
       assigned: memberTasks.length
     };
@@ -1956,8 +1959,12 @@ export default function DashboardPage() {
                 {isSuperAdmin ? (() => {
                 const todayStr = now.toISOString().slice(0, 10);
                 let present = 0, absent = 0, late = 0, leave = 0;
-                staffAttendance.forEach(sa => {
-                  const rec = (sa.records || []).find((r: any) => r.date === todayStr);
+                const safeStaffAttendance = Array.isArray(staffAttendance) ? staffAttendance : [];
+                const safeStaffList = Array.isArray(staff) ? staff : [];
+                const safePayrollList = Array.isArray(payroll) ? payroll : [];
+
+                safeStaffAttendance.forEach(sa => {
+                  const rec = (Array.isArray(sa.records) ? sa.records : []).find((r: any) => r.date === todayStr);
                   if (!rec) return;
                   if (rec.status === "Present" || rec.status === "Work From Home") present++;
                   else if (rec.status === "Absent") absent++;
@@ -1965,10 +1972,10 @@ export default function DashboardPage() {
                   else if (rec.status === "Leave" || rec.status === "Half Day") leave++;
                 });
                 const totalMarked = present + absent + late + leave;
-                const notMarked = Math.max(0, staff.length - totalMarked);
+                const notMarked = Math.max(0, safeStaffList.length - totalMarked);
                 const currentMonth = now.toLocaleString("en-US", { month: "short" });
                 const currentYear = now.getFullYear();
-                const monthPayroll = payroll.filter((p: any) => p.month && p.month.includes(currentMonth) && (p.year === currentYear || String(p.month).startsWith(String(currentYear))));
+                const monthPayroll = safePayrollList.filter((p: any) => p.month && String(p.month).includes(currentMonth) && (p.year === currentYear || String(p.month).startsWith(String(currentYear))));
                 const totalPayroll = monthPayroll.reduce((acc: number, p: any) => acc + (Number(p.netSalary) || 0), 0);
                 return (
                   <Card className="rounded-3xl border-0 shadow-xl bg-white p-6 relative overflow-hidden">
