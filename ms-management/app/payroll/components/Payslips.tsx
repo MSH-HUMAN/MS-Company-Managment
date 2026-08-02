@@ -21,13 +21,16 @@ export default function Payslips() {
   const linkedStaff = staff.find(s => s.id === viewPayslip?.staffId);
   
   const f = filters.payroll;
-  let list = payroll.filter(p => p.status === "Approved" || p.status === "Paid");
-  if (currentRole === "Staff") {
-    list = list.filter(p => p.staffName === currentUser.name);
-  } else if (currentRole !== "Super Admin") {
+  let list = Array.isArray(payroll) ? payroll.filter(p => p.status === "Approved" || p.status === "Paid") : [];
+  if (currentRole === "Staff" && currentUser?.name) {
+    list = list.filter(p => p.staffName?.toLowerCase() === currentUser.name.toLowerCase());
+  } else if (currentRole !== "Super Admin" && currentUser?.company) {
     list = list.filter(p => p.company === currentUser.company);
   }
-  if (f.search) { const q = f.search.toLowerCase(); list = list.filter(p => p.staffName.toLowerCase().includes(q)); }
+  if (f.search) {
+    const q = f.search.toLowerCase();
+    list = list.filter(p => (p.staffName || "").toLowerCase().includes(q));
+  }
   if (f.status && f.status !== "all") list = list.filter(p => p.status === f.status);
   
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -43,38 +46,61 @@ export default function Payslips() {
 
   const handlePay = (p: PayrollRecord) => {
     updatePayroll({ ...p, status: "Paid" });
-    addActivityLog({ id: `LOG-${Date.now()}`, dateTime: new Date().toISOString().replace("T"," ").slice(0,19), userName: currentUser.name, role: currentUser.role, company: currentUser.company, branch: currentUser.branch, action: "Status Changed", module: "Payroll", oldValue: p.status, newValue: "Paid", ipAddress: "192.168.1.102" });
+    if (currentUser) {
+      addActivityLog({ id: `LOG-${Date.now()}`, dateTime: new Date().toISOString().replace("T"," ").slice(0,19), userName: currentUser.name || "User", role: currentUser.role || currentRole, company: currentUser.company || "", branch: currentUser.branch || "", action: "Status Changed", module: "Payroll", oldValue: p.status, newValue: "Paid", ipAddress: "192.168.1.102" });
+    }
     toast.success(`Salary marked as paid for ${p.staffName}`);
   };
 
   const getPayslipHtml = (p: PayrollRecord, forPrint = true) => {
-    const linkedStaff = staff.find(s => s.id === p.staffId);
+    const linkedStaff = Array.isArray(staff) ? staff.find(s => s.id === p.staffId) : undefined;
     const allowancesHtml = (() => {
-      const details = Array.isArray(p.allowanceDetails)
-        ? p.allowanceDetails
-        : (Array.isArray(p.allowances) ? p.allowances : []);
-      if (details.length === 0 && typeof p.allowances === 'number' && p.allowances > 0) {
-        return `<div class="row"><span>Standard Allowances</span><strong>AED ${p.allowances.toLocaleString()}</strong></div>`;
+      let rows: { name: string; amount: number }[] = [];
+      const details = p.allowanceDetails;
+      if (Array.isArray(details)) {
+        rows = details.map(item => ({
+          name: item.name || item.type || "Allowance",
+          amount: Number(item.amount) || Number(item.val) || 0
+        }));
+      } else if (details && typeof details === 'object') {
+        rows = Object.entries(details).map(([k, v]) => ({
+          name: k.charAt(0).toUpperCase() + k.slice(1) + " Allowance",
+          amount: Number(v) || 0
+        }));
       }
-      return (details as any[]).map(a => `<div class="row"><span>${a.name}</span><strong>AED ${a.amount.toLocaleString()}</strong></div>`).join("");
+      if (rows.length === 0 && typeof p.allowances === 'number' && p.allowances > 0) {
+        rows.push({ name: "Standard Allowances", amount: p.allowances });
+      }
+      if (rows.length === 0) return '<div class="note">No allowances</div>';
+      return rows.map(r => `<div class="row"><span>${r.name}</span><strong>AED ${(r.amount || 0).toLocaleString()}</strong></div>`).join("");
     })();
 
     const deductionsHtml = (() => {
-      const details = Array.isArray(p.deductionDetails)
-        ? p.deductionDetails
-        : (Array.isArray(p.deductions) ? p.deductions : []);
-      const listHtml = (details as any[]).map(d => `<div class="row"><span>${d.name}</span><strong class="deduct">AED ${d.amount.toLocaleString()}</strong></div>`).join("");
-      const advanceHtml = p.advanceDeduction > 0 ? `<div class="row"><span>Advance Salary Deduction</span><strong class="deduct">AED ${p.advanceDeduction.toLocaleString()}</strong></div>` : "";
-      const loanHtml = p.loanDeduction > 0 ? `<div class="row"><span>Company Loan Deduction</span><strong class="deduct">AED ${p.loanDeduction.toLocaleString()}</strong></div>` : "";
+      let rows: { name: string; amount: number }[] = [];
+      const details = p.deductionDetails;
+      if (Array.isArray(details)) {
+        rows = details.map(item => ({
+          name: item.name || item.type || "Deduction",
+          amount: Number(item.amount) || Number(item.val) || 0
+        }));
+      } else if (details && typeof details === 'object') {
+        rows = Object.entries(details).map(([k, v]) => ({
+          name: k.charAt(0).toUpperCase() + k.slice(1) + " Deduction",
+          amount: Number(v) || 0
+        }));
+      }
+      let listHtml = rows.map(r => `<div class="row"><span>${r.name}</span><strong class="deduct">AED ${(r.amount || 0).toLocaleString()}</strong></div>`).join("");
+      const advanceHtml = (p.advanceDeduction || 0) > 0 ? `<div class="row"><span>Advance Salary Deduction</span><strong class="deduct">AED ${(p.advanceDeduction || 0).toLocaleString()}</strong></div>` : "";
+      const loanHtml = (p.loanDeduction || 0) > 0 ? `<div class="row"><span>Company Loan Deduction</span><strong class="deduct">AED ${(p.loanDeduction || 0).toLocaleString()}</strong></div>` : "";
       const baseDeductions = listHtml + advanceHtml + loanHtml;
       if (!baseDeductions && typeof p.deductions === 'number' && p.deductions > 0) {
-        return `<div class="row"><span>Standard Deductions</span><strong class="deduct">AED ${p.deductions.toLocaleString()}</strong></div>`;
+        return `<div class="row"><span>Standard Deductions</span><strong class="deduct">AED ${(p.deductions || 0).toLocaleString()}</strong></div>`;
       }
       return baseDeductions || '<div class="note">No deductions</div>';
     })();
 
-    const overtimeHtml = p.overtime > 0 
-      ? `<div class="row"><span>Overtime (${p.overtimeHours || 0} hrs @ ${p.overtimeRate || 0}/hr)</span><strong class="earn">AED ${p.overtime.toLocaleString()}</strong></div>` 
+    const overtimeHtml = (p.overtime || 0) > 0 
+      ? `<div class="row"><span>Overtime (${p.overtimeHours || 0} hrs @ ${p.overtimeRate || 0}/hr)</span><strong class="earn">AED ${(p.overtime || 0).toLocaleString()}</strong></div>` 
       : "";
 
     return `
