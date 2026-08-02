@@ -359,25 +359,27 @@ export async function getPermissionScopedFilter(
   staffIdField = "staffId"
 ): Promise<Record<string, any> | null> {
   const isSuperAdmin = user.role === "Super Admin";
+  if (isSuperAdmin) {
+    return {};
+  }
+
   const isCompanyAdmin = user.role === "Company Admin" || user.role === "HR Manager" || user.role === "Admin" || user.role === "Accountant" || user.role === "Recruiter";
   const isBranchAdmin = user.role === "Branch Admin";
 
-  // Check permissions: either the base action (e.g., 'view') or the 'All' variation (e.g., 'viewAll') must be true
-  const hasBase = await hasPermissionBackend(user, moduleKey, actionKey);
-  const hasAll = isCompanyAdmin || isBranchAdmin || (await hasPermissionBackend(user, moduleKey, `${actionKey}All`));
-
-  if (!isSuperAdmin && !hasBase && !hasAll) {
-    return null; // Deny access
-  }
-
-  // Base tenancy filters are always applied first
   const filter = getTenantScopeFilter(user, companyField, branchField);
 
-  if (isSuperAdmin) {
+  if (isCompanyAdmin || isBranchAdmin) {
     return filter;
   }
 
-  // If the user has the "All" version of the permission or is an admin role, they get full company/branch scope
+  // Check permissions: either the base action (e.g., 'view') or the 'All' variation (e.g., 'viewAll') must be true
+  const hasBase = await hasPermissionBackend(user, moduleKey, actionKey);
+  const hasAll = await hasPermissionBackend(user, moduleKey, `${actionKey}All`);
+
+  if (!hasBase && !hasAll) {
+    return null; // Deny access
+  }
+
   if (hasAll) {
     return filter;
   }
