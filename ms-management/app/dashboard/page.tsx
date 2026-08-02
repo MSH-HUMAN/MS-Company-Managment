@@ -1746,13 +1746,13 @@ export default function DashboardPage() {
     );
   }
 
-  const loggedInStaffRecord = staff ? staff.find(s =>
-    (s.email && currentUser.email && s.email.toLowerCase() === currentUser.email.toLowerCase()) ||
-    (s.name && currentUser.name && s.name.toLowerCase() === currentUser.name.toLowerCase())
+  const loggedInStaffRecord = Array.isArray(staff) ? staff.find(s =>
+    (s.email && currentUser?.email && s.email.toLowerCase() === currentUser.email.toLowerCase()) ||
+    (s.name && currentUser?.name && s.name.toLowerCase() === currentUser.name.toLowerCase())
   ) : null;
 
   const staffPosition = loggedInStaffRecord?.position?.toLowerCase() || "";
-  const roleName = currentRole.toLowerCase();
+  const roleName = (currentRole || "").toLowerCase();
 
   const isSuperAdmin = roleName === "super admin" || staffPosition === "super admin";
   const isCompanyAdmin = roleName === "company admin" || staffPosition === "company admin";
@@ -1762,11 +1762,17 @@ export default function DashboardPage() {
   const isAccountant = roleName === "accountant" || staffPosition === "accountant" || staffPosition === "finance manager" || staffPosition === "accounts executive";
   const isStaff = roleName === "staff" || roleName === "employee" || staffPosition === "staff" || staffPosition === "employee" || (!isSuperAdmin && !isCompanyAdmin && !isBranchAdmin && !isHRManager && !isRecruiter && !isAccountant);
 
-  const userCompany = currentUser.company;
-  const userBranch = currentUser.branch;
+  const userCompany = currentUser?.company || "";
+  const userBranch = currentUser?.branch || "";
 
   // Treat company="System" users same as Super Admin for data scoping
-  const isSystemWide = isSuperAdmin || currentUser.company === "System";
+  const isSystemWide = isSuperAdmin || userCompany === "System";
+
+  // Safe data arrays
+  const safeApplicants = Array.isArray(applicants) ? applicants : [];
+  const safeStaff = Array.isArray(staff) ? staff : [];
+  const safeTasks = Array.isArray(tasks) ? tasks : [];
+  const safeInterviews = Array.isArray(interviews) ? interviews : [];
 
   // Scoped data based on role
   const applyBranchFilter = (list: any[]) => {
@@ -1774,20 +1780,20 @@ export default function DashboardPage() {
     return list.filter(item => !item.branch || item.branch === userBranch);
   };
 
-  const fApplicants = applyBranchFilter(isSystemWide ? applicants : applicants.filter(a => a.company === userCompany));
-  const fStaff = applyBranchFilter(isSystemWide ? staff : staff.filter(s => s.company === userCompany));
+  const fApplicants = applyBranchFilter(isSystemWide ? safeApplicants : safeApplicants.filter(a => a.company === userCompany));
+  const fStaff = applyBranchFilter(isSystemWide ? safeStaff : safeStaff.filter(s => s.company === userCompany));
   
-  const fTasks = isSystemWide ? tasks : isCompanyAdmin
-    ? tasks.filter(t => t.company === userCompany)
+  const fTasks = isSystemWide ? safeTasks : isCompanyAdmin
+    ? safeTasks.filter(t => t.company === userCompany)
     : isStaff
-      ? tasks.filter(t => t.company === userCompany && (
-          t.assignedToId === currentUser.id ||
-          t.assignedTo.toLowerCase() === currentUser.name.toLowerCase() ||
-          t.createdBy === currentUser.name
+      ? safeTasks.filter(t => t.company === userCompany && (
+          (currentUser?.id && t.assignedToId === currentUser.id) ||
+          (currentUser?.name && t.assignedTo && t.assignedTo.toLowerCase() === currentUser.name.toLowerCase()) ||
+          (currentUser?.name && t.createdBy === currentUser.name)
         ))
-      : tasks.filter(t => t.company === userCompany && t.branch === userBranch);
+      : safeTasks.filter(t => t.company === userCompany && t.branch === userBranch);
 
-  const fInterviews = applyBranchFilter(isSystemWide ? interviews : interviews.filter(i => i.company === userCompany));
+  const fInterviews = applyBranchFilter(isSystemWide ? safeInterviews : safeInterviews.filter(i => i.company === userCompany));
 
   const visaAlerts = [...fApplicants, ...fStaff].filter((p: any) => {
     if (!p.visaExpiry) return false;
@@ -1842,7 +1848,7 @@ export default function DashboardPage() {
         {/* Birthday banner */}
         {isBirthdayToday && (
           <AlertBanner type="success"
-            message={`🎉 Happy Birthday, ${currentUser.name}! 🎂 Wishing you a fantastic year!`}
+            message={`🎉 Happy Birthday, ${currentUser?.name || "User"}! 🎂 Wishing you a fantastic year!`}
             className="rounded-2xl border-amber-300 bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-800 shadow-sm" />
         )}
 
@@ -1858,7 +1864,7 @@ export default function DashboardPage() {
                 <span className="text-blue-200 text-xs font-semibold uppercase tracking-widest">{roleLabel}</span>
               </div>
               <h1 className="text-2xl md:text-3xl font-black tracking-tight">
-                Welcome back, {currentUser.name.split(" ")[0]} 👋
+                Welcome back, {(currentUser?.name || "User").split(" ")[0]} 👋
               </h1>
               <p className="text-white/70 text-sm mt-1 font-medium">
                 {isSuperAdmin
