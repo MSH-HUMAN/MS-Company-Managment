@@ -1,30 +1,34 @@
 import { User, Role } from "@/lib/types";
 
 export interface RBACUser {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
+  id?: string;
+  name?: string;
+  email?: string;
+  role?: string;
   company?: string;
   branch?: string;
 }
 
 /**
  * Filters a record list based on fine-grained VIEW / VIEW ALL permission rules
- * and Company / Branch tenant isolation.
+ * and Company / Branch tenant isolation. Safe against null/undefined currentUser.
  */
 export function filterRecordsByPermission<T extends Record<string, any>>(
   moduleKey: string,
   list: T[],
-  currentUser: RBACUser,
+  currentUser: RBACUser | null | undefined,
   currentRole: string,
   hasPermission: (moduleKey: string, action: string) => boolean
 ): T[] {
   if (!list || !Array.isArray(list)) return [];
 
-  const isSuperAdmin = currentRole === "Super Admin" || currentUser.role === "Super Admin";
+  const isSuperAdmin = currentRole === "Super Admin" || currentUser?.role === "Super Admin";
   if (isSuperAdmin) {
     return list;
+  }
+
+  if (!currentUser) {
+    return [];
   }
 
   const isCompanyAdmin = currentRole === "Company Admin" || currentUser.role === "Company Admin";
@@ -57,19 +61,23 @@ export function filterRecordsByPermission<T extends Record<string, any>>(
   }
 
   // Personal Record Scoping (User can only view their own records or records assigned to them)
+  const userEmail = currentUser.email?.toLowerCase();
+  const userName = currentUser.name?.toLowerCase();
+  const userId = currentUser.id;
+
   return scoped.filter(item => {
     const isOwner =
-      item.createdBy === currentUser.name ||
-      item.createdById === currentUser.id ||
-      item.assignedTo === currentUser.name ||
-      item.assignedToId === currentUser.id ||
-      item.staffId === currentUser.id ||
-      item.staffName?.toLowerCase() === currentUser.name.toLowerCase() ||
-      item.email?.toLowerCase() === currentUser.email.toLowerCase() ||
-      item.name?.toLowerCase() === currentUser.name.toLowerCase() ||
-      item.id === currentUser.id;
+      (userName && item.createdBy?.toLowerCase() === userName) ||
+      (userId && item.createdById === userId) ||
+      (userName && item.assignedTo?.toLowerCase() === userName) ||
+      (userId && item.assignedToId === userId) ||
+      (userId && item.staffId === userId) ||
+      (userName && item.staffName?.toLowerCase() === userName) ||
+      (userEmail && item.email?.toLowerCase() === userEmail) ||
+      (userName && item.name?.toLowerCase() === userName) ||
+      (userId && item.id === userId);
 
-    return isOwner;
+    return Boolean(isOwner);
   });
 }
 
@@ -79,12 +87,13 @@ export function filterRecordsByPermission<T extends Record<string, any>>(
 export function canEditRecord<T extends Record<string, any>>(
   moduleKey: string,
   record: T,
-  currentUser: RBACUser,
+  currentUser: RBACUser | null | undefined,
   currentRole: string,
   hasPermission: (moduleKey: string, action: string) => boolean
 ): boolean {
-  const isSuperAdmin = currentRole === "Super Admin" || currentUser.role === "Super Admin";
+  const isSuperAdmin = currentRole === "Super Admin" || currentUser?.role === "Super Admin";
   if (isSuperAdmin) return true;
+  if (!currentUser) return false;
 
   const isCompanyAdmin = currentRole === "Company Admin" || currentUser.role === "Company Admin";
   const isBranchAdmin = currentRole === "Branch Admin" || currentUser.role === "Branch Admin";
@@ -104,17 +113,20 @@ export function canEditRecord<T extends Record<string, any>>(
   const canEdit = hasPermission(moduleKey, "edit");
   if (!canEdit) return false;
 
-  // Personal ownership check
-  return (
-    record.createdBy === currentUser.name ||
-    record.createdById === currentUser.id ||
-    record.assignedTo === currentUser.name ||
-    record.assignedToId === currentUser.id ||
-    record.staffId === currentUser.id ||
-    record.staffName?.toLowerCase() === currentUser.name.toLowerCase() ||
-    record.email?.toLowerCase() === currentUser.email.toLowerCase() ||
-    record.name?.toLowerCase() === currentUser.name.toLowerCase() ||
-    record.id === currentUser.id
+  const userEmail = currentUser.email?.toLowerCase();
+  const userName = currentUser.name?.toLowerCase();
+  const userId = currentUser.id;
+
+  return Boolean(
+    (userName && record.createdBy?.toLowerCase() === userName) ||
+    (userId && record.createdById === userId) ||
+    (userName && record.assignedTo?.toLowerCase() === userName) ||
+    (userId && record.assignedToId === userId) ||
+    (userId && record.staffId === userId) ||
+    (userName && record.staffName?.toLowerCase() === userName) ||
+    (userEmail && record.email?.toLowerCase() === userEmail) ||
+    (userName && record.name?.toLowerCase() === userName) ||
+    (userId && record.id === userId)
   );
 }
 
@@ -124,12 +136,13 @@ export function canEditRecord<T extends Record<string, any>>(
 export function canDeleteRecord<T extends Record<string, any>>(
   moduleKey: string,
   record: T,
-  currentUser: RBACUser,
+  currentUser: RBACUser | null | undefined,
   currentRole: string,
   hasPermission: (moduleKey: string, action: string) => boolean
 ): boolean {
-  const isSuperAdmin = currentRole === "Super Admin" || currentUser.role === "Super Admin";
+  const isSuperAdmin = currentRole === "Super Admin" || currentUser?.role === "Super Admin";
   if (isSuperAdmin) return true;
+  if (!currentUser) return false;
 
   const isCompanyAdmin = currentRole === "Company Admin" || currentUser.role === "Company Admin";
   const isBranchAdmin = currentRole === "Branch Admin" || currentUser.role === "Branch Admin";
@@ -149,17 +162,20 @@ export function canDeleteRecord<T extends Record<string, any>>(
   const canDelete = hasPermission(moduleKey, "delete");
   if (!canDelete) return false;
 
-  // Personal ownership check
-  return (
-    record.createdBy === currentUser.name ||
-    record.createdById === currentUser.id ||
-    record.assignedTo === currentUser.name ||
-    record.assignedToId === currentUser.id ||
-    record.staffId === currentUser.id ||
-    record.staffName?.toLowerCase() === currentUser.name.toLowerCase() ||
-    record.email?.toLowerCase() === currentUser.email.toLowerCase() ||
-    record.name?.toLowerCase() === currentUser.name.toLowerCase() ||
-    record.id === currentUser.id
+  const userEmail = currentUser.email?.toLowerCase();
+  const userName = currentUser.name?.toLowerCase();
+  const userId = currentUser.id;
+
+  return Boolean(
+    (userName && record.createdBy?.toLowerCase() === userName) ||
+    (userId && record.createdById === userId) ||
+    (userName && record.assignedTo?.toLowerCase() === userName) ||
+    (userId && record.assignedToId === userId) ||
+    (userId && record.staffId === userId) ||
+    (userName && record.staffName?.toLowerCase() === userName) ||
+    (userEmail && record.email?.toLowerCase() === userEmail) ||
+    (userName && record.name?.toLowerCase() === userName) ||
+    (userId && record.id === userId)
   );
 }
 
@@ -168,12 +184,13 @@ export function canDeleteRecord<T extends Record<string, any>>(
  */
 export function canApproveRecord(
   moduleKey: string,
-  currentUser: RBACUser,
+  currentUser: RBACUser | null | undefined,
   currentRole: string,
   hasPermission: (moduleKey: string, action: string) => boolean
 ): boolean {
-  const isSuperAdmin = currentRole === "Super Admin" || currentUser.role === "Super Admin";
+  const isSuperAdmin = currentRole === "Super Admin" || currentUser?.role === "Super Admin";
   if (isSuperAdmin) return true;
+  if (!currentUser) return false;
 
   const isCompanyAdmin = currentRole === "Company Admin" || currentUser.role === "Company Admin";
   const isHRManager = currentRole === "HR Manager" || currentUser.role === "HR Manager";
@@ -187,12 +204,13 @@ export function canApproveRecord(
  */
 export function canExportRecord(
   moduleKey: string,
-  currentUser: RBACUser,
+  currentUser: RBACUser | null | undefined,
   currentRole: string,
   hasPermission: (moduleKey: string, action: string) => boolean
 ): boolean {
-  const isSuperAdmin = currentRole === "Super Admin" || currentUser.role === "Super Admin";
+  const isSuperAdmin = currentRole === "Super Admin" || currentUser?.role === "Super Admin";
   if (isSuperAdmin) return true;
+  if (!currentUser) return false;
 
   const isCompanyAdmin = currentRole === "Company Admin" || currentUser.role === "Company Admin";
   if (isCompanyAdmin) return true;

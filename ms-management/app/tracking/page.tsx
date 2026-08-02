@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Search, Briefcase, Eye, Calendar, ShieldCheck, PhoneCall, Mail,
   CheckCircle, Clock, ArrowLeft, RotateCcw, Building2, UserCheck,
@@ -55,16 +56,20 @@ export default function TrackingPage() {
     );
   }
 
+  const router = useRouter();
   const canView = hasPermission("tracking", "view");
-  if (!canView) {
-    if (typeof window !== "undefined") {
+
+  useEffect(() => {
+    if (!canView && typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
       const queryCode = urlParams.get("code") || urlParams.get("id") || urlParams.get("q");
       if (queryCode) {
-        window.location.href = `/apply?code=${encodeURIComponent(queryCode)}`;
-        return null;
+        router.push(`/apply?code=${encodeURIComponent(queryCode)}`);
       }
     }
+  }, [canView, router]);
+
+  if (!canView) {
     return <AccessDenied />;
   }
 

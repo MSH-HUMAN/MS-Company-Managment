@@ -1716,21 +1716,20 @@ export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
   const now = useLiveDate();
 
+  const router = useRouter();
+
   useEffect(() => { 
     setMounted(true); 
+    if (!currentUser) {
+      router.push("/login");
+      return;
+    }
     if (initStore) {
       initStore().catch(console.error);
     }
-  }, [initStore]);
+  }, [initStore, currentUser, router]);
 
-  if (!mounted) return null;
-
-  if (!currentUser) {
-    if (typeof window !== "undefined") {
-      window.location.href = "/login";
-    }
-    return null;
-  }
+  if (!mounted || !currentUser) return null;
 
   if (!isStoreLoaded && applicants.length === 0 && staff.length === 0) {
     return (
