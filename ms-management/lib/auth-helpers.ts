@@ -359,10 +359,12 @@ export async function getPermissionScopedFilter(
   staffIdField = "staffId"
 ): Promise<Record<string, any> | null> {
   const isSuperAdmin = user.role === "Super Admin";
+  const isCompanyAdmin = user.role === "Company Admin" || user.role === "HR Manager" || user.role === "Admin" || user.role === "Accountant" || user.role === "Recruiter";
+  const isBranchAdmin = user.role === "Branch Admin";
 
   // Check permissions: either the base action (e.g., 'view') or the 'All' variation (e.g., 'viewAll') must be true
   const hasBase = await hasPermissionBackend(user, moduleKey, actionKey);
-  const hasAll = await hasPermissionBackend(user, moduleKey, `${actionKey}All`);
+  const hasAll = isCompanyAdmin || isBranchAdmin || (await hasPermissionBackend(user, moduleKey, `${actionKey}All`));
 
   if (!isSuperAdmin && !hasBase && !hasAll) {
     return null; // Deny access
@@ -375,7 +377,7 @@ export async function getPermissionScopedFilter(
     return filter;
   }
 
-  // If the user has the "All" version of the permission, they get the full company/branch scope
+  // If the user has the "All" version of the permission or is an admin role, they get full company/branch scope
   if (hasAll) {
     return filter;
   }
@@ -452,7 +454,10 @@ export async function canModifyRecord(
   const isSuperAdmin = user.role === "Super Admin";
   if (isSuperAdmin) return true;
 
-  const hasAll = await hasPermissionBackend(user, moduleKey, `${actionKey}All`);
+  const isCompanyAdmin = user.role === "Company Admin" || user.role === "HR Manager" || user.role === "Admin" || user.role === "Accountant" || user.role === "Recruiter";
+  const isBranchAdmin = user.role === "Branch Admin";
+
+  const hasAll = isCompanyAdmin || isBranchAdmin || (await hasPermissionBackend(user, moduleKey, `${actionKey}All`));
   const hasBase = await hasPermissionBackend(user, moduleKey, actionKey);
 
   if (!hasAll && !hasBase) {
