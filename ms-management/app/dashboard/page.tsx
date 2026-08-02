@@ -193,35 +193,45 @@ function StaffDashboard({ currentUser, now, tasks, leaveRequests, notifications,
 }) {
   const [selectedPayslip, setSelectedPayslip] = useState<any>(null);
 
-  const myPendingTasks = tasks.filter(t =>
+  const safeTasks = Array.isArray(tasks) ? tasks : [];
+  const safeLeaveRequests = Array.isArray(leaveRequests) ? leaveRequests : [];
+  const safeNotifications = Array.isArray(notifications) ? notifications : [];
+  const safePayroll = Array.isArray(payroll) ? payroll : [];
+  const safeStaffAttendance = Array.isArray(staffAttendance) ? staffAttendance : [];
+
+  const userNameLower = currentUser?.name?.toLowerCase() || "";
+  const userId = currentUser?.id || "";
+  const userCompany = currentUser?.company || "";
+
+  const myPendingTasks = safeTasks.filter(t =>
     (t.status === "Pending" || t.status === "Processing" || t.status === "Reassigned") &&
-    (t.assignedToId === currentUser.id || t.assignedTo.toLowerCase() === currentUser.name.toLowerCase())
+    ((userId && t.assignedToId === userId) || (userNameLower && t.assignedTo && t.assignedTo.toLowerCase() === userNameLower))
   );
 
-  const myLeave = leaveRequests.filter(l =>
-    l.staffName?.toLowerCase() === currentUser.name.toLowerCase() ||
-    l.staffId === currentUser.id
+  const myLeave = safeLeaveRequests.filter(l =>
+    (userNameLower && l.staffName && l.staffName.toLowerCase() === userNameLower) ||
+    (userId && l.staffId === userId)
   );
   const myPendingLeave = myLeave.filter(l => l.status === "Pending").length;
   const myApprovedLeave = myLeave.filter(l => l.status === "Approved").length;
 
-  const unreadNotifs = notifications.filter(n => !n.read && (!n.company || n.company === currentUser.company)).length;
+  const unreadNotifs = safeNotifications.filter(n => !n.read && (!n.company || n.company === userCompany)).length;
 
   // Attendance Calendar Calculations
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const currentMonthName = monthNames[now.getMonth()];
   const currentYear = now.getFullYear();
   
-  const myAttendanceRecord = staffAttendance.find(a => 
-    a.staffId === currentUser.id || a.staffName?.toLowerCase() === currentUser.name.toLowerCase()
+  const myAttendanceRecord = safeStaffAttendance.find(a => 
+    (userId && a.staffId === userId) || (userNameLower && a.staffName && a.staffName.toLowerCase() === userNameLower)
   );
   
   const totalDaysInMonth = new Date(currentYear, now.getMonth() + 1, 0).getDate();
   const daysArray = Array.from({ length: totalDaysInMonth }, (_, i) => i + 1);
 
   // My Payslips list
-  const myPayslips = payroll.filter(p => 
-    p.staffId === currentUser.id || p.staffName?.toLowerCase() === currentUser.name.toLowerCase()
+  const myPayslips = safePayroll.filter(p => 
+    (userId && p.staffId === userId) || (userNameLower && p.staffName && p.staffName.toLowerCase() === userNameLower)
   );
 
   return (
@@ -568,15 +578,21 @@ function HRDashboard({ fStaff, leaveRequests, staffRequests, staffAttendance, no
   currentUser: ReturnType<typeof useAuthStore.getState>["currentUser"];
 }) {
   const { hasPermission } = useAuthStore();
-  const userCompany = currentUser.company;
-  const companyLeave = leaveRequests.filter(l => l.company === userCompany);
-  const companyRequests = staffRequests.filter(r => r.company === userCompany);
+  const userCompany = currentUser?.company || "";
+
+  const safeStaff = Array.isArray(fStaff) ? fStaff : [];
+  const safeLeaveRequests = Array.isArray(leaveRequests) ? leaveRequests : [];
+  const safeStaffRequests = Array.isArray(staffRequests) ? staffRequests : [];
+  const safeBirthdays = Array.isArray(upcomingBirthdays) ? upcomingBirthdays : [];
+
+  const companyLeave = safeLeaveRequests.filter(l => !l.company || l.company === userCompany);
+  const companyRequests = safeStaffRequests.filter(r => !r.company || r.company === userCompany);
 
   const pendingLeave = companyLeave.filter(l => l.status === "Pending").length;
   const pendingRequests = companyRequests.filter(r => r.status === "Pending").length;
-  const activeStaff = fStaff.filter(s => s.status === "Active").length;
+  const activeStaff = safeStaff.filter(s => s.status === "Active").length;
 
-  const visaExpiring = fStaff.filter(s => {
+  const visaExpiring = safeStaff.filter(s => {
     if (!s.visaExpiry) return false;
     const days = Math.ceil((new Date(s.visaExpiry).getTime() - now.getTime()) / 86_400_000);
     return days <= 20;
@@ -585,7 +601,7 @@ function HRDashboard({ fStaff, leaveRequests, staffRequests, staffAttendance, no
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {hasPermission("staff", "view") && <StatCard title="Active Staff" value={activeStaff} icon={UserCheck} sub={`${fStaff.length} total`} theme="emerald" />}
+        {hasPermission("staff", "view") && <StatCard title="Active Staff" value={activeStaff} icon={UserCheck} sub={`${safeStaff.length} total`} theme="emerald" />}
         {hasPermission("leave", "view") && <StatCard title="Leave Pending" value={pendingLeave} icon={Clock} sub="Awaiting approval" theme="amber" />}
         {hasPermission("requests", "view") && <StatCard title="Staff Requests" value={pendingRequests} icon={ClipboardList} sub="Pending review" theme="purple" />}
         {hasPermission("visaExpiry", "view") && <StatCard title="Visa Alerts" value={visaExpiring} icon={Shield} sub="Expiring ≤ 20 days" theme="rose" />}
@@ -638,15 +654,15 @@ function HRDashboard({ fStaff, leaveRequests, staffRequests, staffAttendance, no
         {hasPermission("birthday", "view") && (
           <Card className="rounded-2xl border-0 shadow-md bg-white p-5 flex flex-col">
             <SectionHeader icon={Cake} title="Upcoming Birthdays" href="/birthday" />
-            {upcomingBirthdays.length === 0
+            {safeBirthdays.length === 0
               ? <div className="flex-1 flex items-center justify-center py-8 text-xs text-slate-400">No birthdays this week</div>
               : <div className="space-y-2 overflow-y-auto max-h-60 pr-1">
-                  {upcomingBirthdays.map(s => {
+                  {safeBirthdays.map(s => {
                     const b = new Date(s.birthday);
                     const isToday = b.getDate() === now.getDate() && b.getMonth() === now.getMonth();
                     return (
                       <div key={s.id} className={cn("p-3 rounded-xl border flex items-center gap-3", isToday ? "bg-pink-50 border-pink-200" : "bg-slate-50 border-slate-100")}>
-                        <div className="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center text-pink-600 font-black text-sm">{s.name.charAt(0)}</div>
+                        <div className="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center text-pink-600 font-black text-sm">{(s.name || "S").charAt(0)}</div>
                         <div className="flex-1 min-w-0">
                           <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5 truncate">
                             {s.name}
@@ -684,8 +700,12 @@ function AccountantDashboard({ payroll, fStaff, currentUser }: {
   currentUser: ReturnType<typeof useAuthStore.getState>["currentUser"];
 }) {
   const { hasPermission } = useAuthStore();
-  const userCompany = currentUser.company;
-  const companyPayroll = payroll.filter(p => p.company === userCompany);
+  const userCompany = currentUser?.company || "";
+
+  const safePayroll = Array.isArray(payroll) ? payroll : [];
+  const safeStaff = Array.isArray(fStaff) ? fStaff : [];
+
+  const companyPayroll = safePayroll.filter(p => !p.company || p.company === userCompany);
   const draftPayroll = companyPayroll.filter(p => p.status === "Draft").length;
   const pendingPayroll = companyPayroll.filter(p => p.status === "Pending Approval").length;
   const approvedPayroll = companyPayroll.filter(p => p.status === "Approved").length;
