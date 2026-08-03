@@ -120,7 +120,7 @@ const EMAIL_TEMPLATES = [
       { name: "salary", label: "Basic Salary (AED)", placeholder: "e.g. 10000", required: true },
       { name: "joiningDate", label: "Joining Date", placeholder: "e.g. 2026-07-20", required: true },
       { name: "allowances", label: "Allowances (Optional)", placeholder: "e.g. Housing: 2000, Transport: 1000", required: false },
-      { name: "offerLetterLink", label: "Sign Link (Optional)", placeholder: "e.g. https://portal.mshorizon.ae/sign/offer/1", required: false },
+      { name: "offerLetterLink", label: "Sign Link (Optional)", placeholder: "e.g. https://mshorizonuae.com/sign/offer/1", required: false },
     ]
   },
   {
@@ -183,7 +183,7 @@ const EMAIL_TEMPLATES = [
     color: "bg-indigo-50 text-indigo-700 border-indigo-200/50",
     fields: [
       { name: "recipientName", label: "User Name", placeholder: "e.g. David Beckham", required: true },
-      { name: "resetLink", label: "Reset Password Link", placeholder: "e.g. https://portal.mshorizon.ae/reset-password?token=...", required: true },
+      { name: "resetLink", label: "Reset Password Link", placeholder: "e.g. https://mshorizonuae.com/reset-password?token=...", required: true },
     ]
   },
   {
@@ -339,7 +339,7 @@ const EMAIL_TEMPLATES = [
     color: "bg-slate-50 text-slate-700 border-slate-200/50",
     fields: [
       { name: "body", label: "Email Body Message", placeholder: "Write your email message here...", required: true },
-      { name: "actionLink", label: "Action Link (Optional)", placeholder: "e.g. https://portal.mshorizon.ae/dashboard", required: false },
+      { name: "actionLink", label: "Action Link (Optional)", placeholder: "e.g. https://mshorizonuae.com/dashboard", required: false },
     ]
   },
   // ─── New Templates ────────────────────────────────────────────────────────
@@ -497,7 +497,7 @@ const EMAIL_TEMPLATES = [
       { name: "employerName", label: "Employer / Company", placeholder: "e.g. Al Futtaim Group", required: true },
       { name: "startDate", label: "Start Date", placeholder: "e.g. 2026-08-01", required: true },
       { name: "workLocation", label: "Work Location", placeholder: "e.g. Dubai Office", required: true },
-      { name: "portalUrl", label: "HR Portal URL (Optional)", placeholder: "e.g. https://portal.mshorizon.ae", required: false },
+      { name: "portalUrl", label: "HR Portal URL (Optional)", placeholder: "e.g. https://mshorizonuae.com/login", required: false },
       { name: "tempPassword", label: "Temporary Password (Optional)", placeholder: "e.g. Welcome@2026", required: false },
     ]
   },
@@ -510,7 +510,7 @@ const EMAIL_TEMPLATES = [
     fields: [
       { name: "recipientName", label: "User Name", placeholder: "e.g. John Doe", required: true },
       { name: "role", label: "System Role", placeholder: "e.g. Recruiter, HR Manager", required: true },
-      { name: "portalUrl", label: "Portal / Login URL", placeholder: "e.g. https://portal.mshorizon.ae", required: true },
+      { name: "portalUrl", label: "Portal / Login URL", placeholder: "e.g. https://mshorizonuae.com/login", required: true },
       { name: "tempPassword", label: "Temporary Password (Optional)", placeholder: "e.g. Welcome@2026", required: false },
     ]
   },

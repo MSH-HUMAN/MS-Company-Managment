@@ -392,7 +392,9 @@ export async function sendEmail({
       generatedDate: templateData?.generatedDate || new Date().toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' }),
       reportingTime: templateData?.reportingTime || templateData?.reportTime || "8:00 AM",
       reportingLocation: templateData?.reportingLocation || templateData?.workLocation || "N/A",
-      portalUrl: templateData?.portalUrl || process.env.NEXT_PUBLIC_SITE_URL || "",
+      portalUrl: (templateData?.portalUrl && !templateData.portalUrl.includes("portal.mshorizon.ae")) 
+        ? templateData.portalUrl 
+        : `${(process.env.NEXT_PUBLIC_SITE_URL || process.env.APP_URL || "https://mshorizonuae.com").replace(/\/$/, "")}/login`,
       tempPassword: templateData?.tempPassword || "",
       // Medical test fields
       testDate: templateData?.testDate || templateData?.medicalDate || "N/A",
@@ -434,9 +436,9 @@ export async function sendEmail({
     const showPlacementDetails = hasApplicantDetails && safeData.salary !== "N/A";
     const showClientCompany = hasApplicantDetails && safeData.clientCompany !== "N/A";
 
-    const siteDomain = process.env.NEXT_PUBLIC_SITE_URL || "https://mshorizonuae.com";
+    const siteDomain = (process.env.NEXT_PUBLIC_SITE_URL || process.env.APP_URL || "https://mshorizonuae.com").replace(/\/$/, "");
     const rawActionLink = templateData?.actionLink || (safeData as any)?.actionLink;
-    const finalActionLink = (rawActionLink && !rawActionLink.includes("localhost"))
+    const finalActionLink = (rawActionLink && !rawActionLink.includes("localhost") && !rawActionLink.includes("portal.mshorizon.ae"))
       ? rawActionLink
       : (templateData?.trackingCode || (safeData as any)?.trackingCode)
         ? `${siteDomain}/apply?code=${templateData?.trackingCode || (safeData as any)?.trackingCode}`
@@ -1115,7 +1117,7 @@ export async function sendTaskEmailNotification({
 }) {
   if (!to || !to.includes("@")) return;
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://portal.mshorizon.ae";
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.APP_URL || "https://mshorizonuae.com").replace(/\/$/, "");
   const actionLink = `${siteUrl}/tasks`;
   const compName = company || "MS Management";
 

@@ -309,7 +309,7 @@ export async function POST(request: Request) {
           startDate: newStaff.joiningDate,
           workLocation: newStaff.branch || "Main Branch",
           tempPassword: temporaryPassword || "",
-          portalUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://portal.mshorizon.ae"
+          portalUrl: `${(process.env.NEXT_PUBLIC_SITE_URL || process.env.APP_URL || "https://mshorizonuae.com").replace(/\/$/, "")}/login`
         }
       }).catch(err => console.error("Async staff email sending error:", err));
     }

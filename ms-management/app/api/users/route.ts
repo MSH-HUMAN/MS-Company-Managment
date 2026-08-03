@@ -125,7 +125,7 @@ export async function POST(request: Request) {
           recipientName: newUser.name,
           role: newUser.role,
           tempPassword: defaultPassword,
-          portalUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://portal.mshorizon.ae"
+          portalUrl: `${(process.env.NEXT_PUBLIC_SITE_URL || process.env.APP_URL || "https://mshorizonuae.com").replace(/\/$/, "")}/login`
         }
       });
     } catch (mailErr) {

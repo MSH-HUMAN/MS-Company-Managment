@@ -334,7 +334,7 @@ ${data.company || existing.company} HR Team`;
               startDate: existing.joiningDate,
               workLocation: data.branch || existing.branch || "Main Branch",
               tempPassword: temporaryPassword,
-              portalUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://portal.mshorizon.ae"
+              portalUrl: `${(process.env.NEXT_PUBLIC_SITE_URL || process.env.APP_URL || "https://mshorizonuae.com").replace(/\/$/, "")}/login`
             }
           }).catch(err => console.error("Async staff updated email sending error:", err));
         }
