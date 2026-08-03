@@ -408,16 +408,22 @@ export async function getPermissionScopedFilter(
   } else if (moduleLower === "users") {
     filter["id"] = user.id;
   } else if (moduleLower === "tasks") {
-    filter["OR"] = [
+    // Staff can ONLY see tasks that are explicitly assigned to them.
+    // createdBy is intentionally excluded — if a staff member created a task
+    // and assigned it to someone else, they should NOT see it in their list.
+    const assigneeMatches: Record<string, string>[] = [
       { assignedToId: staffId },
       { assignedToId: user.id },
-      { assignedTo: user.name },
-      { assignedTo: user.email },
-      { createdBy: user.name }
+      { assignedTo: user.email }
     ];
-    if (staffMember?.name) {
-      filter["OR"].push({ assignedTo: staffMember.name });
+    // Add exact name matches (not partial) to prevent cross-user leakage
+    if (user.name) {
+      assigneeMatches.push({ assignedTo: user.name });
     }
+    if (staffMember?.name && staffMember.name !== user.name) {
+      assigneeMatches.push({ assignedTo: staffMember.name });
+    }
+    filter["OR"] = assigneeMatches;
   } else if (moduleLower === "documents") {
     filter["uploadedBy"] = user.name;
   } else if (moduleLower === "interviews") {
@@ -504,13 +510,18 @@ export async function canModifyRecord(
   } else if (moduleLower === "users") {
     return record.id === user.id;
   } else if (moduleLower === "tasks") {
+    // Only the assigned staff member can modify their own task.
+    // createdBy is excluded: if admin created a task for someone else, admin
+    // goes through the hasAll path above, not here.
     const assignedName = record.assignedTo?.trim().toLowerCase();
-    return record.assignedToId === staffId ||
-           record.assignedToId === user.id ||
-           assignedName === user.name.trim().toLowerCase() ||
-           assignedName === user.email.trim().toLowerCase() ||
-           (staffMember && assignedName === staffMember.name.trim().toLowerCase()) ||
-           record.createdBy === user.name;
+    const userNameLower = user.name.trim().toLowerCase();
+    return Boolean(
+      record.assignedToId === staffId ||
+      record.assignedToId === user.id ||
+      assignedName === userNameLower ||
+      assignedName === user.email.trim().toLowerCase() ||
+      (staffMember && assignedName === staffMember.name.trim().toLowerCase())
+    );
   } else if (moduleLower === "documents") {
     return record.uploadedBy === user.name;
   } else if (moduleLower === "interviews") {

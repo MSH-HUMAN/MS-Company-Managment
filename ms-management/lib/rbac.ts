@@ -26,16 +26,17 @@ export function isTaskAssignee(
   const taskAssignedTo = task.assignedTo?.trim().toLowerCase();
   const taskAssignedToId = task.assignedToId;
 
-  // 1. Direct ID match
+  // 1. Direct ID match (most reliable)
   if (userId && taskAssignedToId && userId === taskAssignedToId) return true;
 
-  // 2. Name match (trimmed, case-insensitive)
-  if (userName && taskAssignedTo && (userName === taskAssignedTo || taskAssignedTo.includes(userName) || userName.includes(taskAssignedTo))) return true;
+  // 2. Exact name match only — NO partial/includes() to prevent cross-user leakage
+  // e.g. "Ali" must NOT match "Saliha" or "Khalid Ali"
+  if (userName && taskAssignedTo && userName === taskAssignedTo) return true;
 
-  // 3. Email match (if task assignedTo was saved as email)
+  // 3. Exact email match
   if (userEmail && taskAssignedTo && userEmail === taskAssignedTo) return true;
 
-  // 4. Match via Staff list if available
+  // 4. Match via Staff list (by staff record's ID or exact name)
   if (staffList && Array.isArray(staffList)) {
     const matchedStaff = staffList.find(s => 
       (userEmail && s.email?.trim().toLowerCase() === userEmail) ||
@@ -107,8 +108,17 @@ export function filterRecordsByPermission<T extends Record<string, any>>(
   const userName = currentUser.name?.trim().toLowerCase();
   const userId = currentUser.id;
 
+  // Determine if we are filtering tasks (special strict assignee-only path)
+  const isTaskModule = moduleKey.toLowerCase() === "tasks";
+
   return scoped.filter(item => {
-    // If it's a task, check with isTaskAssignee
+    // TASKS: strict assignee-only check — never use createdBy for task visibility.
+    // A staff member who created a task for someone else must NOT see it.
+    if (isTaskModule) {
+      return isTaskAssignee(item as any, currentUser);
+    }
+
+    // All other modules: check assignee fields + ownership fields
     if (item.assignedTo || item.assignedToId) {
       if (isTaskAssignee(item as any, currentUser)) return true;
     }
@@ -117,7 +127,6 @@ export function filterRecordsByPermission<T extends Record<string, any>>(
       (userName && item.createdBy?.trim().toLowerCase() === userName) ||
       (userId && item.createdById === userId) ||
       (userName && item.assignedTo?.trim().toLowerCase() === userName) ||
-      (userName && item.assignedTo && (item.assignedTo.trim().toLowerCase().includes(userName) || userName.includes(item.assignedTo.trim().toLowerCase()))) ||
       (userEmail && item.assignedTo?.trim().toLowerCase() === userEmail) ||
       (userId && item.assignedToId === userId) ||
       (userId && item.staffId === userId) ||
@@ -174,7 +183,6 @@ export function canEditRecord<T extends Record<string, any>>(
     (userName && record.createdBy?.trim().toLowerCase() === userName) ||
     (userId && record.createdById === userId) ||
     (userName && record.assignedTo?.trim().toLowerCase() === userName) ||
-    (userName && record.assignedTo && (record.assignedTo.trim().toLowerCase().includes(userName) || userName.includes(record.assignedTo.trim().toLowerCase()))) ||
     (userEmail && record.assignedTo?.trim().toLowerCase() === userEmail) ||
     (userId && record.assignedToId === userId) ||
     (userId && record.staffId === userId) ||

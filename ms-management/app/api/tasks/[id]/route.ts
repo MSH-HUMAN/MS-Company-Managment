@@ -21,6 +21,94 @@ function normalizeTask(t: any) {
   };
 }
 
+/**
+ * GET /api/tasks/[id] - Fetch a single task by ID.
+ * Access rules:
+ *   - Super Admin: can fetch any task
+ *   - Company Admin / Branch Admin: can fetch tasks within their tenant scope
+ *   - Other roles with viewAll permission: can fetch tasks within their tenant scope  
+ *   - Staff / limited roles: can only fetch tasks explicitly assigned to them
+ */
+export async function GET(request: Request, { params }: RouteParams) {
+  try {
+    const user = await getSessionUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+
+    const task = await prisma.task.findUnique({
+      where: { id }
+    });
+
+    if (!task) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+
+    const isSuperAdmin = user.role === "Super Admin";
+    const isCompanyAdmin = user.role === "Company Admin" || user.role === "Admin";
+    const isBranchAdmin = user.role === "Branch Admin";
+
+    // Super Admin can see all tasks
+    if (isSuperAdmin) {
+      return NextResponse.json(normalizeTask(task));
+    }
+
+    // Company isolation — always enforced for non-Super Admin
+    if (user.company && user.company !== "System" && task.company !== user.company) {
+      await createAuditLog(user, "View Attempt", "tasks", null, `Unauthorized attempt to view task ${id} from another company`, request.headers.get("x-forwarded-for"));
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // Branch isolation for Branch Admins
+    if (isBranchAdmin && user.branch && user.branch !== "All" && task.branch !== user.branch) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // Company/Branch Admins can see all tasks within their scope
+    if (isCompanyAdmin || isBranchAdmin) {
+      return NextResponse.json(normalizeTask(task));
+    }
+
+    // Check viewAll permission — allows seeing all tasks in the tenant scope
+    const hasViewAll = await hasPermissionBackend(user, "tasks", "viewAll");
+    if (hasViewAll) {
+      return NextResponse.json(normalizeTask(task));
+    }
+
+    // Check basic view permission — user must be explicitly assigned to this task
+    const hasView = await hasPermissionBackend(user, "tasks", "view");
+    if (!hasView) {
+      await createAuditLog(user, "View Attempt", "tasks", null, `No permission to view task ${id}`, request.headers.get("x-forwarded-for"));
+      return NextResponse.json({ error: "Forbidden: Access Denied" }, { status: 403 });
+    }
+
+    // Verify the requesting user is the explicit assignee of this task
+    const userStaff = await prisma.staff.findFirst({ where: { email: user.email } });
+    const userStaffId = userStaff?.id;
+    const taskAssignedTo = task.assignedTo?.trim().toLowerCase();
+    const userNameLower = user.name.trim().toLowerCase();
+
+    const isAssignee =
+      (userStaffId && task.assignedToId === userStaffId) ||
+      task.assignedToId === user.id ||
+      taskAssignedTo === userNameLower ||
+      taskAssignedTo === user.email.trim().toLowerCase() ||
+      (userStaff && taskAssignedTo === userStaff.name.trim().toLowerCase());
+
+    if (!isAssignee) {
+      await createAuditLog(user, "View Attempt", "tasks", null, `Unauthorized attempt to view task ${id} not assigned to them`, request.headers.get("x-forwarded-for"));
+      return NextResponse.json({ error: "Forbidden: Task not assigned to you" }, { status: 403 });
+    }
+
+    return NextResponse.json(normalizeTask(task));
+  } catch (error: any) {
+    console.error("GET task by ID error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
 export async function PUT(request: Request, { params }: RouteParams) {
   try {
     const user = await getSessionUser();

@@ -1830,11 +1830,12 @@ export default function DashboardPage() {
     ? safeTasks.filter(t => t.company === userCompany)
     : isStaff
       ? safeTasks.filter(t => t.company === userCompany && (
+          // Only exact assignee matches — never createdBy for staff-level scoping
           (currentUser?.id && t.assignedToId === currentUser.id) ||
-          (currentUser?.name && t.assignedTo && t.assignedTo.toLowerCase() === currentUser.name.toLowerCase()) ||
-          (currentUser?.name && t.createdBy === currentUser.name)
+          (currentUser?.name && t.assignedTo && t.assignedTo.trim().toLowerCase() === currentUser.name.trim().toLowerCase()) ||
+          (currentUser?.email && t.assignedTo && t.assignedTo.trim().toLowerCase() === currentUser.email.trim().toLowerCase())
         ))
-      : safeTasks.filter(t => t.company === userCompany && t.branch === userBranch);
+      : safeTasks.filter(t => t.company === userCompany && (!userBranch || userBranch === "All" || t.branch === userBranch));
 
   const fInterviews = applyBranchFilter(isSystemWide ? safeInterviews : safeInterviews.filter(i => i.company === userCompany));
 
