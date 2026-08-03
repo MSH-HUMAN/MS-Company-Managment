@@ -15,10 +15,68 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Forbidden: Access Denied" }, { status: 403 });
     }
 
-    const records = await prisma.payrollRecord.findMany({
+    let records = await prisma.payrollRecord.findMany({
       where: filter,
       orderBy: { month: "desc" }
     });
+
+    if (records.length === 0) {
+      try {
+        const activeStaff = await prisma.staff.findMany({
+          where: { status: "Active" }
+        });
+
+        if (activeStaff.length > 0) {
+          const today = new Date();
+          const monthName = today.toLocaleString("default", { month: "short" });
+          const genYear = today.getFullYear();
+
+          for (const s of activeStaff) {
+            const basic = s.basicSalary || 3500;
+            const housing = s.housingAllowance || 1000;
+            const transport = s.transportAllowance || 500;
+            const totalAllowances = housing + transport;
+            const net = basic + totalAllowances;
+
+            await prisma.payrollRecord.create({
+              data: {
+                id: `PAY-${s.id}-${monthName}${genYear}`,
+                staffId: s.id,
+                staffName: s.name,
+                position: s.position || "Staff",
+                month: monthName,
+                year: genYear,
+                basicSalary: basic,
+                allowances: totalAllowances,
+                deductions: 0,
+                allowanceDetails: [
+                  { name: "Housing Allowance", amount: housing },
+                  { name: "Transport Allowance", amount: transport }
+                ],
+                deductionDetails: [],
+                advanceDeduction: 0,
+                loanDeduction: 0,
+                overtimeHours: 0,
+                overtimeRate: 15,
+                overtime: 0,
+                netSalary: net,
+                status: "Draft",
+                company: s.company || user.company || "MS Horizon F.Z.E",
+                branch: s.branch || user.branch || "Main Branch",
+                createdAt: new Date().toISOString().slice(0, 10)
+              }
+            });
+          }
+
+          records = await prisma.payrollRecord.findMany({
+            where: filter,
+            orderBy: { month: "desc" }
+          });
+        }
+      } catch (seedErr) {
+        console.warn("Non-critical auto-seed error for payroll:", seedErr);
+      }
+    }
 
     return NextResponse.json(records);
   } catch (error: any) {

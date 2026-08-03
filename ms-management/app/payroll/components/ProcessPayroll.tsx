@@ -278,7 +278,15 @@ export default function ProcessPayroll() {
 
       <div className="flex-1">
         {paginated.length === 0 ? (
-          <EmptyState title="No pending payrolls" description="Generate payroll for a month to begin processing." />
+          <EmptyState 
+            title="No pending payrolls" 
+            description="Generate payroll for a month to begin processing." 
+            action={
+              <Button onClick={() => setGenerateModal(true)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs h-9 px-4 gap-1.5 shadow-md shadow-blue-500/10">
+                <Plus className="w-4 h-4" /> Generate Monthly Payroll
+              </Button>
+            }
+          />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {paginated.map(p => (

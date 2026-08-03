@@ -82,7 +82,7 @@ export default function PayrollPage() {
       </div>
 
       <div className="flex-1 p-4 md:p-6 w-full max-w-7xl mx-auto space-y-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
-        {activeTab === "Dashboard" && isAdminLevel && <PayrollDashboard />}
+        {activeTab === "Dashboard" && isAdminLevel && <PayrollDashboard onNavigateToProcess={() => setActiveTab("Process Payroll")} />}
         {activeTab === "Salary Setup" && isAdminLevel && <SalarySetup />}
         {activeTab === "Process Payroll" && isAdminLevel && canProcess && <ProcessPayroll />}
         {activeTab === "Payslips" && <Payslips />}
