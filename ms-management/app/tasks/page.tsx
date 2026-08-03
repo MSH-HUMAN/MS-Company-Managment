@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useFilterStore } from "@/store/filterStore";
 import { formatDate, exportToCSV, cn } from "@/lib/utils";
 import AccessDenied from "@/components/shared/AccessDenied";
-import { filterRecordsByPermission } from "@/lib/rbac";
+import { filterRecordsByPermission, isTaskAssignee } from "@/lib/rbac";
 import PageHeader from "@/components/shared/PageHeader";
 import FilterBar from "@/components/shared/FilterBar";
 import StatusBadge from "@/components/shared/StatusBadge";
@@ -435,7 +435,8 @@ export default function TasksPage() {
     };
 
   const handleStatusChange = (task: Task, status: Task["status"], fromModal = false) => {
-    if (!canEditTasks && currentUser.name !== task.assignedTo) {
+    const isAssignee = isTaskAssignee(task, currentUser, staff);
+    if (!canEditTasks && !isAssignee) {
       toast.error("You do not have permission to update this task status");
       return;
     }
@@ -509,7 +510,7 @@ export default function TasksPage() {
   const priorityColor = (p: string) => p === "High" ? "text-rose-600 bg-rose-50 border-rose-100" : p === "Medium" ? "text-amber-600 bg-amber-50 border-amber-100" : "text-slate-500 bg-slate-50 border-slate-200";
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col min-h-full pb-28 md:pb-8">
       <PageHeader 
         title={isAdmin ? "Task Management Dashboard" : "My Work Dashboard"} 
         subtitle={isAdmin ? "Assign, track, and manage company-wide operational tasks" : "Review and update tasks assigned to you"}
@@ -562,7 +563,7 @@ export default function TasksPage() {
 
       <FilterBar moduleKey="tasks" statusOptions={["Pending","Processing","Completed","Incomplete","Reassigned","Cancelled"]} showAssignee onExport={() => { exportToCSV(list.map(t=>({ID:t.id,Title:t.title,Assignee:t.assignedTo,Priority:t.priority,Deadline:t.deadline,Status:t.status})),"tasks"); toast.success("Exported"); }} />
 
-      <div className="flex-1 p-4 md:p-6 overflow-x-auto overflow-y-auto min-h-0 pb-28 md:pb-6">
+      <div className="flex-1 p-4 md:p-6 overflow-x-auto min-h-0 pb-28 md:pb-8">
         {taskTab === "history" ? (
           /* ── Completed Tasks View ── */
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
@@ -603,39 +604,38 @@ export default function TasksPage() {
                 </div>
 
                 {/* Desktop View for History */}
-                <div className="hidden md:block">
-                  <table className="w-full text-xs">
-                    <thead className="bg-emerald-50/60 border-b border-emerald-100">
-                      <tr className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
-                        <th className="text-left px-4 py-3">Task</th>
-                        <th className="text-left px-4 py-3">Assignee</th>
-                        <th className="text-left px-4 py-3">Dates</th>
-                        <th className="text-left px-4 py-3">Status</th>
-                        <th className="text-right px-4 py-3">Actions</th>
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50/80 text-slate-500 text-[10px] font-black uppercase tracking-wider border-b border-slate-100">
+                        <th className="py-3 px-4">Task Details</th>
+                        <th className="py-3 px-4">Assignee</th>
+                        <th className="py-3 px-4">Assigned Date</th>
+                        <th className="py-3 px-4">Due Date</th>
+                        <th className="py-3 px-4">Status</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-slate-100">
                       {paginated.map(t => (
-                        <tr key={t.id} className="border-b border-slate-50 hover:bg-emerald-50/20 font-semibold text-slate-600">
-                          <td className="px-4 py-3">
-                            <div className="font-bold text-slate-800 flex gap-2 items-center">
+                        <tr key={t.id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="py-3 px-4">
+                            <div className="font-bold text-slate-800 flex items-center gap-1.5">
                               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0"/>
                               {t.title}
                             </div>
-                            <div className="text-[10px] text-slate-400 mt-0.5 pl-5">{t.id} • <span className={`text-[9px] font-extrabold px-1 py-0.5 rounded uppercase ${priorityColor(t.priority)}`}>{t.priority}</span></div>
-                            {t.applicantName && <div className="text-[9px] text-blue-600 font-bold mt-1 pl-5">👤 {t.applicantName}</div>}
+                            <div className="text-[10px] text-slate-400 mt-0.5">{t.id} • <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded uppercase ${priorityColor(t.priority)}`}>{t.priority}</span></div>
+                            {t.applicantName && <div className="text-[10px] text-blue-600 font-semibold mt-0.5">👤 {t.applicantName}</div>}
                           </td>
-                          <td className="px-4 py-3 text-slate-700">{t.assignedTo}</td>
-                          <td className="px-4 py-3 text-[10px]">
-                            <div className="text-slate-400">Assigned: {formatDateTime(t.assignedDate)}</div>
-                            <div className="font-bold mt-0.5 text-slate-700">Due: {formatDateTime(t.deadline)}</div>
-                          </td>
-                          <td className="px-4 py-3">
-                            <StatusBadge status={t.status}/>
-                          </td>
-                          <td className="px-4 py-3 text-right space-x-1">
-                            <Button variant="ghost" size="icon" onClick={() => { setHistoryTask(t); setHistoryModalOpen(true); }} className="w-7 h-7 text-indigo-500 hover:bg-indigo-50 rounded-lg" title="History"><History className="w-4 h-4"/></Button>
-                            {canDeleteTasks && <Button variant="ghost" size="icon" onClick={() => setDeleteId(t.id)} className="w-7 h-7 text-rose-500 hover:bg-rose-50 rounded-lg"><Trash2 className="w-4 h-4"/></Button>}
+                          <td className="py-3 px-4 font-semibold text-slate-700">{t.assignedTo}</td>
+                          <td className="py-3 px-4 text-slate-500 text-[11px]">{formatDateTime(t.assignedDate)}</td>
+                          <td className="py-3 px-4 text-slate-500 text-[11px]">{formatDateTime(t.deadline)}</td>
+                          <td className="py-3 px-4"><StatusBadge status={t.status}/></td>
+                          <td className="py-3 px-4 text-right">
+                            <div className="flex justify-end gap-1">
+                              <Button variant="ghost" size="icon" onClick={() => { setHistoryTask(t); setHistoryModalOpen(true); }} className="w-7 h-7 text-indigo-500 hover:bg-indigo-50 rounded-lg" title="History"><History className="w-4 h-4"/></Button>
+                              {canDeleteTasks && <Button variant="ghost" size="icon" onClick={() => setDeleteId(t.id)} className="w-7 h-7 text-rose-500 hover:bg-rose-50 rounded-lg"><Trash2 className="w-4 h-4"/></Button>}
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -661,7 +661,7 @@ export default function TasksPage() {
                         </div>
                         <span className="text-[10px] font-extrabold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{colTasks.length}</span>
                       </div>
-                      <div className="space-y-2.5 max-h-[calc(100vh-300px)] overflow-y-auto pr-0.5">
+                      <div className="space-y-2.5 max-h-[calc(100vh-220px)] md:max-h-[calc(100vh-300px)] overflow-y-auto pr-0.5 pb-4">
                         {colTasks.length === 0 ? (
                           <div className="text-center py-6 text-[10px] text-slate-400 font-semibold">No tasks here</div>
                         ) : colTasks.map(t => {

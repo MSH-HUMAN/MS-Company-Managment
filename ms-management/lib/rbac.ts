@@ -10,6 +10,48 @@ export interface RBACUser {
 }
 
 /**
+ * Checks if a task is assigned to a specific user (robust against name, email, and ID variations)
+ */
+export function isTaskAssignee(
+  task: { assignedTo?: string; assignedToId?: string },
+  currentUser: RBACUser | null | undefined,
+  staffList?: { id?: string; name?: string; email?: string }[]
+): boolean {
+  if (!currentUser || !task) return false;
+  
+  const userName = currentUser.name?.trim().toLowerCase();
+  const userEmail = currentUser.email?.trim().toLowerCase();
+  const userId = currentUser.id;
+
+  const taskAssignedTo = task.assignedTo?.trim().toLowerCase();
+  const taskAssignedToId = task.assignedToId;
+
+  // 1. Direct ID match
+  if (userId && taskAssignedToId && userId === taskAssignedToId) return true;
+
+  // 2. Name match (trimmed, case-insensitive)
+  if (userName && taskAssignedTo && (userName === taskAssignedTo || taskAssignedTo.includes(userName) || userName.includes(taskAssignedTo))) return true;
+
+  // 3. Email match (if task assignedTo was saved as email)
+  if (userEmail && taskAssignedTo && userEmail === taskAssignedTo) return true;
+
+  // 4. Match via Staff list if available
+  if (staffList && Array.isArray(staffList)) {
+    const matchedStaff = staffList.find(s => 
+      (userEmail && s.email?.trim().toLowerCase() === userEmail) ||
+      (userName && s.name?.trim().toLowerCase() === userName) ||
+      (userId && s.id === userId)
+    );
+    if (matchedStaff) {
+      if (taskAssignedToId && matchedStaff.id === taskAssignedToId) return true;
+      if (taskAssignedTo && matchedStaff.name?.trim().toLowerCase() === taskAssignedTo) return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * Filters a record list based on fine-grained VIEW / VIEW ALL permission rules
  * and Company / Branch tenant isolation. Safe against null/undefined currentUser.
  */
@@ -61,20 +103,27 @@ export function filterRecordsByPermission<T extends Record<string, any>>(
   }
 
   // Personal Record Scoping (User can only view their own records or records assigned to them)
-  const userEmail = currentUser.email?.toLowerCase();
-  const userName = currentUser.name?.toLowerCase();
+  const userEmail = currentUser.email?.trim().toLowerCase();
+  const userName = currentUser.name?.trim().toLowerCase();
   const userId = currentUser.id;
 
   return scoped.filter(item => {
+    // If it's a task, check with isTaskAssignee
+    if (item.assignedTo || item.assignedToId) {
+      if (isTaskAssignee(item as any, currentUser)) return true;
+    }
+
     const isOwner =
-      (userName && item.createdBy?.toLowerCase() === userName) ||
+      (userName && item.createdBy?.trim().toLowerCase() === userName) ||
       (userId && item.createdById === userId) ||
-      (userName && item.assignedTo?.toLowerCase() === userName) ||
+      (userName && item.assignedTo?.trim().toLowerCase() === userName) ||
+      (userName && item.assignedTo && (item.assignedTo.trim().toLowerCase().includes(userName) || userName.includes(item.assignedTo.trim().toLowerCase()))) ||
+      (userEmail && item.assignedTo?.trim().toLowerCase() === userEmail) ||
       (userId && item.assignedToId === userId) ||
       (userId && item.staffId === userId) ||
-      (userName && item.staffName?.toLowerCase() === userName) ||
-      (userEmail && item.email?.toLowerCase() === userEmail) ||
-      (userName && item.name?.toLowerCase() === userName) ||
+      (userName && item.staffName?.trim().toLowerCase() === userName) ||
+      (userEmail && item.email?.trim().toLowerCase() === userEmail) ||
+      (userName && item.name?.trim().toLowerCase() === userName) ||
       (userId && item.id === userId);
 
     return Boolean(isOwner);
@@ -106,25 +155,32 @@ export function canEditRecord<T extends Record<string, any>>(
     return false;
   }
 
+  // If assigned directly to this task, user can edit/update status of their own assigned task!
+  if (record.assignedTo || record.assignedToId) {
+    if (isTaskAssignee(record as any, currentUser)) return true;
+  }
+
   const canEditAll = isCompanyAdmin || isBranchAdmin || hasPermission(moduleKey, "editAll");
   if (canEditAll) return true;
 
   const canEdit = hasPermission(moduleKey, "edit");
   if (!canEdit) return false;
 
-  const userEmail = currentUser.email?.toLowerCase();
-  const userName = currentUser.name?.toLowerCase();
+  const userEmail = currentUser.email?.trim().toLowerCase();
+  const userName = currentUser.name?.trim().toLowerCase();
   const userId = currentUser.id;
 
   return Boolean(
-    (userName && record.createdBy?.toLowerCase() === userName) ||
+    (userName && record.createdBy?.trim().toLowerCase() === userName) ||
     (userId && record.createdById === userId) ||
-    (userName && record.assignedTo?.toLowerCase() === userName) ||
+    (userName && record.assignedTo?.trim().toLowerCase() === userName) ||
+    (userName && record.assignedTo && (record.assignedTo.trim().toLowerCase().includes(userName) || userName.includes(record.assignedTo.trim().toLowerCase()))) ||
+    (userEmail && record.assignedTo?.trim().toLowerCase() === userEmail) ||
     (userId && record.assignedToId === userId) ||
     (userId && record.staffId === userId) ||
-    (userName && record.staffName?.toLowerCase() === userName) ||
-    (userEmail && record.email?.toLowerCase() === userEmail) ||
-    (userName && record.name?.toLowerCase() === userName) ||
+    (userName && record.staffName?.trim().toLowerCase() === userName) ||
+    (userEmail && record.email?.trim().toLowerCase() === userEmail) ||
+    (userName && record.name?.trim().toLowerCase() === userName) ||
     (userId && record.id === userId)
   );
 }

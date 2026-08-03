@@ -11,6 +11,7 @@ import {
   BarChart3, UserPlus, GitBranch, Home
 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
+import { isTaskAssignee } from "@/lib/rbac";
 import { formatDate, exportToCSV, cn } from "@/lib/utils";
 import StatusBadge from "@/components/shared/StatusBadge";
 import AlertBanner from "@/components/shared/AlertBanner";
@@ -206,7 +207,7 @@ function StaffDashboard({ currentUser, now, tasks, leaveRequests, notifications,
 
   const myPendingTasks = safeTasks.filter(t =>
     (t.status === "Pending" || t.status === "Processing" || t.status === "Reassigned") &&
-    ((userId && t.assignedToId === userId) || (userNameLower && t.assignedTo && t.assignedTo.toLowerCase() === userNameLower))
+    isTaskAssignee(t, currentUser)
   );
 
   const myLeave = safeLeaveRequests.filter(l =>
