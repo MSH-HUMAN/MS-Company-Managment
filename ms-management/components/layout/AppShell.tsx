@@ -69,7 +69,7 @@ if (typeof window !== "undefined") {
 }
 
 /** Pages that do NOT require authentication */
-const PUBLIC_PATHS = ["/login", "/forgot-password", "/tracking", "/apply"];
+const PUBLIC_PATHS = ["/login", "/forgot-password", "/tracking", "/apply", "/track"];
 
 /** Navigation item permission rules corresponding to Sidebar options */
 const NAV_ITEM_PERMISSIONS = [
@@ -134,7 +134,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, [isChecking, isPublicPage, isAuthenticated, router]);
 
   const isLoginPage = pathname === "/login";
-  const isTrackingPage = pathname?.startsWith("/tracking");
+  const isTrackingPage = pathname?.startsWith("/tracking") || pathname?.startsWith("/track");
   const isForgotPasswordPage = pathname === "/forgot-password";
   const isApplyPage = pathname === "/apply";
   const isFullWidthPage = isLoginPage || isTrackingPage || isForgotPasswordPage || isApplyPage;
