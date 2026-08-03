@@ -410,8 +410,14 @@ export async function getPermissionScopedFilter(
   } else if (moduleLower === "tasks") {
     filter["OR"] = [
       { assignedToId: staffId },
+      { assignedToId: user.id },
+      { assignedTo: user.name },
+      { assignedTo: user.email },
       { createdBy: user.name }
     ];
+    if (staffMember?.name) {
+      filter["OR"].push({ assignedTo: staffMember.name });
+    }
   } else if (moduleLower === "documents") {
     filter["uploadedBy"] = user.name;
   } else if (moduleLower === "interviews") {
@@ -498,7 +504,13 @@ export async function canModifyRecord(
   } else if (moduleLower === "users") {
     return record.id === user.id;
   } else if (moduleLower === "tasks") {
-    return record.assignedToId === staffId || record.createdBy === user.name;
+    const assignedName = record.assignedTo?.trim().toLowerCase();
+    return record.assignedToId === staffId ||
+           record.assignedToId === user.id ||
+           assignedName === user.name.trim().toLowerCase() ||
+           assignedName === user.email.trim().toLowerCase() ||
+           (staffMember && assignedName === staffMember.name.trim().toLowerCase()) ||
+           record.createdBy === user.name;
   } else if (moduleLower === "documents") {
     return record.uploadedBy === user.name;
   } else if (moduleLower === "interviews") {

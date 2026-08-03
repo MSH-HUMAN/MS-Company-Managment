@@ -225,8 +225,93 @@ ${updated.company} HR & Management System`;
       }
     }
 
-    // Check for status update to notify the task creator
-    if (data.status && data.status !== existing.status && updated.createdBy) {
+    // Completion & Status Update Email Alerts
+    if (data.status === "Completed" && existing.status !== "Completed") {
+      try {
+        let feedbackComments = "";
+        let proofFileNames = "";
+        if (data.feedback) {
+          try {
+            const parsedFeedback = typeof data.feedback === "string" ? JSON.parse(data.feedback) : data.feedback;
+            feedbackComments = parsedFeedback.comments || "";
+            if (Array.isArray(parsedFeedback.proofs)) {
+              proofFileNames = parsedFeedback.proofs.map((p: any) => p.name || p.url || p).join(", ");
+            }
+          } catch (e) {}
+        }
+
+        const completionTime = updated.completedAt || new Date().toISOString().replace("T", " ").slice(0, 19);
+
+        // Collect recipient emails: Creator + Super Admins
+        const recipientEmails = new Set<string>();
+        
+        if (updated.createdBy) {
+          const creator = await prisma.user.findFirst({ where: { name: updated.createdBy } });
+          if (creator && creator.email) {
+            recipientEmails.add(creator.email);
+            // Create in-app notification for creator
+            await prisma.notification.create({
+              data: {
+                title: "Task Completed",
+                message: `Task "${updated.title}" was completed by ${user.name}.`,
+                type: "Success",
+                userId: creator.id,
+                company: updated.company,
+                branch: updated.branch,
+                link: "/tasks",
+                createdAt: new Date().toISOString()
+              }
+            });
+          }
+        }
+
+        const superAdmins = await prisma.user.findMany({ where: { role: "Super Admin" } });
+        superAdmins.forEach(sa => {
+          if (sa.email) recipientEmails.add(sa.email);
+        });
+
+        const emailBody = `Task Completion Notification:
+
+Task "${updated.title}" has been completed by ${user.name}.
+
+Details:
+- Employee: ${user.name} (${user.role})
+- Task Title: ${updated.title}
+- Completion Time: ${completionTime}
+- Company / Branch: ${updated.company} / ${updated.branch}
+- Remarks: ${feedbackComments || "Task completed successfully."}
+${proofFileNames ? `- Attachments / Uploaded Proofs: ${proofFileNames}` : ""}
+- Completion Status: Completed
+
+Please view task on dashboard: https://mshorizonuae.com/tasks
+
+Best regards,
+${updated.company} Management System`;
+
+        recipientEmails.forEach(email => {
+          sendEmail({
+            to: email,
+            subject: `[Task Completed] ${updated.title} - ${user.name}`,
+            body: emailBody,
+            company: updated.company,
+            branch: updated.branch,
+            templateType: "Announcement",
+            templateData: {
+              recipientName: "Management",
+              announcementTitle: `Task Completed: ${updated.title}`,
+              announcementMessage: `Employee **${user.name}** has completed task **"${updated.title}"**.\n\n**Completion Time:** ${completionTime}\n\n**Remarks:** ${feedbackComments || "Completed"}\n\n${proofFileNames ? `**Uploaded Proofs:** ${proofFileNames}` : ""}`,
+              notes: `Company: ${updated.company}`
+            }
+          }).catch(err => console.error("Async completion email error:", err));
+        });
+
+        // Record Activity Log
+        await createAuditLog(user, "Completed", "tasks", existing.status, `Completed task ${updated.title}`, request.headers.get("x-forwarded-for"));
+
+      } catch (completionErr) {
+        console.error("Error setting up task completion alerts:", completionErr);
+      }
+    } else if (data.status && data.status !== existing.status && updated.createdBy) {
       try {
         const creator = await prisma.user.findFirst({
           where: { name: updated.createdBy }
@@ -234,9 +319,9 @@ ${updated.company} HR & Management System`;
         if (creator) {
           await prisma.notification.create({
             data: {
-              title: data.status === "Completed" ? "Task Completed" : "Task Status Updated",
+              title: "Task Status Updated",
               message: `Task "${updated.title}" was marked as ${data.status} by ${user.name}.`,
-              type: data.status === "Completed" ? "Success" : "Task",
+              type: "Task",
               userId: creator.id,
               company: updated.company,
               branch: updated.branch,
