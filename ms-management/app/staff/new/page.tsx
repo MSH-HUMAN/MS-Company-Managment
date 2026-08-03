@@ -162,7 +162,7 @@ export default function NewStaffPage() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <PageHeader title="Add New Staff Member" subtitle="Register employee details and upload verification documents" showBack />
-      <div className="p-4 md:p-6 w-[95vw] sm:w-full max-w-4xl mx-auto w-full">
+      <div className="flex-1 overflow-y-auto min-h-0 p-4 md:p-6 w-[95vw] sm:w-full max-w-4xl mx-auto w-full pb-28 md:pb-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <Card className="rounded-2xl border-slate-100 p-6 bg-white shadow-sm space-y-4">
             <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">Personal Information</h3>

@@ -53,7 +53,7 @@ export default function OwnCompanyDetailPage({ params }: { params: Promise<{ id:
         }
       />
 
-      <div className="p-4 md:p-6 space-y-6">
+      <div className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
         {/* Statistics Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Card className={`rounded-2xl border ${isExpired ? 'border-rose-100 bg-rose-50/50 text-rose-600' : 'border-slate-100 bg-white text-indigo-600'} p-4 shadow-sm flex items-center gap-4`}>

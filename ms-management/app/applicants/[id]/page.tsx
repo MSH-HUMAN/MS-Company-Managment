@@ -556,8 +556,9 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
         }
       />
 
-      {/* Visual Stepper Pipeline */}
-      <div className="px-4 md:px-6 max-w-6xl mx-auto w-full mb-2">
+      <div className="flex-1 overflow-y-auto min-h-0 pb-28 md:pb-6">
+        {/* Visual Stepper Pipeline */}
+        <div className="px-4 md:px-6 max-w-6xl mx-auto w-full mb-2 pt-4">
         <Card className="rounded-2xl border-slate-100 p-5 bg-white shadow-sm">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
@@ -1794,6 +1795,8 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
           </form>
         </DialogContent>
       </Dialog>
+
+      </div>
 
       {/* Delete confirm dialog */}
       <ConfirmDialog

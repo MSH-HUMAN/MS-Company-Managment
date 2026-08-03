@@ -355,7 +355,7 @@ export default function StaffDetailPage({ params }: { params: Promise<{ id: stri
         }
       />
 
-      <div className="p-4 md:p-6 space-y-6">
+      <div className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
         {/* Visa / Passport alerts warning banners */}
         {(isVisaCritical || isPassportCritical) && (
           <div className="space-y-3">

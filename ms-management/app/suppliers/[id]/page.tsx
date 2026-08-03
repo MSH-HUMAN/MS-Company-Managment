@@ -125,7 +125,7 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ id: s
         }
       />
 
-      <div className="p-4 md:p-6 space-y-6">
+      <div className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
         {/* Supplier Header Info */}
         <Card className="rounded-3xl border-slate-100 p-6 bg-white shadow-sm flex flex-col sm:flex-row items-center gap-6">
           <Avatar className="w-16 h-16 rounded-2xl border border-slate-100 flex-shrink-0 shadow-sm">

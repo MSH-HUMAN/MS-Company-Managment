@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import PageHeader from "@/components/shared/PageHeader";
@@ -147,7 +147,7 @@ export default function PlacementTermsSettings() {
         }
       />
 
-      <div className="p-4 md:p-6 max-w-4xl mx-auto w-full space-y-4">
+      <div className="flex-1 overflow-y-auto min-h-0 p-4 md:p-6 max-w-4xl mx-auto w-full space-y-4 pb-28 md:pb-6">
         {editingId && (
           <Card className="p-5 border-blue-200 bg-blue-50/50 shadow-sm rounded-2xl space-y-4">
             <h3 className="text-sm font-bold text-slate-800">{editingId === "NEW" ? "Add New Term" : "Edit Term"}</h3>

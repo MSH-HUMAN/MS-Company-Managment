@@ -213,7 +213,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ id: st
         }
       />
 
-      <div className="p-4 md:p-6 space-y-6">
+      <div className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto min-h-0 pb-28 md:pb-6">
         {/* Statistics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <Card className="rounded-2xl border-slate-100 p-4 bg-white shadow-sm flex items-center gap-4">
