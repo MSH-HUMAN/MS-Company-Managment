@@ -885,7 +885,7 @@ export default function DocumentsPage() {
 
       {/* RENAME DOCUMENT DIALOG */}
       <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
-        <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-6 w-[95vw] sm:w-full max-w-md">
+        <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-6 w-[95vw] sm:w-full max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-slate-800">Rename Document</DialogTitle>
             <DialogDescription className="text-xs text-slate-400">Update the document title. Previous name will be logged in version history.</DialogDescription>
@@ -1088,7 +1088,7 @@ export default function DocumentsPage() {
 
       {/* UPLOAD NEW VERSION DIALOG */}
       <Dialog open={isUploadVersionOpen} onOpenChange={setIsUploadVersionOpen}>
-        <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-6 w-[95vw] sm:w-full max-w-md">
+        <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-6 w-[95vw] sm:w-full max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-slate-800">Upload New Version</DialogTitle>
             <DialogDescription className="text-xs text-slate-400">Replace the current document with a new file. The old file will be archived in the version history.</DialogDescription>

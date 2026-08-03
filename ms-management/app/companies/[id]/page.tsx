@@ -834,7 +834,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ id: st
 
       {/* Quick Admin Create Dialog */}
       <Dialog open={showQuickCreate} onOpenChange={setShowQuickCreate}>
-        <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-6 w-[95vw] sm:w-full max-w-md">
+        <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-6 w-[95vw] sm:w-full max-w-md max-h-[90vh] overflow-y-auto">
           <form onSubmit={handleQuickCreateSubmit} className="space-y-4">
             <DialogHeader>
               <DialogTitle className="text-base font-bold text-slate-800">Create Admin User</DialogTitle>
@@ -892,7 +892,7 @@ export default function CompanyDetailPage({ params }: { params: Promise<{ id: st
 
       {/* Create Job Demand Dialog */}
       <Dialog open={showDemandModal} onOpenChange={setShowDemandModal}>
-        <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-6 w-[95vw] sm:w-full max-w-md">
+        <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-6 w-[95vw] sm:w-full max-w-md max-h-[90vh] overflow-y-auto">
           <form onSubmit={handleDemandSubmit} className="space-y-4">
             <DialogHeader>
               <DialogTitle className="text-base font-bold text-slate-800">Create Job Demand</DialogTitle>

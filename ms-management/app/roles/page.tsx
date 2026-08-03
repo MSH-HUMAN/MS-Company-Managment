@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { Shield, CheckCircle, XCircle, Save, Info, Plus, Trash2 } from "lucide-react";
@@ -194,7 +194,7 @@ export default function RolesPage() {
         </div>
       )}
 
-      <div className="p-4 md:p-6 flex flex-col lg:flex-row gap-6">
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto min-h-0 flex flex-col lg:flex-row gap-6 pb-28 md:pb-6">
         {/* Role Selector Sidebar */}
         <div className="lg:w-52 flex-shrink-0">
           <div className="flex items-center justify-between mb-2">

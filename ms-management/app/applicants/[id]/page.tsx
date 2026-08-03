@@ -1487,7 +1487,7 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
 
       {/* DIALOG: SIMULATE HR REPLY */}
       <Dialog open={isSimulateModalOpen} onOpenChange={setIsSimulateModalOpen}>
-        <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-6 w-[95vw] sm:w-full max-w-md">
+        <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-6 w-[95vw] sm:w-full max-w-md max-h-[90vh] overflow-y-auto">
           <form onSubmit={async (e) => {
             e.preventDefault();
             if (!simulateBody.trim()) {
@@ -1576,7 +1576,7 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
 
       {/* MODAL: CHANGE STATUS */}
       <Dialog open={isStatusModalOpen} onOpenChange={setIsStatusModalOpen}>
-        <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-6 w-[95vw] sm:w-full max-w-md">
+        <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-6 w-[95vw] sm:w-full max-w-md max-h-[90vh] overflow-y-auto">
           <form onSubmit={handleStatusChangeSubmit} className="space-y-4">
             <DialogHeader>
               <DialogTitle className="text-base font-bold text-slate-800">Update Applicant Status</DialogTitle>
@@ -1720,7 +1720,7 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
 
       {/* MODAL: SCHEDULE INTERVIEW */}
       <Dialog open={isInterviewModalOpen} onOpenChange={setIsInterviewModalOpen}>
-        <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-6 w-[95vw] sm:w-full max-w-md">
+        <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-6 w-[95vw] sm:w-full max-w-md max-h-[90vh] overflow-y-auto">
           <form onSubmit={handleScheduleInterviewSubmit} className="space-y-4">
             <DialogHeader>
               <DialogTitle className="text-base font-bold text-slate-800">Schedule Interview</DialogTitle>
