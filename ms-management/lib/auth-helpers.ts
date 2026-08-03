@@ -22,6 +22,10 @@ export interface SessionUser {
 const roleCache = new Map<string, { permissions: any; timestamp: number }>();
 const ROLE_CACHE_TTL = 10000; // 10 seconds TTL
 
+export function clearRoleCache() {
+  roleCache.clear();
+}
+
 /**
  * Gets the current authenticated session user from cookie
  */
@@ -105,7 +109,11 @@ export function getTenantScopeFilter(user: SessionUser, companyField = "company"
  * Validates module permissions for a session user on the backend API
  */
 export async function hasPermissionBackend(user: SessionUser, moduleKey: string, action: string): Promise<boolean> {
-  // 1. Check user custom permissions override from the session object (already retrieved in getSessionUser)
+  if (user.role === "Super Admin") {
+    return true;
+  }
+
+  // 1. Check user custom permissions override from the session object
   if (user.permissions) {
     const userPermissions = typeof user.permissions === "string"
       ? (() => { try { return JSON.parse(user.permissions); } catch { return null; } })()
@@ -136,16 +144,17 @@ export async function hasPermissionBackend(user: SessionUser, moduleKey: string,
     }
   }
 
-  // 2. Fetch role permissions from cache or DB
+  // 2. Fetch role permissions from cache or DB (case-insensitive role match)
   const now = Date.now();
-  const cached = roleCache.get(user.role);
+  const cacheKey = (user.role || "").trim().toLowerCase();
+  const cached = roleCache.get(cacheKey);
   let permissions = null;
 
   if (cached && now - cached.timestamp < ROLE_CACHE_TTL) {
     permissions = cached.permissions;
   } else {
     const role = await prisma.role.findFirst({
-      where: { name: user.role }
+      where: { name: { equals: user.role, mode: "insensitive" } }
     });
     if (role) {
       permissions = role.permissions ? (
@@ -153,7 +162,7 @@ export async function hasPermissionBackend(user: SessionUser, moduleKey: string,
           ? (() => { try { return JSON.parse(role.permissions); } catch { return null; } })()
           : (role.permissions as any)
       ) : null;
-      roleCache.set(user.role, { permissions, timestamp: now });
+      roleCache.set(cacheKey, { permissions, timestamp: now });
     }
   }
 
@@ -452,7 +461,7 @@ export async function canModifyRecord(
   const isSuperAdmin = user.role === "Super Admin";
   if (isSuperAdmin) return true;
 
-  const isCompanyAdmin = user.role === "Company Admin" || user.role === "HR Manager" || user.role === "Admin" || user.role === "Accountant" || user.role === "Recruiter";
+  const isCompanyAdmin = user.role === "Company Admin" || user.role === "Admin";
   const isBranchAdmin = user.role === "Branch Admin";
 
   const hasAll = isCompanyAdmin || isBranchAdmin || (await hasPermissionBackend(user, moduleKey, `${actionKey}All`));

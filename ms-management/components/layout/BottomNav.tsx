@@ -35,12 +35,12 @@ const MORE_ITEMS = [
   { label: "Documents",  path: "/documents",     icon: FileText,      permissionKey: "documents" },
   { label: "Visa Expiry",path: "/visa-expiry",   icon: Shield,        permissionKey: "visaExpiry" },
   { label: "WhatsApp",   path: "/whatsapp",      icon: MessageCircle },
-  { label: "Users",      path: "/users",         icon: UserPlus,      permissionKey: "users", hiddenFor: ["Staff", "Recruiter", "Accountant"] },
-  { label: "Roles",      path: "/roles",         icon: ShieldCheck,   permissionKey: "roles", hiddenFor: ["Staff", "HR Manager", "Recruiter", "Accountant", "Branch Admin"] },
+  { label: "Users",      path: "/users",         icon: UserPlus,      permissionKey: "users" },
+  { label: "Roles",      path: "/roles",         icon: ShieldCheck,   permissionKey: "roles" },
   { label: "Own Cos",    path: "/own-companies", icon: Building2,     superAdminOnly: true },
-  { label: "Reports",    path: "/reports",       icon: BarChart3,     permissionKey: "reports", hiddenFor: ["Staff"] },
-  { label: "Activity",   path: "/activity-log",  icon: Activity,      permissionKey: "activityLog", hiddenFor: ["Staff", "Recruiter"] },
-  { label: "Settings",   path: "/settings",      icon: Settings,      permissionKey: "settings", hiddenFor: ["Staff", "HR Manager", "Recruiter", "Accountant", "Branch Admin"] },
+  { label: "Reports",    path: "/reports",       icon: BarChart3,     permissionKey: "reports" },
+  { label: "Activity",   path: "/activity-log",  icon: Activity,      permissionKey: "activityLog" },
+  { label: "Settings",   path: "/settings",      icon: Settings,      permissionKey: "settings" },
 ];
 
 export default function BottomNav() {
@@ -50,35 +50,12 @@ export default function BottomNav() {
   const unreadCount = notifications.filter((n: any) => !n.read).length;
   const [showMore, setShowMore] = useState(false);
 
-  const isSuperAdmin = currentRole === "Super Admin";
+  const isSuperAdmin = (currentRole || "").trim().toLowerCase() === "super admin";
 
   const canSeeItem = (item: any): boolean => {
+    if (item.superAdminOnly) return isSuperAdmin;
     if (isSuperAdmin) return true;
-
-    // Check custom permissions overrides first before role-based hiding
-    if (item.permissionKey && currentUser?.permissions) {
-      const userPermissions = typeof currentUser.permissions === 'string'
-        ? (() => { try { return JSON.parse(currentUser.permissions); } catch { return null; } })()
-        : currentUser.permissions;
-      if (userPermissions) {
-        const permissionModule = getPermissionModuleName(item.permissionKey);
-        if (permissionModule) {
-          const matrix = userPermissions.matrix || userPermissions;
-          if (matrix[permissionModule] !== undefined && matrix[permissionModule] !== null) {
-            const modulePerms = matrix[permissionModule];
-            if (modulePerms && modulePerms["view"] !== undefined) {
-              return Boolean(modulePerms["view"]);
-            }
-          }
-        }
-      }
-    }
-
-    // Role-based hiding
-    if (item.hiddenFor && item.hiddenFor.includes(currentRole)) return false;
-    // No permission key = always visible
     if (!item.permissionKey) return true;
-    // Check permission store
     return hasPermission(item.permissionKey, "view");
   };
 

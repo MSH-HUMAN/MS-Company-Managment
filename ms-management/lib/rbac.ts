@@ -50,7 +50,7 @@ export function filterRecordsByPermission<T extends Record<string, any>>(
   }
 
   // Next check VIEW ALL vs VIEW
-  const canViewAll = isCompanyAdmin || isBranchAdmin || isHRManager || hasPermission(moduleKey, "viewAll");
+  const canViewAll = isCompanyAdmin || isBranchAdmin || hasPermission(moduleKey, "viewAll");
   if (canViewAll) {
     return scoped;
   }
@@ -97,7 +97,6 @@ export function canEditRecord<T extends Record<string, any>>(
 
   const isCompanyAdmin = currentRole === "Company Admin" || currentUser.role === "Company Admin";
   const isBranchAdmin = currentRole === "Branch Admin" || currentUser.role === "Branch Admin";
-  const isHRManager = currentRole === "HR Manager" || currentUser.role === "HR Manager";
 
   // Check company / branch isolation first
   if (record.company && currentUser.company && currentUser.company !== "System" && record.company !== currentUser.company) {
@@ -107,7 +106,7 @@ export function canEditRecord<T extends Record<string, any>>(
     return false;
   }
 
-  const canEditAll = isCompanyAdmin || isBranchAdmin || isHRManager || hasPermission(moduleKey, "editAll");
+  const canEditAll = isCompanyAdmin || isBranchAdmin || hasPermission(moduleKey, "editAll");
   if (canEditAll) return true;
 
   const canEdit = hasPermission(moduleKey, "edit");

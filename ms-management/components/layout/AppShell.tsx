@@ -91,12 +91,12 @@ const NAV_ITEM_PERMISSIONS = [
   { href: '/tasks',        permissionKey: 'tasks' },
   { href: '/documents',    permissionKey: 'documents' },
   { href: '/visa-expiry',  permissionKey: 'visaExpiry' },
-  { href: '/users',        permissionKey: 'users',        hiddenFor: ['Staff', 'Recruiter', 'Accountant'] },
-  { href: '/roles',        permissionKey: 'roles',        hiddenFor: ['Staff', 'HR Manager', 'Recruiter', 'Accountant', 'Branch Admin'] },
+  { href: '/users',        permissionKey: 'users' },
+  { href: '/roles',        permissionKey: 'roles' },
   { href: '/own-companies', superAdminOnly: true },
-  { href: '/reports',      permissionKey: 'reports',      hiddenFor: ['Staff'] },
-  { href: '/activity-log', permissionKey: 'activityLog',  hiddenFor: ['Staff', 'Recruiter'] },
-  { href: '/settings',     permissionKey: 'settings',     hiddenFor: ['Staff', 'HR Manager', 'Recruiter', 'Accountant', 'Branch Admin'] },
+  { href: '/reports',      permissionKey: 'reports' },
+  { href: '/activity-log', permissionKey: 'activityLog' },
+  { href: '/settings',     permissionKey: 'settings' },
   { href: '/emails',       permissionKey: 'emails' },
   { href: '/whatsapp',     permissionKey: 'emails' },
   { href: '/templates',    superAdminOnly: true },
@@ -166,7 +166,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   // Check dynamic route level permission gate
-  const isSuperAdmin = currentRole === "Super Admin";
+  const isSuperAdmin = (currentRole || "").trim().toLowerCase() === "super admin";
   let pageContent = children;
 
   const matchingItem = NAV_ITEM_PERMISSIONS.find(item => 
@@ -177,38 +177,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     let allowed = true;
     if (matchingItem.superAdminOnly && !isSuperAdmin) {
       allowed = false;
-    } else if (matchingItem.hiddenFor && matchingItem.hiddenFor.includes(currentRole)) {
-      allowed = false;
-    } else if (matchingItem.permissionKey) {
-      if (!isSuperAdmin) {
-        // Check custom overrides first
-        let hasCustomOverride = false;
-        let customOverrideVal = false;
-        if (currentUser?.permissions) {
-          const userPermissions = typeof currentUser.permissions === 'string'
-            ? (() => { try { return JSON.parse(currentUser.permissions); } catch { return null; } })()
-            : currentUser.permissions;
-          if (userPermissions) {
-            const permissionModule = getPermissionModuleName(matchingItem.permissionKey);
-            if (permissionModule) {
-              const matrix = userPermissions.matrix || userPermissions;
-              if (matrix[permissionModule] !== undefined && matrix[permissionModule] !== null) {
-                const modulePerms = matrix[permissionModule];
-                if (modulePerms && modulePerms["view"] !== undefined) {
-                  hasCustomOverride = true;
-                  customOverrideVal = Boolean(modulePerms["view"]);
-                }
-              }
-            }
-          }
-        }
-        
-        if (hasCustomOverride) {
-          allowed = customOverrideVal;
-        } else {
-          allowed = hasPermission(matchingItem.permissionKey, "view");
-        }
-      }
+    } else if (matchingItem.permissionKey && !isSuperAdmin) {
+      allowed = hasPermission(matchingItem.permissionKey, "view");
     }
 
     if (!allowed) {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getSessionUser, hasPermissionBackend, createAuditLog, canModifyRecord } from "@/lib/auth-helpers";
+import { getSessionUser, hasPermissionBackend, createAuditLog, canModifyRecord, clearRoleCache } from "@/lib/auth-helpers";
 
 type RouteParams = {
   params: Promise<{ id: string }>;
@@ -50,6 +50,8 @@ export async function PUT(request: Request, { params }: RouteParams) {
       }
     });
 
+    clearRoleCache();
+
     return NextResponse.json(updated);
   } catch (error: any) {
     console.error("PUT role error:", error);
@@ -91,6 +93,8 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     await prisma.role.delete({
       where: { id }
     });
+
+    clearRoleCache();
 
     return NextResponse.json({ success: true, message: "Role deleted" });
   } catch (error: any) {

@@ -16,7 +16,7 @@ const ALL_MODULES = [
   "Applicants", "Staff", "Companies", "Branches", "Users", "Roles", "Tasks",
   "Interviews", "Leave Requests", "Staff Requests", "Vehicles", "Documents", "Suppliers",
   "Placement", "Members", "Visa Expiry", "Staff Birthdays", "Attendance", "Payroll",
-  "Notifications", "Activity Log", "Site Settings", "Reports", "Applicant Tracking"
+  "Notifications", "Activity Log", "Site Settings", "Reports", "Applicant Tracking", "Email Center"
 ];
 
 const PERMISSIONS = ["view", "viewAll", "create", "edit", "editAll", "delete", "deleteAll", "approve", "reject", "export", "print", "download", "upload"];
