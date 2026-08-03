@@ -1939,22 +1939,36 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Mini KPI strip — scoped data */}
-          {!isStaff && (
-            <div className="relative z-10 mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {[
-                { label: isSuperAdmin ? "All Applicants" : "Applicants", val: fApplicants.length, color: "bg-white/10 border-white/20" },
-                { label: "Active Staff", val: fStaff.filter(s => s.status === "Active").length, color: "bg-white/10 border-white/20" },
-                { label: "Active Tasks", val: fTasks.filter(t => t.status !== "Completed").length, color: "bg-amber-500/30 border-amber-300/30" },
-                { label: "Completed", val: fTasks.filter(t => t.status === "Completed").length, color: "bg-emerald-500/30 border-emerald-300/30" },
-              ].map(k => (
-                <div key={k.label} className={`${k.color} rounded-xl border px-4 py-2.5`}>
-                  <div className="text-xl font-black">{k.val}</div>
-                  <div className="text-[10px] text-blue-200 font-semibold uppercase tracking-wider mt-0.5">{k.label}</div>
-                </div>
-              ))}
-            </div>
-          )}
+          {/* Mini KPI strip — dynamically scoped by view permissions */}
+          {!isStaff && (() => {
+            const kpiItems = [
+              hasPermission("applicants", "view") && { label: isSuperAdmin ? "All Applicants" : "Applicants", val: fApplicants.length, color: "bg-white/10 border-white/20" },
+              hasPermission("staff", "view") && { label: "Active Staff", val: fStaff.filter(s => s.status === "Active").length, color: "bg-white/10 border-white/20" },
+              hasPermission("tasks", "view") && { label: "Active Tasks", val: fTasks.filter(t => t.status !== "Completed").length, color: "bg-amber-500/30 border-amber-300/30" },
+              hasPermission("tasks", "view") && { label: "Completed", val: fTasks.filter(t => t.status === "Completed").length, color: "bg-emerald-500/30 border-emerald-300/30" },
+              hasPermission("leave", "view") && { label: "Pending Leave", val: leaveRequests.filter(l => l.status === "Pending").length, color: "bg-purple-500/30 border-purple-300/30" },
+              hasPermission("requests", "view") && { label: "Staff Requests", val: staffRequests.filter(r => r.status === "Pending").length, color: "bg-cyan-500/30 border-cyan-300/30" },
+              hasPermission("visaExpiry", "view") && { label: "Visa Alerts", val: visaAlerts.length, color: "bg-rose-500/30 border-rose-300/30" },
+            ].filter(Boolean) as { label: string; val: number; color: string }[];
+
+            if (kpiItems.length === 0) return null;
+
+            return (
+              <div className={cn(
+                "relative z-10 mt-6 grid gap-3",
+                kpiItems.length === 1 ? "grid-cols-1 max-w-xs" :
+                kpiItems.length === 2 ? "grid-cols-2" :
+                kpiItems.length === 3 ? "grid-cols-3" : "grid-cols-2 sm:grid-cols-4"
+              )}>
+                {kpiItems.map(k => (
+                  <div key={k.label} className={`${k.color} rounded-xl border px-4 py-2.5`}>
+                    <div className="text-xl font-black">{k.val}</div>
+                    <div className="text-[10px] text-blue-200 font-semibold uppercase tracking-wider mt-0.5">{k.label}</div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
         </div>
 
         {(!isStoreLoaded && applicants.length === 0 && staff.length === 0) ? (
@@ -2076,7 +2090,7 @@ export default function DashboardPage() {
             </div>
             )}
 
-            {/* Role-based dashboard content */}
+            {/* Role-based dashboard content — strictly driven by permissions matrix */}
             {isStaff ? (
               <StaffDashboard
                 currentUser={currentUser} now={now} tasks={tasks} leaveRequests={leaveRequests}
@@ -2091,23 +2105,8 @@ export default function DashboardPage() {
                 staffAttendance={staffAttendance} saveAttendance={saveAttendance}
                 addActivityLog={addActivityLog} updatePayroll={updatePayroll} now={now}
               />
-            ) : isRecruiter ? (
-              <RecruiterDashboard
-                fApplicants={fApplicants} fInterviews={fInterviews} placements={placements}
-                now={now} companies={companies} currentUser={currentUser}
-              />
-            ) : isHRManager ? (
-              <HRDashboard
-                fStaff={fStaff} leaveRequests={leaveRequests} staffRequests={staffRequests}
-                staffAttendance={staffAttendance} now={now} upcomingBirthdays={upcomingBirthdays}
-                currentUser={currentUser}
-              />
-            ) : isAccountant ? (
-              <AccountantDashboard
-                payroll={payroll} fStaff={fStaff} currentUser={currentUser}
-              />
             ) : (
-              /* Render Dynamic Permission-based CompanyDashboard for all other roles/positions */
+              /* Render Dynamic Permission-based CompanyDashboard for all management & specialized roles */
               <CompanyDashboard
                 fApplicants={fApplicants} fStaff={fStaff} fTasks={fTasks} fInterviews={fInterviews}
                 leaveRequests={leaveRequests} staffRequests={staffRequests} payroll={payroll}
