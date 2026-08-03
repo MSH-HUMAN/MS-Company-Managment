@@ -16,6 +16,9 @@ import Pagination from "@/components/shared/Pagination";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import AccessDenied from "@/components/shared/AccessDenied";
 import { filterRecordsByPermission } from "@/lib/rbac";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default function ApplicantsPage() {
   const { currentRole, currentUser, applicants, deleteApplicant, updateApplicant, hasPermission, companies, isStoreLoaded } = useAuthStore();

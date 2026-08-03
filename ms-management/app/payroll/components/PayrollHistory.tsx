@@ -585,10 +585,10 @@ export default function PayrollHistory() {
                         <span className="text-slate-600">Basic Salary</span>
                         <span className="font-bold text-slate-800">AED {viewPayslip.basicSalary.toLocaleString()}</span>
                       </div>
-                      {(viewPayslip.allowanceDetails || []).map((a, i) => (
+                      {(Array.isArray(viewPayslip.allowanceDetails) ? viewPayslip.allowanceDetails : []).map((a, i) => (
                         <div key={i} className="flex justify-between text-xs">
                           <span className="text-slate-600">{a.name}</span>
-                          <span className="font-bold text-slate-800">AED {a.amount.toLocaleString()}</span>
+                          <span className="font-bold text-slate-800">AED {(a.amount || 0).toLocaleString()}</span>
                         </div>
                       ))}
                       {viewPayslip.overtime > 0 && (
@@ -603,10 +603,10 @@ export default function PayrollHistory() {
                   <div>
                     <div className="text-xs font-bold text-slate-800 border-b border-slate-200 pb-2 mb-3">Deductions</div>
                     <div className="space-y-2">
-                      {(viewPayslip.deductionDetails || []).map((d, i) => (
+                      {(Array.isArray(viewPayslip.deductionDetails) ? viewPayslip.deductionDetails : []).map((d, i) => (
                         <div key={i} className="flex justify-between text-xs">
                           <span className="text-slate-600">{d.name}</span>
-                          <span className="font-bold text-rose-600">AED {d.amount.toLocaleString()}</span>
+                          <span className="font-bold text-rose-600">AED {(d.amount || 0).toLocaleString()}</span>
                         </div>
                       ))}
                       {viewPayslip.advanceDeduction > 0 && (

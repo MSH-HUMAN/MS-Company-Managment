@@ -60,6 +60,7 @@ function buildAgreementHtml(placement: Placement, terms: any[], settings: any): 
   }
 
   const siteDomain = process.env.NEXT_PUBLIC_SITE_URL || "https://mshorizonuae.com";
+  const refId = (placement.id || placement.applicantId || "000").substring(0, 8).toUpperCase();
   const trackingTarget = placement.applicantId ? `${siteDomain}/tracking?id=${placement.applicantId}` : `${siteDomain}/tracking?id=${placement.id}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=${encodeURIComponent(trackingTarget)}`;
 

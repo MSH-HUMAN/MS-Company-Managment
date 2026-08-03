@@ -148,7 +148,7 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
                   >
                     <div className="flex justify-between items-start">
                       <span className={cn("text-xs font-bold", !n.read ? "text-purple-900" : "text-slate-700")}>{n.title}</span>
-                      <span className="text-[9px] text-slate-400">{n.time.split(" ")[1] || n.time}</span>
+                      <span className="text-[9px] text-slate-400">{(n.time || n.createdAt || "").split(" ")[1] || (n.time || n.createdAt || "")}</span>
                     </div>
                     <div className="text-[10px] text-slate-500">{n.message}</div>
                   </div>

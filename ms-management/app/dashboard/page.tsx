@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Users, UserCheck, CheckSquare, AlertTriangle, Calendar, Plus,
   ArrowRight, Cake, Sparkles, Car, FileSpreadsheet, TrendingUp,
@@ -1733,7 +1734,7 @@ export default function DashboardPage() {
     applicants, staff, tasks, interviews, leaveRequests, staffRequests,
     vehicles, notifications, companies, payroll,
     staffAttendance, saveAttendance, addActivityLog, placements, shifts, updatePayroll,
-    initStore, isStoreLoaded
+    initStore, isStoreLoaded, hasPermission
   } = useAuthStore();
 
   const [mounted, setMounted] = useState(false);

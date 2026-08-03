@@ -520,11 +520,12 @@ export interface Notification {
   type: "visa_expiry" | "passport_expiry" | "birthday" | "task" | "leave" | "request" | "vehicle_expiry" | "payment" | "company_registration" | "vehicle_return" | "request_rejected" | "activity" | "transport";
   title: string;
   message: string;
-  time: string;
+  time?: string;
   read: boolean;
   link: string;
   company?: string;
   branch?: string;
+  createdAt?: string;
 }
 
 export interface ActivityLog {
@@ -661,8 +662,8 @@ export interface PayrollRecord {
   basicSalary: number;
   allowances: number;
   deductions: number;
-  allowanceDetails?: { name: string; amount: number }[] | null;
-  deductionDetails?: { name: string; amount: number }[] | null;
+  allowanceDetails?: { name?: string; amount?: number; type?: string; val?: number }[] | Record<string, number> | null;
+  deductionDetails?: { name?: string; amount?: number; type?: string; val?: number }[] | Record<string, number> | null;
   advanceDeduction: number;
   loanDeduction: number;
   overtimeHours?: number;
@@ -742,6 +743,7 @@ export interface ModuleFilter {
   page: number;
   pageSize: number;
   interviewType?: string;
+  interviewMode?: string;
   clientCompany?: string;
   position?: string;
   visaStatus?: string;

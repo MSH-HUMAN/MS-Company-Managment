@@ -111,7 +111,7 @@ export default function NotificationsPage() {
         n.message.toLowerCase().includes(q)
       );
     }
-    return [...list].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+    return [...list].sort((a, b) => new Date(b.time || b.createdAt || "").getTime() - new Date(a.time || a.createdAt || "").getTime());
   }, [notifications, searchQuery, isSuperAdmin, currentUser]);
 
   // Filter Automated Emails

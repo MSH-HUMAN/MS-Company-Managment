@@ -375,8 +375,8 @@ New Details:
         isOnline: mappedResponse.isOnline,
         meetingMode: mappedResponse.mode,
         conductPerson: mappedResponse.conductPerson,
-        meetingLink: mappedResponse.meetingLink,
-        googleMapLink: mappedResponse.locationLink,
+        meetingLink: mappedResponse.meetingLink ?? undefined,
+        googleMapLink: mappedResponse.locationLink ?? undefined,
         notes: updateReason || mappedResponse.notes,
         status: data.status || mappedResponse.status,
         reason: updateReason

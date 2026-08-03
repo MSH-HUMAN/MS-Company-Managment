@@ -84,13 +84,13 @@ export default function EditApplicantPage({ params }: { params: Promise<{ id: st
       // Map documents
       const docs = applicant.documents || [];
       const pass = docs.find((d: any) => d.name.toLowerCase().startsWith("passport copy.") || d.name.toLowerCase().includes("passport"));
-      if (pass) setPassportCopy({ name: pass.name, url: pass.url });
+      if (pass) setPassportCopy({ name: pass.name, url: pass.url || "" });
 
       const visa = docs.find((d: any) => d.name.toLowerCase().startsWith("visa page.") || d.name.toLowerCase().includes("visa"));
-      if (visa) setVisaPage({ name: visa.name, url: visa.url });
+      if (visa) setVisaPage({ name: visa.name, url: visa.url || "" });
 
       const photoDoc = docs.find((d: any) => d.name.toLowerCase().startsWith("applicant photo.") || d.name.toLowerCase().includes("profile photo"));
-      if (photoDoc) setApplicantPhoto({ name: photoDoc.name, url: photoDoc.url });
+      if (photoDoc) setApplicantPhoto({ name: photoDoc.name, url: photoDoc.url || "" });
 
       const other = docs.filter((d: any) => 
         !d.name.toLowerCase().startsWith("passport copy.") && !d.name.toLowerCase().includes("passport") &&

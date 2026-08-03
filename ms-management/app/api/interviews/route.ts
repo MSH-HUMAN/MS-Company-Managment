@@ -381,8 +381,8 @@ Schedule Details:
         isOnline: mappedResponse.isOnline,
         meetingMode: mappedResponse.mode,
         conductPerson: mappedResponse.conductPerson,
-        meetingLink: mappedResponse.meetingLink,
-        googleMapLink: mappedResponse.locationLink,
+        meetingLink: mappedResponse.meetingLink ?? undefined,
+        googleMapLink: mappedResponse.locationLink ?? undefined,
         notes: mappedResponse.notes
       });
 

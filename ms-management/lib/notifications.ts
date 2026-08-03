@@ -443,7 +443,6 @@ export async function sendEmail({
         : `${siteDomain}/apply`;
 
     const context = {
-      companyName: company || "MS Management",
       companyEmail,
       companyPhone,
       companyAddress,
@@ -461,6 +460,7 @@ export async function sendEmail({
       showClientCompany,
       actionLink: finalActionLink,
       ...templateData,
+      companyName: company || "MS Management",
     };
 
     htmlContent = compiled(context);
