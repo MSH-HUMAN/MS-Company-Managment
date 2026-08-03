@@ -397,36 +397,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return true;
     }
 
-    // 1. User-specific custom permission overrides check
-    const userPermissions = typeof state.currentUser?.permissions === 'string'
-      ? (() => { try { return JSON.parse(state.currentUser.permissions); } catch { return null; } })()
-      : state.currentUser?.permissions;
-
-    if (userPermissions) {
-      const permissionModule = getPermissionModuleName(moduleKey);
-      if (permissionModule) {
-        const matrix = userPermissions.matrix || userPermissions;
-        if (matrix[permissionModule] !== undefined && matrix[permissionModule] !== null) {
-          const modulePerms = matrix[permissionModule];
-          if (modulePerms) {
-            if (modulePerms[action] !== undefined && Boolean(modulePerms[action])) {
-              return true;
-            }
-            if (action === "view" && modulePerms["viewAll"] !== undefined && Boolean(modulePerms["viewAll"])) {
-              return true;
-            }
-            if (action === "edit" && modulePerms["editAll"] !== undefined && Boolean(modulePerms["editAll"])) {
-              return true;
-            }
-            if (action === "delete" && modulePerms["deleteAll"] !== undefined && Boolean(modulePerms["deleteAll"])) {
-              return true;
-            }
-          }
-        }
-      }
-    }
-
-    // 2. Company Module Toggle check for non-Super Admin
+    // 1. Company Module Toggle check for non-Super Admin
     if (state.currentUser?.company && state.currentUser.company !== "System") {
       const company = state.companies.find(c => c.name === state.currentUser.company);
       if (company && company.enabledModules) {
@@ -455,18 +426,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     }
 
-    // 3. Load role permissions from store
+    // 2. PRIMARY AUTHORITY: Load role permissions matrix from store
     const role = state.roles.find((r: Role) => (r.name || "").trim().toLowerCase() === roleStr);
     const permissionModule = getPermissionModuleName(moduleKey);
 
-    if (role && permissionModule) {
+    if (role) {
       const permissions = role.permissions ? (
         typeof role.permissions === 'string'
           ? (() => { try { return JSON.parse(role.permissions); } catch { return null; } })()
           : role.permissions
       ) : null;
-      if (permissions && permissions[permissionModule]) {
-        const modulePerms = permissions[permissionModule];
+
+      const matrix = permissions?.matrix || permissions;
+
+      if (matrix) {
+        // Match key flexibly: "Applicants", "applicants", etc.
+        const modulePerms = (permissionModule && matrix[permissionModule])
+                         ?? matrix[moduleKey]
+                         ?? matrix[moduleKey.toLowerCase()]
+                         ?? (permissionModule && matrix[permissionModule.toLowerCase()]);
+
         if (modulePerms) {
           if (modulePerms[action] !== undefined && Boolean(modulePerms[action])) {
             return true;
@@ -480,14 +459,39 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           if (action === "delete" && modulePerms["deleteAll"] !== undefined && Boolean(modulePerms["deleteAll"])) {
             return true;
           }
-          if (modulePerms[action] === false) {
-            return false;
-          }
+          // Explicitly configured in Role permissions matrix, and not allowed -> DENY!
+          return false;
         }
       }
     }
 
-    // 4. No role found in DB or no permission defined -> deny
+    // 3. Secondary Authority: User-specific custom permission overrides check
+    const userPermissions = typeof state.currentUser?.permissions === 'string'
+      ? (() => { try { return JSON.parse(state.currentUser.permissions); } catch { return null; } })()
+      : state.currentUser?.permissions;
+
+    if (userPermissions) {
+      const permModule = permissionModule || getPermissionModuleName(moduleKey);
+      const matrix = userPermissions.matrix || userPermissions;
+      const modulePerms = (permModule && matrix[permModule]) ?? matrix[moduleKey];
+      if (modulePerms) {
+        if (modulePerms[action] !== undefined && Boolean(modulePerms[action])) {
+          return true;
+        }
+        if (action === "view" && modulePerms["viewAll"] !== undefined && Boolean(modulePerms["viewAll"])) {
+          return true;
+        }
+        if (action === "edit" && modulePerms["editAll"] !== undefined && Boolean(modulePerms["editAll"])) {
+          return true;
+        }
+        if (action === "delete" && modulePerms["deleteAll"] !== undefined && Boolean(modulePerms["deleteAll"])) {
+          return true;
+        }
+        return false;
+      }
+    }
+
+    // 4. Default: No permission defined -> deny
     return false;
   },
   

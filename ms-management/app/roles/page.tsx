@@ -68,8 +68,13 @@ const buildDefaultMatrix = (role: string): Role["permissions"] => {
 
 const buildPermissionMatrixFromRole = (role: Role): Role["permissions"] => {
   const matrix: Role["permissions"] = {};
+  const permsObj = typeof role.permissions === 'string'
+    ? (() => { try { return JSON.parse(role.permissions); } catch { return {}; } })()
+    : (role.permissions || {});
+  const srcMatrix = permsObj?.matrix || permsObj;
+
   ALL_MODULES.forEach((module) => {
-    const src = role.permissions?.[module];
+    const src = srcMatrix?.[module] ?? srcMatrix?.[module.toLowerCase()];
     matrix[module] = {
       view:         Boolean(src?.view),
       viewAll:      Boolean(src?.viewAll),
@@ -90,7 +95,7 @@ const buildPermissionMatrixFromRole = (role: Role): Role["permissions"] => {
 };
 
 export default function RolesPage() {
-  const { currentRole, roles, addRole, updateRole, deleteRole, hasPermission, companies, ownCompanies } = useAuthStore();
+  const { currentRole, roles, addRole, updateRole, deleteRole, hasPermission, companies, ownCompanies, initStore } = useAuthStore();
   const [selectedRoleId, setSelectedRoleId] = useState(roles[0]?.id || "");
   const canViewRoles = hasPermission("roles", "view");
   const canEditRoles = hasPermission("roles", "edit");
@@ -166,18 +171,19 @@ export default function RolesPage() {
     const allOn: Role["permissions"][string] = {
       view: val, create: val, edit: val, delete: val,
       download: val, upload: val, export: val, print: val,
-      approve: val, reject: val, assign: val, statusChange: val, restore: val,
+      approve: val, reject: val, viewAll: val, editAll: val, deleteAll: val,
     };
     setMatrix(prev => ({ ...prev, [module]: allOn }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!selectedRole) {
       toast.error("No role selected to save.");
       return;
     }
 
-    updateRole({ ...selectedRole, permissions: matrix });
+    await updateRole({ ...selectedRole, permissions: matrix });
+    await initStore(true);
     toast.success(`Permissions for "${selectedRole.name}" were saved successfully.`);
   };
 

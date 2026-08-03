@@ -109,44 +109,14 @@ export function getTenantScopeFilter(user: SessionUser, companyField = "company"
  * Validates module permissions for a session user on the backend API
  */
 export async function hasPermissionBackend(user: SessionUser, moduleKey: string, action: string): Promise<boolean> {
-  if (user.role === "Super Admin") {
+  const roleName = (user.role || "").trim().toLowerCase();
+  if (roleName === "super admin") {
     return true;
   }
 
-  // 1. Check user custom permissions override from the session object
-  if (user.permissions) {
-    const userPermissions = typeof user.permissions === "string"
-      ? (() => { try { return JSON.parse(user.permissions); } catch { return null; } })()
-      : user.permissions;
-      
-    if (userPermissions) {
-      const permissionModule = getPermissionModuleName(moduleKey);
-      if (permissionModule) {
-        const matrix = userPermissions.matrix || userPermissions;
-        if (matrix[permissionModule] !== undefined && matrix[permissionModule] !== null) {
-          const modulePerms = matrix[permissionModule];
-          if (modulePerms) {
-            if (modulePerms[action] !== undefined && Boolean(modulePerms[action])) {
-              return true;
-            }
-            if (action === "view" && modulePerms["viewAll"] !== undefined && Boolean(modulePerms["viewAll"])) {
-              return true;
-            }
-            if (action === "edit" && modulePerms["editAll"] !== undefined && Boolean(modulePerms["editAll"])) {
-              return true;
-            }
-            if (action === "delete" && modulePerms["deleteAll"] !== undefined && Boolean(modulePerms["deleteAll"])) {
-              return true;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // 2. Fetch role permissions from cache or DB (case-insensitive role match)
+  // 1. Fetch role permissions from cache or DB (case-insensitive role match)
   const now = Date.now();
-  const cacheKey = (user.role || "").trim().toLowerCase();
+  const cacheKey = roleName;
   const cached = roleCache.get(cacheKey);
   let permissions = null;
 
@@ -167,9 +137,42 @@ export async function hasPermissionBackend(user: SessionUser, moduleKey: string,
   }
 
   const permissionModule = getPermissionModuleName(moduleKey);
-  if (permissions && permissionModule) {
-    if (permissions[permissionModule] !== undefined && permissions[permissionModule] !== null) {
-      const modulePerms = permissions[permissionModule];
+  const matrix = (permissions as any)?.matrix || (permissions as any);
+
+  if (matrix) {
+    const modulePerms = (permissionModule && matrix[permissionModule])
+                     ?? matrix[moduleKey]
+                     ?? matrix[moduleKey.toLowerCase()]
+                     ?? (permissionModule && matrix[permissionModule.toLowerCase()]);
+
+    if (modulePerms) {
+      if (modulePerms[action] !== undefined && Boolean(modulePerms[action])) {
+        return true;
+      }
+      if (action === "view" && modulePerms["viewAll"] !== undefined && Boolean(modulePerms["viewAll"])) {
+        return true;
+      }
+      if (action === "edit" && modulePerms["editAll"] !== undefined && Boolean(modulePerms["editAll"])) {
+        return true;
+      }
+      if (action === "delete" && modulePerms["deleteAll"] !== undefined && Boolean(modulePerms["deleteAll"])) {
+        return true;
+      }
+      // Explicitly defined in Role matrix and not permitted -> DENY
+      return false;
+    }
+  }
+
+  // 2. Secondary check: User custom permissions override from the session object
+  if (user.permissions) {
+    const userPermissions = typeof user.permissions === "string"
+      ? (() => { try { return JSON.parse(user.permissions); } catch { return null; } })()
+      : user.permissions;
+      
+    if (userPermissions) {
+      const permModule = permissionModule || getPermissionModuleName(moduleKey);
+      const userMatrix = userPermissions.matrix || userPermissions;
+      const modulePerms = (permModule && userMatrix[permModule]) ?? userMatrix[moduleKey];
       if (modulePerms) {
         if (modulePerms[action] !== undefined && Boolean(modulePerms[action])) {
           return true;
@@ -183,13 +186,9 @@ export async function hasPermissionBackend(user: SessionUser, moduleKey: string,
         if (action === "delete" && modulePerms["deleteAll"] !== undefined && Boolean(modulePerms["deleteAll"])) {
           return true;
         }
+        return false;
       }
     }
-  }
-
-  // 3. Fallback for Super Admin (Full system administration access)
-  if (user.role === "Super Admin") {
-    return true;
   }
 
   return false;
