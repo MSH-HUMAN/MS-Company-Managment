@@ -455,7 +455,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     // 3. Load role permissions from store
-    const role = state.roles.find((role: Role) => role.name === state.currentRole);
+    const curRoleNormalized = (state.currentRole || state.currentUser?.role || "").trim().toLowerCase();
+    const role = state.roles.find((role: Role) => (role.name || "").trim().toLowerCase() === curRoleNormalized);
     const permissionModule = getPermissionModuleName(moduleKey);
 
     if (role && permissionModule) {
@@ -467,8 +468,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (permissions && permissions[permissionModule]) {
         const modulePerms = permissions[permissionModule];
         if (modulePerms) {
-          if (modulePerms[action] !== undefined) {
-            return Boolean(modulePerms[action]);
+          if (modulePerms[action] !== undefined && Boolean(modulePerms[action])) {
+            return true;
           }
           if (action === "view" && modulePerms["viewAll"] !== undefined && Boolean(modulePerms["viewAll"])) {
             return true;
@@ -478,6 +479,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           }
           if (action === "delete" && modulePerms["deleteAll"] !== undefined && Boolean(modulePerms["deleteAll"])) {
             return true;
+          }
+          if (modulePerms[action] === false) {
+            return false;
           }
         }
       }

@@ -182,8 +182,6 @@ export function Sidebar() {
       }
     }
 
-    // Role-based hiding
-    if (item.hiddenFor && item.hiddenFor.includes(currentRole)) return false;
     // Super Admin bypasses all permission checks
     if (isSuperAdmin) return true;
     // No permission key = always visible

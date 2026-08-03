@@ -49,7 +49,6 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
       }
     }
 
-    if (item.hiddenFor && item.hiddenFor.includes(currentRole)) return false;
     if (isSuperAdmin) return true;
     if (!item.permissionKey) return true;
     return hasPermission(item.permissionKey, "view");
