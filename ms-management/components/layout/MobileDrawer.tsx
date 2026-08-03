@@ -17,8 +17,8 @@ type MobileDrawerProps = {
 export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { currentUser, currentRole, hasPermission, logout } = useAuthStore();
-  const isSuperAdmin = currentRole === "Super Admin";
+  const { currentUser, currentRole, hasPermission, logout, isStoreLoaded } = useAuthStore();
+  const isSuperAdmin = (currentRole || "").trim().toLowerCase() === "super admin";
 
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
@@ -30,27 +30,9 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
 
   const canSeeItem = (item: NavItem): boolean => {
     if (item.superAdminOnly) return isSuperAdmin;
-
-    if (item.permissionKey && currentUser?.permissions) {
-      const userPermissions = typeof currentUser.permissions === 'string'
-        ? (() => { try { return JSON.parse(currentUser.permissions); } catch { return null; } })()
-        : currentUser.permissions;
-      if (userPermissions) {
-        const permissionModule = getPermissionModuleName(item.permissionKey);
-        if (permissionModule) {
-          const matrix = userPermissions.matrix || userPermissions;
-          if (matrix[permissionModule] !== undefined && matrix[permissionModule] !== null) {
-            const modulePerms = matrix[permissionModule];
-            if (modulePerms && modulePerms["view"] !== undefined) {
-              return Boolean(modulePerms["view"]);
-            }
-          }
-        }
-      }
-    }
-
     if (isSuperAdmin) return true;
     if (!item.permissionKey) return true;
+    if (!isStoreLoaded) return false;
     return hasPermission(item.permissionKey, "view");
   };
 

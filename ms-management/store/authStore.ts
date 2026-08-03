@@ -384,15 +384,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   getCurrentRole: (): Role | undefined => {
     const roles = get().roles;
-    const currentRole = get().currentRole;
-    return roles.find((role: Role) => role.name === currentRole);
+    const currentRole = (get().currentRole || "").trim().toLowerCase();
+    return roles.find((role: Role) => (role.name || "").trim().toLowerCase() === currentRole);
   },
 
   hasPermission: (moduleKey: string, action: string) => {
     const state = get();
 
-    // 0. Super Admin check
-    if (state.currentRole === "Super Admin" || state.currentUser?.role === "Super Admin") {
+    // 0. Super Admin check (case-insensitive)
+    const roleStr = (state.currentRole || state.currentUser?.role || "").trim().toLowerCase();
+    if (roleStr === "super admin") {
       return true;
     }
 
@@ -455,8 +456,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     // 3. Load role permissions from store
-    const curRoleNormalized = (state.currentRole || state.currentUser?.role || "").trim().toLowerCase();
-    const role = state.roles.find((role: Role) => (role.name || "").trim().toLowerCase() === curRoleNormalized);
+    const role = state.roles.find((r: Role) => (r.name || "").trim().toLowerCase() === roleStr);
     const permissionModule = getPermissionModuleName(moduleKey);
 
     if (role && permissionModule) {
@@ -487,35 +487,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     }
 
-    // 4. Default role matrix fallback for system roles if role permissions not customized in DB
-    const roleName = state.currentRole || state.currentUser?.role || "Staff";
-    const permMod = (permissionModule || getPermissionModuleName(moduleKey) || moduleKey).toLowerCase();
-    const isCompanyAdmin = roleName === "Company Admin" || roleName === "Admin";
-    const isBranchAdmin = roleName === "Branch Admin";
-    const isManager = ["HR Manager", "HR", "Recruiter", "Accountant"].includes(roleName);
-    const isStaffRole = roleName === "Staff" || roleName === "Employee";
-
-    if (isCompanyAdmin) return true;
-    if (isBranchAdmin) {
-      if (["site settings", "roles", "own companies"].includes(permMod)) return false;
-      return true;
-    }
-    if (isManager) {
-      if (["site settings", "roles", "own companies"].includes(permMod)) return false;
-      if (action === "view" || action === "viewAll" || action === "create" || action === "edit") return true;
-      if (action === "delete" || action === "deleteAll") return false;
-      return true;
-    }
-    if (isStaffRole) {
-      if (["tasks", "leave requests", "staff requests", "attendance"].includes(permMod)) {
-        if (action === "view" || action === "create" || action === "edit") return true;
-      }
-      if (action === "view" && ["notifications", "profile", "documents"].includes(permMod)) {
-        return true;
-      }
-      return false;
-    }
-
+    // 4. No role found in DB or no permission defined -> deny
     return false;
   },
   

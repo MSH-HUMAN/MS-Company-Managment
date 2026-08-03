@@ -91,23 +91,23 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "System",
     items: [
-      { name: 'Users',         href: '/users',         icon: UserPlus,    permissionKey: 'users',       hiddenFor: ['Staff', 'Recruiter', 'Accountant'] },
-      { name: 'Roles & Perms', href: '/roles',         icon: ShieldCheck, permissionKey: 'roles',       hiddenFor: ['Staff', 'HR Manager', 'Recruiter', 'Accountant', 'Branch Admin'] },
-      { name: 'Own Companies', href: '/own-companies', icon: Building2,   superAdminOnly: true },
-      { name: 'Reports',       href: '/reports',       icon: BarChart3,   permissionKey: 'reports',     hiddenFor: ['Staff'] },
-      { name: 'Activity Log',  href: '/activity-log',  icon: Activity,    permissionKey: 'activityLog', hiddenFor: ['Staff', 'Recruiter'] },
-      { name: 'Site Settings', href: '/settings',      icon: Settings,    permissionKey: 'settings',    hiddenFor: ['Staff', 'HR Manager', 'Recruiter', 'Accountant', 'Branch Admin'] },
-      { name: 'Email Templates', href: '/templates', icon: Mail, superAdminOnly: true },
+      { name: 'Users',           href: '/users',         icon: UserPlus,    permissionKey: 'users' },
+      { name: 'Roles & Perms',   href: '/roles',         icon: ShieldCheck, permissionKey: 'roles' },
+      { name: 'Own Companies',   href: '/own-companies', icon: Building2,   superAdminOnly: true },
+      { name: 'Reports',         href: '/reports',       icon: BarChart3,   permissionKey: 'reports' },
+      { name: 'Activity Log',    href: '/activity-log',  icon: Activity,    permissionKey: 'activityLog' },
+      { name: 'Site Settings',   href: '/settings',      icon: Settings,    permissionKey: 'settings' },
+      { name: 'Email Templates', href: '/templates',     icon: Mail,        superAdminOnly: true },
     ]
   },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { currentUser, currentRole, notifications, hasPermission, logout } = useAuthStore();
+  const { currentUser, currentRole, notifications, hasPermission, logout, isStoreLoaded } = useAuthStore();
   const router = useRouter();
   const unreadCount = notifications.filter((n: any) => !n.read).length;
-  const isSuperAdmin = currentRole === "Super Admin";
+  const isSuperAdmin = (currentRole || "").trim().toLowerCase() === "super admin";
 
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [profileModal, setProfileModal] = useState(false);
@@ -160,33 +160,15 @@ export function Sidebar() {
     items.some(item => pathname?.startsWith(item.href));
 
   const canSeeItem = (item: NavItem): boolean => {
-    // Super Admin Only items
+    // superAdminOnly items: only Super Admin sees them
     if (item.superAdminOnly) return isSuperAdmin;
-
-    // Check custom permissions overrides first before role-based hiding
-    if (item.permissionKey && (currentUser as any)?.permissions) {
-      const userPermissions = typeof currentUser.permissions === 'string'
-        ? (() => { try { return JSON.parse(currentUser.permissions); } catch { return null; } })()
-        : currentUser.permissions;
-      if (userPermissions) {
-        const permissionModule = getPermissionModuleName(item.permissionKey);
-        if (permissionModule) {
-          const matrix = userPermissions.matrix || userPermissions;
-          if (matrix[permissionModule] !== undefined && matrix[permissionModule] !== null) {
-            const modulePerms = matrix[permissionModule];
-            if (modulePerms && modulePerms["view"] !== undefined) {
-              return Boolean(modulePerms["view"]);
-            }
-          }
-        }
-      }
-    }
-
     // Super Admin bypasses all permission checks
     if (isSuperAdmin) return true;
-    // No permission key = always visible
+    // No permission key = always visible (e.g. Dashboard)
     if (!item.permissionKey) return true;
-    // Check permission store
+    // Wait for store to load before checking permissions
+    if (!isStoreLoaded) return false;
+    // Delegate entirely to hasPermission which reads from DB role matrix
     return hasPermission(item.permissionKey, "view");
   };
 
