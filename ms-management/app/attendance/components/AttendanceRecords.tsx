@@ -27,7 +27,7 @@ const STATUS_CONFIG: Record<string, {
 }> = {
   Present:        { label: "Present",    bg: "bg-emerald-50",  text: "text-emerald-700", border: "border-emerald-200", rowBg: "bg-emerald-50/20", icon: CheckCircle2,  dot: "bg-emerald-500" },
   Absent:         { label: "Absent",     bg: "bg-rose-50",     text: "text-rose-700",    border: "border-rose-200",    rowBg: "bg-rose-50/30",    icon: XCircle,       dot: "bg-rose-500" },
-  Late:           { label: "Late",       bg: "bg-amber-50",    text: "text-amber-700",   border: "border-amber-200",   rowBg: "bg-amber-50/20",   icon: Clock,         dot: "bg-amber-500" },
+  Late:           { label: "Late In",    bg: "bg-amber-50",    text: "text-amber-700",   border: "border-amber-200",   rowBg: "bg-amber-50/20",   icon: Clock,         dot: "bg-amber-500" },
   Leave:          { label: "Leave",      bg: "bg-slate-50",    text: "text-slate-600",   border: "border-slate-200",   rowBg: "bg-slate-50/30",   icon: AlertTriangle, dot: "bg-slate-400" },
   "Half Day":     { label: "Half Day",   bg: "bg-indigo-50",   text: "text-indigo-700",  border: "border-indigo-200",  rowBg: "bg-indigo-50/20",  icon: Clock,         dot: "bg-indigo-400" },
   Holiday:        { label: "Holiday",    bg: "bg-purple-50",   text: "text-purple-700",  border: "border-purple-200",  rowBg: "bg-purple-50/20",  icon: Home,          dot: "bg-purple-400" },
@@ -335,11 +335,27 @@ export default function AttendanceRecords() {
         }
       } else if (field === "checkIn" || field === "checkOut") {
         if (!NO_TIME_STATUSES.includes(updated.status)) {
-          const metrics = computeAttendanceMetrics(
-            field === "checkIn" ? value : updated.checkIn,
-            field === "checkOut" ? value : updated.checkOut,
-            shift
-          );
+          const checkInVal = field === "checkIn" ? value : updated.checkIn;
+          const checkOutVal = field === "checkOut" ? value : updated.checkOut;
+
+          // Auto-evaluate status between Present and Late In based on checkIn time vs shift schedule
+          if (field === "checkIn" && checkInVal) {
+            const shiftIn = shift ? (shift.clockIn || "09:00") : "09:00";
+            const grace = shift ? (shift.gracePeriod || 0) : 15;
+            try {
+              const [empInH, empInM] = checkInVal.split(":").map(Number);
+              const [shInH, shInM] = shiftIn.split(":").map(Number);
+              const empInMin = empInH * 60 + empInM;
+              const shInMin = shInH * 60 + shInM;
+              if (empInMin > (shInMin + grace)) {
+                updated.status = "Late";
+              } else if (updated.status === "Late" && empInMin <= (shInMin + grace)) {
+                updated.status = "Present";
+              }
+            } catch (e) {}
+          }
+
+          const metrics = computeAttendanceMetrics(checkInVal, checkOutVal, shift);
           updated.workingHours = metrics.workingHours;
           updated.overtime = metrics.overtime;
           updated.lateArrival = metrics.lateArrival;

@@ -95,7 +95,7 @@ export default function AttendanceCalendar() {
                   <th className="text-center px-4 py-3">Working Days</th>
                   <th className="text-center px-4 py-3 text-emerald-600">Present</th>
                   <th className="text-center px-4 py-3 text-rose-600">Absent</th>
-                  <th className="text-center px-4 py-3 text-amber-600">Late</th>
+                  <th className="text-center px-4 py-3 text-amber-600">Late In</th>
                   <th className="text-center px-4 py-3 text-slate-500">Leave</th>
                   <th className="text-center px-4 py-3 text-purple-600">Holidays</th>
                   <th className="text-center px-4 py-3">Attendance %</th>

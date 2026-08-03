@@ -1697,12 +1697,21 @@ function AttendanceWidget({ currentUser, now, staffAttendance, saveAttendance, a
           {hasCheckedIn && todayAttendance?.checkOut ? <LogOut className="w-8 h-8" /> : <LogIn className="w-8 h-8" />}
         </div>
         <div>
-          <h2 className="text-xl font-black text-slate-800">Daily Attendance</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-black text-slate-800">Daily Attendance</h2>
+            {hasCheckedIn && (
+              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${
+                todayAttendance?.status === "Late" ? "bg-amber-50 text-amber-700 border-amber-200" : "bg-emerald-50 text-emerald-700 border-emerald-200"
+              }`}>
+                {todayAttendance?.status === "Late" ? "Late In" : todayAttendance?.status || "Present"}
+              </span>
+            )}
+          </div>
           <p className="text-sm font-semibold text-slate-500 mt-1">
             {hasCheckedIn && todayAttendance?.checkOut
-              ? `Checked out at ${todayAttendance.checkOut}`
+              ? `Check-in: ${todayAttendance.checkIn} · Check-out: ${todayAttendance.checkOut}`
               : hasCheckedIn
-                ? `Checked in at ${todayAttendance?.checkIn}. Have a great shift!`
+                ? `Checked in at ${todayAttendance?.checkIn}${todayAttendance?.status === "Late" ? " (Late In)" : ""}. Have a great shift!`
                 : "You haven't checked in for today yet."}
           </p>
         </div>

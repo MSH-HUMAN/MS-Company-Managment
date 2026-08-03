@@ -325,7 +325,9 @@ export default function StaffDetailPage({ params }: { params: Promise<{ id: stri
       }
     }
 
-    return { day: dayNum, status };
+    const checkIn = dayRecord?.checkIn || (status === "Late" ? "09:20" : status === "Present" ? "09:00" : "");
+    const checkOut = dayRecord?.checkOut || (["Present", "Late"].includes(status) ? "18:00" : "");
+    return { day: dayNum, status, checkIn, checkOut };
   });
 
   // Mock Timeline History for wow factor
@@ -711,7 +713,7 @@ export default function StaffDetailPage({ params }: { params: Promise<{ id: stri
               {/* Legend */}
               <div className="flex gap-4 text-[10px] font-bold uppercase text-slate-500">
                 <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Present</div>
-                <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Late</div>
+                <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Late In</div>
                 <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-rose-500" /> Absent</div>
                 <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-slate-400" /> Leave</div>
               </div>
@@ -721,7 +723,7 @@ export default function StaffDetailPage({ params }: { params: Promise<{ id: stri
                 {mockAttendanceDays.map(day => (
                   <div 
                     key={day.day} 
-                    className={`rounded-xl border p-2 text-center transition-all flex flex-col items-center justify-center min-h-[60px] ${
+                    className={`rounded-xl border p-2 text-center transition-all flex flex-col items-center justify-center min-h-[65px] ${
                       day.status === "Present" 
                         ? "bg-emerald-50 border-emerald-100 text-emerald-700 shadow-sm" 
                         : day.status === "Late"
@@ -732,7 +734,14 @@ export default function StaffDetailPage({ params }: { params: Promise<{ id: stri
                     }`}
                   >
                     <div className="text-xs font-bold font-mono">{day.day}</div>
-                    <div className="text-[8px] font-extrabold uppercase mt-1 tracking-tight">{day.status}</div>
+                    <div className="text-[8px] font-extrabold uppercase mt-0.5 tracking-tight">
+                      {day.status === "Late" ? "Late In" : day.status}
+                    </div>
+                    {day.checkIn && (
+                      <div className="text-[7px] font-mono mt-0.5 opacity-80">
+                        {day.checkIn}{day.checkOut ? ` - ${day.checkOut}` : ""}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

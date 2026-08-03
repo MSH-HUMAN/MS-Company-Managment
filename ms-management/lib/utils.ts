@@ -37,6 +37,9 @@ export function getStatusColor(status: string | null | undefined): string {
     case "draft":
     case "pending approval":
     case "interview schedule pending":
+    case "late":
+    case "late in":
+    case "half day":
       return "bg-amber-50 text-amber-700 border-amber-200";
     case "inactive":
     case "disabled":
