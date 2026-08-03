@@ -55,14 +55,6 @@ export async function POST(request: Request) {
 
     const isSelf = targetStaff.email?.toLowerCase() === user.email?.toLowerCase();
 
-    // Security: Super Admin cannot record personal attendance for themselves (existing rule)
-    if (user.role === "Super Admin" && isSelf) {
-      return NextResponse.json(
-        { error: "Forbidden: Super Admin cannot record personal attendance. Use the admin panel to mark employee attendance." },
-        { status: 403 }
-      );
-    }
-
     // Check permissions: Only administrators/managers with editAll can bypass daily limits and edit other staff's records
     const hasAdminPermission = user.role === "Super Admin" ||
                                (await hasPermissionBackend(user, "attendance", "editAll"));

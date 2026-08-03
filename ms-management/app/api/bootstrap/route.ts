@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser, getTenantScopeFilter, hasPermissionBackend, getPermissionScopedFilter } from "@/lib/auth-helpers";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const safeQuery = async <T>(fn: () => Promise<T>, fallback: T): Promise<T> => {
   try {
     return await fn();
@@ -210,6 +213,11 @@ export async function GET(request: Request) {
       emails,
       whatsapp,
       leaves
+    }, {
+      headers: {
+        "Cache-Control": "no-store, max-age=0, must-revalidate",
+        "Pragma": "no-cache"
+      }
     });
   } catch (error: any) {
     console.error("Bootstrap API error:", error);

@@ -391,7 +391,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   hasPermission: (moduleKey: string, action: string) => {
     const state = get();
 
-    // 0. User-specific custom permission overrides check
+    // 0. Super Admin check
+    if (state.currentRole === "Super Admin" || state.currentUser?.role === "Super Admin") {
+      return true;
+    }
+
+    // 1. User-specific custom permission overrides check
     const userPermissions = typeof state.currentUser?.permissions === 'string'
       ? (() => { try { return JSON.parse(state.currentUser.permissions); } catch { return null; } })()
       : state.currentUser?.permissions;
@@ -420,8 +425,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     }
 
-    // 1. Company Module Toggle check for non-Super Admin
-    if (state.currentRole !== "Super Admin" && state.currentUser?.company) {
+    // 2. Company Module Toggle check for non-Super Admin
+    if (state.currentUser?.company && state.currentUser.company !== "System") {
       const company = state.companies.find(c => c.name === state.currentUser.company);
       if (company && company.enabledModules) {
         const moduleNameMap: Record<string, string> = {
@@ -449,7 +454,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     }
 
-    // 2. Load role permissions
+    // 3. Load role permissions from store
     const role = state.roles.find((role: Role) => role.name === state.currentRole);
     const permissionModule = getPermissionModuleName(moduleKey);
 
@@ -462,8 +467,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (permissions && permissions[permissionModule]) {
         const modulePerms = permissions[permissionModule];
         if (modulePerms) {
-          if (modulePerms[action] !== undefined && Boolean(modulePerms[action])) {
-            return true;
+          if (modulePerms[action] !== undefined) {
+            return Boolean(modulePerms[action]);
           }
           if (action === "view" && modulePerms["viewAll"] !== undefined && Boolean(modulePerms["viewAll"])) {
             return true;
@@ -478,9 +483,33 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     }
 
-    // 3. Fallback for Super Admin (Full system administration access)
-    if (state.currentRole === "Super Admin") {
+    // 4. Default role matrix fallback for system roles if role permissions not customized in DB
+    const roleName = state.currentRole || state.currentUser?.role || "Staff";
+    const permMod = (permissionModule || getPermissionModuleName(moduleKey) || moduleKey).toLowerCase();
+    const isCompanyAdmin = roleName === "Company Admin" || roleName === "Admin";
+    const isBranchAdmin = roleName === "Branch Admin";
+    const isManager = ["HR Manager", "HR", "Recruiter", "Accountant"].includes(roleName);
+    const isStaffRole = roleName === "Staff" || roleName === "Employee";
+
+    if (isCompanyAdmin) return true;
+    if (isBranchAdmin) {
+      if (["site settings", "roles", "own companies"].includes(permMod)) return false;
       return true;
+    }
+    if (isManager) {
+      if (["site settings", "roles", "own companies"].includes(permMod)) return false;
+      if (action === "view" || action === "viewAll" || action === "create" || action === "edit") return true;
+      if (action === "delete" || action === "deleteAll") return false;
+      return true;
+    }
+    if (isStaffRole) {
+      if (["tasks", "leave requests", "staff requests", "attendance"].includes(permMod)) {
+        if (action === "view" || action === "create" || action === "edit") return true;
+      }
+      if (action === "view" && ["notifications", "profile", "documents"].includes(permMod)) {
+        return true;
+      }
+      return false;
     }
 
     return false;

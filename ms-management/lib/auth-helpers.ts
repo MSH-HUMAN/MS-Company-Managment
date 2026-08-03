@@ -363,24 +363,20 @@ export async function getPermissionScopedFilter(
     return {};
   }
 
-  const isCompanyAdmin = user.role === "Company Admin" || user.role === "HR Manager" || user.role === "Admin" || user.role === "Accountant" || user.role === "Recruiter";
+  const isCompanyAdmin = user.role === "Company Admin" || user.role === "Admin";
   const isBranchAdmin = user.role === "Branch Admin";
 
   const filter = getTenantScopeFilter(user, companyField, branchField);
-
-  if (isCompanyAdmin || isBranchAdmin) {
-    return filter;
-  }
 
   // Check permissions: either the base action (e.g., 'view') or the 'All' variation (e.g., 'viewAll') must be true
   const hasBase = await hasPermissionBackend(user, moduleKey, actionKey);
   const hasAll = await hasPermissionBackend(user, moduleKey, `${actionKey}All`);
 
-  if (!hasBase && !hasAll) {
+  if (!hasBase && !hasAll && !isCompanyAdmin && !isBranchAdmin) {
     return null; // Deny access
   }
 
-  if (hasAll) {
+  if (hasAll || isCompanyAdmin || isBranchAdmin) {
     return filter;
   }
 

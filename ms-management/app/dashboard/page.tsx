@@ -1268,12 +1268,12 @@ function SuperAdminDashboard({ applicants, staff, tasks, interviews, leaveReques
       <div>
         <SectionHeader icon={Zap} title="Quick Access" />
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-          <ShortcutCard label="Add Applicant" href="/applicants/new" icon={Plus} color="blue" />
-          <ShortcutCard label="Add Staff" href="/staff/new" icon={UserCheck} color="green" />
-          <ShortcutCard label="Create Task" href="/tasks" icon={CheckSquare} color="amber" />
-          <ShortcutCard label="Schedule Meeting" href="/interviews" icon={Calendar} color="purple" />
-          <ShortcutCard label="Add Vehicle" href="/vehicles" icon={Car} color="rose" />
-          <ShortcutCard label="Reports" href="/reports" icon={BarChart3} color="slate" />
+          <ShortcutCard label="Add Applicant" href="/applicants/new" icon={Plus} color="blue" permissionKey="applicants" />
+          <ShortcutCard label="Add Staff" href="/staff/new" icon={UserCheck} color="green" permissionKey="staff" />
+          <ShortcutCard label="Create Task" href="/tasks" icon={CheckSquare} color="amber" permissionKey="tasks" />
+          <ShortcutCard label="Schedule Meeting" href="/interviews" icon={Calendar} color="purple" permissionKey="interviews" />
+          <ShortcutCard label="Add Vehicle" href="/vehicles" icon={Car} color="rose" permissionKey="vehicles" />
+          <ShortcutCard label="Reports" href="/reports" icon={BarChart3} color="slate" permissionKey="reports" />
         </div>
       </div>
 
@@ -1584,7 +1584,7 @@ function AttendanceWidget({ currentUser, now, staffAttendance, saveAttendance, a
     return parseFloat(df.toFixed(2));
   };
 
-  const handleCheckIn = () => {
+  const handleCheckIn = async () => {
     const checkInTime = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
     
     // Find staff shift
@@ -1616,23 +1616,27 @@ function AttendanceWidget({ currentUser, now, staffAttendance, saveAttendance, a
       earlyLeaving: 0
     };
 
-    if (myAttendanceRecord) {
-      saveAttendance({ ...myAttendanceRecord, records: [...myAttendanceRecord.records.filter(r => r.date !== todayStr), newRecord] });
-    } else {
-      saveAttendance({ staffId: lookupId, staffName: currentUser.name, month, year, records: [newRecord] });
+    try {
+      if (myAttendanceRecord) {
+        await saveAttendance({ ...myAttendanceRecord, records: [...myAttendanceRecord.records.filter(r => r.date !== todayStr), newRecord] });
+      } else {
+        await saveAttendance({ staffId: lookupId, staffName: currentUser.name, month, year, records: [newRecord] });
+      }
+      
+      addActivityLog({
+        id: `LOG-${Date.now()}`, dateTime: now.toISOString().replace("T", " ").slice(0, 19),
+        userName: currentUser.name, role: currentUser.role, company: currentUser.company, branch: currentUser.branch,
+        action: "Created", module: "Attendance", oldValue: null, newValue: `Checked in at ${checkInTime} (Status: ${status === "Late" ? "Late In" : "Present"}, Late: ${lateArrival}m)`, ipAddress: "192.168.1.102"
+      });
+      
+      toast.success(`Successfully checked in! Status: ${status === "Late" ? "Late In" : "Present"}`);
+    } catch (err: any) {
+      console.error("Check-in error:", err);
+      toast.error(err?.message || "Failed to save check-in. Please try again.");
     }
-    
-    addActivityLog({
-      id: `LOG-${Date.now()}`, dateTime: now.toISOString().replace("T", " ").slice(0, 19),
-      userName: currentUser.name, role: currentUser.role, company: currentUser.company, branch: currentUser.branch,
-      action: "Created", module: "Attendance", oldValue: null, newValue: `Checked in at ${checkInTime} (Status: ${status}, Late: ${lateArrival}m)`, ipAddress: "192.168.1.102"
-    });
-    
-    // Send check-in email notification
-    toast.success(`Successfully checked in! Status: ${status}`);
   };
 
-  const handleCheckOut = () => {
+  const handleCheckOut = async () => {
     if (!myAttendanceRecord || !todayAttendance) return;
     const checkoutTime = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
     
@@ -1666,27 +1670,32 @@ function AttendanceWidget({ currentUser, now, staffAttendance, saveAttendance, a
       }
     } catch (e) {}
 
-    saveAttendance({
-      ...myAttendanceRecord,
-      records: [
-        ...myAttendanceRecord.records.filter(r => r.date !== todayStr),
-        { 
-          ...todayAttendance, 
-          checkOut: checkoutTime, 
-          workingHours: parseFloat(netWorkingHours.toFixed(2)), 
-          overtime,
-          earlyLeaving
-        }
-      ]
-    });
+    try {
+      await saveAttendance({
+        ...myAttendanceRecord,
+        records: [
+          ...myAttendanceRecord.records.filter(r => r.date !== todayStr),
+          { 
+            ...todayAttendance, 
+            checkOut: checkoutTime, 
+            workingHours: parseFloat(netWorkingHours.toFixed(2)), 
+            overtime,
+            earlyLeaving
+          }
+        ]
+      });
 
-    addActivityLog({
-      id: `LOG-${Date.now()}`, dateTime: now.toISOString().replace("T", " ").slice(0, 19),
-      userName: currentUser.name, role: currentUser.role, company: currentUser.company, branch: currentUser.branch,
-      action: "Edited", module: "Attendance", oldValue: `Checked in at ${todayAttendance.checkIn}`, newValue: `Checked out at ${checkoutTime} (Worked: ${netWorkingHours.toFixed(2)}h, OT: ${overtime}h, Early Leave: ${earlyLeaving}m)`, ipAddress: "192.168.1.102"
-    });
+      addActivityLog({
+        id: `LOG-${Date.now()}`, dateTime: now.toISOString().replace("T", " ").slice(0, 19),
+        userName: currentUser.name, role: currentUser.role, company: currentUser.company, branch: currentUser.branch,
+        action: "Edited", module: "Attendance", oldValue: `Checked in at ${todayAttendance.checkIn}`, newValue: `Checked out at ${checkoutTime} (Worked: ${netWorkingHours.toFixed(2)}h, OT: ${overtime}h, Early Leave: ${earlyLeaving}m)`, ipAddress: "192.168.1.102"
+      });
 
-    toast.success(`Successfully checked out! Worked: ${netWorkingHours.toFixed(2)}h, OT: ${overtime}h`);
+      toast.success(`Successfully checked out! Worked: ${netWorkingHours.toFixed(2)}h, OT: ${overtime}h`);
+    } catch (err: any) {
+      console.error("Check-out error:", err);
+      toast.error(err?.message || "Failed to save check-out. Please try again.");
+    }
   };
 
   return (
