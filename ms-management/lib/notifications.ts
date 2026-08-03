@@ -438,11 +438,11 @@ export async function sendEmail({
 
     const siteDomain = (process.env.NEXT_PUBLIC_SITE_URL || process.env.APP_URL || "https://mshorizonuae.com").replace(/\/$/, "");
     const rawActionLink = templateData?.actionLink || (safeData as any)?.actionLink;
-    const finalActionLink = (rawActionLink && !rawActionLink.includes("localhost") && !rawActionLink.includes("portal.mshorizon.ae"))
+    const finalActionLink = (rawActionLink && !rawActionLink.includes("localhost") && !rawActionLink.includes("portal.mshorizon.ae") && !rawActionLink.includes("/apply?"))
       ? rawActionLink
-      : (templateData?.trackingCode || (safeData as any)?.trackingCode)
-        ? `${siteDomain}/apply?code=${templateData?.trackingCode || (safeData as any)?.trackingCode}`
-        : `${siteDomain}/apply`;
+      : (templateData?.trackingCode || (safeData as any)?.trackingCode) && (templateData?.trackingCode !== "N/A")
+        ? `${siteDomain}/track?code=${templateData?.trackingCode || (safeData as any)?.trackingCode}`
+        : `${siteDomain}/track`;
 
     const context = {
       companyEmail,

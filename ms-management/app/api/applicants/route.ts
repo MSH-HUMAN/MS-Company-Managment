@@ -278,7 +278,7 @@ export async function POST(request: Request) {
           appliedPosition: Array.isArray(applicant.applyingPositions)
             ? (applicant.applyingPositions as string[]).join(", ")
             : (applicant.applyingPositions ? String(applicant.applyingPositions) : ""),
-          actionLink: `${process.env.NEXT_PUBLIC_SITE_URL || "https://mshorizonuae.com"}/apply?code=${applicant.trackingCode || ""}`
+          actionLink: `${process.env.NEXT_PUBLIC_SITE_URL || "https://mshorizonuae.com"}/track?code=${applicant.trackingCode || ""}`
         }
       }).catch(err => console.error("Background email sending error:", err));
     }

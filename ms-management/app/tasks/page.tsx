@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, CheckSquare, Clock, CheckCircle2, XCircle, RefreshCw, Trash2, Filter, ArrowRightLeft, History, AlertTriangle, Send, UploadCloud, Paperclip, FileText } from "lucide-react";
+import { Plus, CheckSquare, Clock, CheckCircle2, XCircle, RefreshCw, Trash2, Filter, ArrowRightLeft, History, AlertTriangle, Send, UploadCloud, Paperclip, FileText, Eye } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useFilterStore } from "@/store/filterStore";
 import { formatDate, exportToCSV, cn } from "@/lib/utils";
@@ -60,6 +60,7 @@ export default function TasksPage() {
 
   const [modal, setModal] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
+  const [detailTask, setDetailTask] = useState<Task | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [view, setView] = useState<"kanban" | "table">("kanban");
   const [uploadedProofFiles, setUploadedProofFiles] = useState<File[]>([]);
@@ -667,23 +668,24 @@ export default function TasksPage() {
                         ) : colTasks.map(t => {
                           const overdue = isOverdue(t);
                           return (
-                            <Card key={t.id} className={`rounded-xl p-3.5 bg-white shadow-sm hover:shadow-md transition-all cursor-pointer ${overdue ? "border border-rose-300 shadow-rose-500/10" : "border-slate-100"}`} onClick={() => handleOpenTaskModal(t)}>
+                            <Card key={t.id} className={`rounded-xl p-3.5 bg-white shadow-sm hover:shadow-md transition-all cursor-pointer ${overdue ? "border border-rose-300 shadow-rose-500/10" : "border-slate-100"}`} onClick={() => setDetailTask(t)}>
                               <div className="flex items-start justify-between gap-2 mb-2">
                                 <div className="flex gap-1 flex-wrap">
                                   <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded border uppercase ${priorityColor(t.priority)}`}>{t.priority}</span>
                                   {overdue && <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded border uppercase text-rose-600 bg-rose-50 border-rose-200 flex items-center gap-1"><AlertTriangle className="w-3 h-3"/> Overdue</span>}
                                 </div>
                                 <div className="flex gap-1 items-center">
-                                  <button onClick={e => { e.stopPropagation(); setHistoryTask(t); setHistoryModalOpen(true); }} className="text-slate-400 hover:text-indigo-500 transition-colors" title="View History"><History className="w-3.5 h-3.5"/></button>
-                                  {canDeleteTasks && <button onClick={e => { e.stopPropagation(); setDeleteId(t.id); }} className="text-slate-300 hover:text-rose-500 transition-colors"><Trash2 className="w-3.5 h-3.5"/></button>}
+                                  <button onClick={e => { e.stopPropagation(); setDetailTask(t); }} className="text-slate-400 hover:text-blue-600 transition-colors p-1 rounded hover:bg-blue-50" title="View Full Details"><Eye className="w-3.5 h-3.5"/></button>
+                                  <button onClick={e => { e.stopPropagation(); setHistoryTask(t); setHistoryModalOpen(true); }} className="text-slate-400 hover:text-indigo-500 transition-colors p-1 rounded hover:bg-indigo-50" title="View History"><History className="w-3.5 h-3.5"/></button>
+                                  {canDeleteTasks && <button onClick={e => { e.stopPropagation(); setDeleteId(t.id); }} className="text-slate-300 hover:text-rose-500 transition-colors p-1 rounded hover:bg-rose-50"><Trash2 className="w-3.5 h-3.5"/></button>}
                                 </div>
                               </div>
-                              <div className="text-xs font-bold text-slate-800 leading-tight mb-1">{t.title}</div>
-                              <div className="text-[10px] text-slate-500 mb-2 line-clamp-2">{t.description}</div>
-                              {t.incompleteReason && <div className="text-[9px] text-rose-600 font-bold bg-rose-50 border border-rose-100 rounded px-1.5 py-0.5 mb-2 leading-tight">Reason: {t.incompleteReason}</div>}
+                              <div className="text-xs font-bold text-slate-800 leading-snug mb-1 break-words">{t.title}</div>
+                              <div className="text-[10px] text-slate-500 mb-2 line-clamp-3 leading-relaxed break-words">{t.description}</div>
+                              {t.incompleteReason && <div className="text-[9px] text-rose-600 font-bold bg-rose-50 border border-rose-100 rounded px-1.5 py-0.5 mb-2 leading-tight break-words">Reason: {t.incompleteReason}</div>}
                               {t.applicantName && (
                                 <div className="text-[9px] text-blue-700 font-bold bg-blue-50 border border-blue-100 rounded px-1.5 py-0.5 mb-2 leading-tight flex flex-col gap-1 select-none">
-                                  <div className="flex items-center gap-1">👤 Candidate: {t.applicantName}</div>
+                                  <div className="flex items-center gap-1 truncate">👤 Candidate: {t.applicantName}</div>
                                   {t.targetDocument && (
                                     <div className="text-[9px] text-indigo-700 font-extrabold bg-indigo-50 border border-indigo-100 rounded px-1 py-0.5 mt-1 flex items-center gap-1 select-none w-fit">
                                       📄 Verify: {t.targetDocument}
@@ -697,13 +699,13 @@ export default function TasksPage() {
                                 </div>
                               )}
                               {t.notes && (
-                                <div className="text-[9px] text-slate-500 italic bg-slate-50 border border-slate-100 rounded px-1.5 py-0.5 mb-2 leading-tight">
+                                <div className="text-[9px] text-slate-500 italic bg-slate-50 border border-slate-100 rounded px-1.5 py-0.5 mb-2 leading-tight break-words">
                                   📝 {t.notes}
                                 </div>
                               )}
-                              <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400 border-t border-slate-50 pt-2">
-                                <span>→ {t.assignedTo}</span>
-                                <span className={`text-[9px] ${overdue ? "text-rose-600" : ""}`}>📅 {formatDateTime(t.deadline)}</span>
+                              <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400 border-t border-slate-50 pt-2 flex-wrap gap-1">
+                                <span className="truncate">→ {t.assignedTo}</span>
+                                <span className={`text-[9px] flex-shrink-0 ${overdue ? "text-rose-600 font-bold" : ""}`}>📅 {formatDateTime(t.deadline)}</span>
                               </div>
                               <div className="mt-2 flex gap-1 flex-wrap">
                                 {(["Pending","Processing","Completed","Incomplete","Reassigned","Cancelled"] as Task["status"][]).filter(s => s !== t.status).map(s => (
@@ -756,8 +758,9 @@ export default function TasksPage() {
                             ))}
                           </div>
                           <div className="flex gap-1">
+                            <Button variant="ghost" size="icon" onClick={() => setDetailTask(t)} className="w-7 h-7 text-blue-600 hover:bg-blue-50 rounded-lg" title="View Details"><Eye className="w-4 h-4"/></Button>
                             <Button variant="ghost" size="icon" onClick={() => { setHistoryTask(t); setHistoryModalOpen(true); }} className="w-7 h-7 text-indigo-500 hover:bg-indigo-50 rounded-lg" title="History"><History className="w-4 h-4"/></Button>
-                            <Button variant="ghost" size="icon" onClick={() => { setEditTask(t); setForm({ title: t.title, description: t.description, priority: t.priority, assignedTo: t.assignedTo, assignedDate: formatForInputDateTime(t.assignedDate), deadline: formatForInputDateTime(t.deadline), applicantId: t.applicantId || null, applicantName: t.applicantName || null, targetDocument: t.targetDocument || null, notes: t.notes || "", attachmentName: t.attachmentName || "" }); setModal(true); }} className="w-7 h-7 text-blue-500 hover:bg-blue-50 rounded-lg"><CheckSquare className="w-4 h-4"/></Button>
+                            {(canEditTasks || isAdmin) && <Button variant="ghost" size="icon" onClick={() => { handleOpenTaskModal(t); }} className="w-7 h-7 text-amber-500 hover:bg-amber-50 rounded-lg" title="Edit Task"><CheckSquare className="w-4 h-4"/></Button>}
                             {canDeleteTasks && <Button variant="ghost" size="icon" onClick={() => setDeleteId(t.id)} className="w-7 h-7 text-rose-500 hover:bg-rose-50 rounded-lg"><Trash2 className="w-4 h-4"/></Button>}
                           </div>
                         </div>
@@ -782,7 +785,7 @@ export default function TasksPage() {
                       {paginated.map(t => {
                         const overdue = isOverdue(t);
                         return (
-                          <tr key={t.id} className={`border-b border-slate-50 hover:bg-slate-50/30 font-semibold text-slate-600 ${overdue ? "bg-rose-50/10" : ""}`}>
+                          <tr key={t.id} onClick={() => setDetailTask(t)} className={`border-b border-slate-50 hover:bg-slate-50/50 cursor-pointer font-semibold text-slate-600 ${overdue ? "bg-rose-50/10" : ""}`}>
                             <td className="px-4 py-3">
                               <div className="font-bold text-slate-800 flex gap-2 items-center">
                                 {t.title} 
@@ -796,9 +799,10 @@ export default function TasksPage() {
                               <div className={`font-bold mt-0.5 ${overdue ? "text-rose-600" : "text-slate-700"}`}>Due: {formatDateTime(t.deadline)}</div>
                             </td>
                             <td className="px-4 py-3"><StatusBadge status={t.status}/></td>
-                            <td className="px-4 py-3 text-right space-x-1">
+                            <td className="px-4 py-3 text-right space-x-1" onClick={e => e.stopPropagation()}>
+                              <Button variant="ghost" size="icon" onClick={() => setDetailTask(t)} className="w-7 h-7 text-blue-600 hover:bg-blue-50 rounded-lg" title="View Details"><Eye className="w-4 h-4"/></Button>
                               <Button variant="ghost" size="icon" onClick={() => { setHistoryTask(t); setHistoryModalOpen(true); }} className="w-7 h-7 text-indigo-500 hover:bg-indigo-50 rounded-lg" title="History"><History className="w-4 h-4"/></Button>
-                              <Button variant="ghost" size="icon" onClick={() => { setEditTask(t); setForm({ title: t.title, description: t.description, priority: t.priority, assignedTo: t.assignedTo, assignedDate: formatForInputDateTime(t.assignedDate), deadline: formatForInputDateTime(t.deadline), applicantId: t.applicantId || null, applicantName: t.applicantName || null, targetDocument: t.targetDocument || null, notes: t.notes || "", attachmentName: t.attachmentName || "" }); setModal(true); }} className="w-7 h-7 text-blue-500 hover:bg-blue-50 rounded-lg"><CheckSquare className="w-4 h-4"/></Button>
+                              {(canEditTasks || isAdmin) && <Button variant="ghost" size="icon" onClick={() => { handleOpenTaskModal(t); }} className="w-7 h-7 text-amber-500 hover:bg-amber-50 rounded-lg" title="Edit Task"><CheckSquare className="w-4 h-4"/></Button>}
                               {canDeleteTasks && <Button variant="ghost" size="icon" onClick={() => setDeleteId(t.id)} className="w-7 h-7 text-rose-500 hover:bg-rose-50 rounded-lg"><Trash2 className="w-4 h-4"/></Button>}
                             </td>
                           </tr>
@@ -1265,6 +1269,212 @@ export default function TasksPage() {
               Close Timeline
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Task Details Modal */}
+      <Dialog open={!!detailTask} onOpenChange={open => !open && setDetailTask(null)}>
+        <DialogContent className="rounded-3xl bg-white border border-slate-100 shadow-2xl p-0 max-w-xl w-[95vw] max-h-[90vh] flex flex-col overflow-hidden">
+          {detailTask && (
+            <div className="flex flex-col flex-1 overflow-hidden min-h-0">
+              {/* Header */}
+              <DialogHeader className="px-6 pt-6 pb-4 border-b border-slate-100 flex-shrink-0 bg-slate-50/50">
+                <div className="flex items-start justify-between gap-3 pr-6">
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[10px] font-mono font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md">{detailTask.id}</span>
+                      <StatusBadge status={detailTask.status} />
+                      <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase border ${priorityColor(detailTask.priority)}`}>
+                        {detailTask.priority}
+                      </span>
+                      {isOverdue(detailTask) && (
+                        <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase text-rose-700 bg-rose-100 border border-rose-200">Overdue</span>
+                      )}
+                    </div>
+                    <DialogTitle className="text-base md:text-lg font-black text-slate-900 leading-snug break-words">
+                      {detailTask.title}
+                    </DialogTitle>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              {/* Body */}
+              <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 text-xs">
+                {/* Description */}
+                {detailTask.description ? (
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Description</div>
+                    <div className="text-slate-700 whitespace-pre-wrap leading-relaxed break-words font-normal">
+                      {detailTask.description}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-slate-400 italic text-[11px]">No description provided.</div>
+                )}
+
+                {/* Key Details Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+                  <div>
+                    <div className="text-[9px] font-bold text-slate-400 uppercase">Assigned To</div>
+                    <div className="font-bold text-slate-800 mt-0.5 truncate">{detailTask.assignedTo || "Unassigned"}</div>
+                  </div>
+                  <div>
+                    <div className="text-[9px] font-bold text-slate-400 uppercase">Assigned By</div>
+                    <div className="font-semibold text-slate-700 mt-0.5 truncate">{detailTask.createdBy || "Management"}</div>
+                  </div>
+                  <div>
+                    <div className="text-[9px] font-bold text-slate-400 uppercase">Company / Branch</div>
+                    <div className="font-semibold text-slate-700 mt-0.5 truncate">{detailTask.company} {detailTask.branch ? `(${detailTask.branch})` : ""}</div>
+                  </div>
+                  <div>
+                    <div className="text-[9px] font-bold text-slate-400 uppercase">Assigned Date</div>
+                    <div className="font-medium text-slate-600 mt-0.5">{formatDateTime(detailTask.assignedDate)}</div>
+                  </div>
+                  <div>
+                    <div className="text-[9px] font-bold text-slate-400 uppercase">Due Date</div>
+                    <div className={`font-bold mt-0.5 ${isOverdue(detailTask) ? "text-rose-600" : "text-slate-800"}`}>
+                      {formatDateTime(detailTask.deadline)}
+                    </div>
+                  </div>
+                  {(detailTask as any).completedAt && (
+                    <div>
+                      <div className="text-[9px] font-bold text-slate-400 uppercase">Completed At</div>
+                      <div className="font-semibold text-emerald-600 mt-0.5">{formatDateTime((detailTask as any).completedAt)}</div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Linked Applicant / Candidate Info */}
+                {detailTask.applicantName && (
+                  <div className="p-3.5 bg-blue-50/70 rounded-2xl border border-blue-100 flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-[10px] font-bold text-blue-700 uppercase">👤 Linked Candidate</div>
+                      <div className="font-extrabold text-slate-800 text-xs mt-0.5">{detailTask.applicantName}</div>
+                      {detailTask.targetDocument && (
+                        <div className="text-[10px] text-indigo-700 font-semibold mt-0.5">📄 Document to Verify: <strong>{detailTask.targetDocument}</strong></div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Incomplete Reason if applicable */}
+                {detailTask.incompleteReason && (
+                  <div className="p-3.5 bg-rose-50 rounded-2xl border border-rose-100 text-rose-800 space-y-1">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-rose-700 flex items-center gap-1">
+                      <AlertTriangle className="w-3.5 h-3.5 text-rose-600" /> Reason Marked Incomplete
+                    </div>
+                    <div className="text-xs font-medium break-words">{detailTask.incompleteReason}</div>
+                  </div>
+                )}
+
+                {/* Notes & Guidelines */}
+                {detailTask.notes && (
+                  <div className="p-3.5 bg-amber-50/60 rounded-2xl border border-amber-100 text-slate-700 space-y-1">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-amber-800">📝 Notes & Guidelines</div>
+                    <div className="text-xs font-medium whitespace-pre-wrap break-words">{detailTask.notes}</div>
+                  </div>
+                )}
+
+                {/* Task Proofs & Attachments */}
+                {detailTask.feedback && (() => {
+                  try {
+                    const fb = JSON.parse(detailTask.feedback);
+                    if (fb.proofs && fb.proofs.length > 0) {
+                      return (
+                        <div className="space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                          <div className="text-[10px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <Paperclip className="w-4 h-4 text-blue-600" /> Attached Proofs & Documents ({fb.proofs.length})
+                          </div>
+                          <div className="space-y-1.5">
+                            {fb.proofs.map((p: any, idx: number) => (
+                              <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200 hover:border-blue-300 transition-colors">
+                                <span className="truncate font-semibold text-slate-800 flex items-center gap-2">
+                                  <FileText className="w-4 h-4 text-blue-500 flex-shrink-0" /> {p.name}
+                                </span>
+                                <a href={p.url} download target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-lg font-bold text-[11px] flex-shrink-0">
+                                  Download
+                                </a>
+                              </div>
+                            ))}
+                          </div>
+                          {fb.comments && (
+                            <div className="mt-2 text-slate-600 text-xs bg-white p-2.5 rounded-xl border border-slate-100 break-words">
+                              <strong>Completion Remarks:</strong> {fb.comments}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+                  } catch (e) {}
+                  return null;
+                })()}
+
+                {/* Timeline History */}
+                {detailTask.history && detailTask.history.length > 0 && (
+                  <div className="space-y-3 pt-2 border-t border-slate-100">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <History className="w-3.5 h-3.5 text-indigo-500" /> Activity History ({detailTask.history.length})
+                    </div>
+                    <div className="relative border-l-2 border-indigo-100 ml-2 space-y-4">
+                      {detailTask.history.map((event, idx) => (
+                        <div key={idx} className="relative pl-5">
+                          <span className="absolute -left-[7px] top-1 w-3 h-3 rounded-full bg-white border-2 border-indigo-400" />
+                          <div className="text-xs font-bold text-slate-800">{event.action}</div>
+                          <div className="text-[10px] text-slate-400">By {event.by} • {formatDateTime(event.date)}</div>
+                          {event.note && (
+                            <div className="mt-1 text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 break-words">
+                              {event.note}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer Actions */}
+              <DialogFooter className="px-6 py-4 border-t border-slate-100 bg-slate-50/80 flex flex-wrap gap-2 justify-between items-center flex-shrink-0">
+                <div className="flex gap-2 flex-wrap items-center">
+                  <select
+                    value={detailTask.status}
+                    onChange={e => {
+                      const newStatus = e.target.value as Task["status"];
+                      handleStatusChange(detailTask, newStatus);
+                      setDetailTask(prev => prev ? { ...prev, status: newStatus } : null);
+                    }}
+                    disabled={!canEditTasks && !isTaskAssignee(detailTask, currentUser, staff)}
+                    className="bg-white border border-slate-200 rounded-xl text-xs h-9 px-3 font-bold text-slate-700 outline-none focus:border-blue-400 shadow-xs"
+                  >
+                    <option value="Pending">⏳ Pending</option>
+                    <option value="Processing">🔄 In Progress</option>
+                    <option value="Completed">✅ Completed</option>
+                    <option value="Incomplete">❌ Incomplete</option>
+                    <option value="Reassigned">↔️ Reassigned</option>
+                    <option value="Cancelled">🚫 Cancelled</option>
+                  </select>
+                </div>
+
+                <div className="flex gap-2 items-center">
+                  {(canEditTasks || currentRole === "Super Admin" || currentRole === "Company Admin") && (
+                    <Button
+                      onClick={() => {
+                        const t = detailTask;
+                        setDetailTask(null);
+                        handleOpenTaskModal(t);
+                      }}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs h-9 px-4"
+                    >
+                      Edit Task
+                    </Button>
+                  )}
+                  <Button variant="ghost" onClick={() => setDetailTask(null)} className="text-xs rounded-xl h-9 px-4 bg-slate-200/60 hover:bg-slate-200 text-slate-700 font-bold">
+                    Close
+                  </Button>
+                </div>
+              </DialogFooter>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
