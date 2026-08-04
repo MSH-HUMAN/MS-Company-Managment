@@ -383,7 +383,44 @@ HR Department`;
       // Auto dispatch client window action
       if (form.autoWhatsapp && form.whatsapp) {
         const cleanNumber = form.whatsapp.replace(/[^0-9]/g, "");
-        const waMsg = `Hello ${form.personName}, your ${form.type} (${form.type === "Interview" ? form.position : form.meetingType}) is scheduled with ${form.conductPerson} on ${form.dateTime.replace("T", " ")}. Link: ${form.meetingLink || "N/A"}`;
+        const isOnline = form.isOnline || form.mode === "Online" || (form.meetingLink && form.meetingLink.length > 0);
+        const trackCode = (form as any).trackingCode || "";
+        const trackUrl = trackCode ? `https://mshorizonuae.com/track?code=${trackCode}` : `https://mshorizonuae.com/track`;
+        const positionLabel = form.type === "Interview" ? form.position : form.meetingType;
+        let locationBlock = "";
+        if (isOnline) {
+          locationBlock = `• *Format:* Online Virtual (${form.mode || "Video Call"})
+• *Meeting Link:* ${form.meetingLink || "Link will be shared prior to meeting"}
+${(form as any).meetingId ? `• *Meeting ID:* ${(form as any).meetingId}\n` : ""}${(form as any).passcode ? `• *Passcode:* ${(form as any).passcode}\n` : ""}`;
+        } else {
+          locationBlock = `• *Format:* Physical In-Person (${form.mode || "Office"})
+• *Venue / Office:* ${(form as any).location || (form as any).venue || "Main Office"}
+${(form as any).building ? `• *Building:* ${(form as any).building}\n` : ""}${(form as any).floor ? `• *Floor:* ${(form as any).floor}\n` : ""}${form.locationLink ? `• *Location Map:* ${form.locationLink}\n` : ""}`;
+        }
+        const waMsg = `📋 *INTERVIEW SCHEDULE CONFIRMATION*
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Dear *${form.personName}*,
+
+We are pleased to inform you that your *${form.type || "Interview"}* with *${form.company}* has been officially scheduled. Please review your complete details below:
+
+📌 *SCHEDULE DETAILS:*
+• *Candidate Name:* ${form.personName}
+• *Position:* ${positionLabel || "General Position"}
+• *Interview Type:* ${form.type || "Interview"}
+• *Date & Time:* ${form.dateTime ? form.dateTime.replace("T", " ") : "To Be Confirmed"}
+• *Interviewer:* ${form.conductPerson || "HR Coordinator"}
+${trackCode ? `• *Tracking Code:* ${trackCode}\n` : ""}
+📍 *ACCESS & LOCATION DETAILS:*
+${locationBlock}
+📍 *TRACK YOUR RECRUITMENT STATUS:*
+👉 Check live updates here: ${trackUrl}
+
+${form.notes ? `📝 *NOTES & INSTRUCTIONS:*\n${form.notes}\n` : ""}
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Please ensure you are ready 5 minutes prior to the scheduled time. If you need to reschedule, kindly inform us in advance.
+
+Best regards,
+*${form.company} Recruitment Team*`;
         if (typeof window !== "undefined") {
           window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(waMsg)}`, "_blank");
         }
@@ -677,7 +714,43 @@ HR Department`;
                     {int.whatsapp && (
                       <button 
                         onClick={() => {
-                          const waMsg = `Hello ${int.personName}, your ${int.type} is scheduled on ${int.dateTime}. Join link: ${int.meetingLink || "N/A"}`;
+                          const isOnlineInt = int.isOnline || (int.meetingLink && int.meetingLink.length > 0);
+                          const trackCodeInt = (int as any).trackingCode || "";
+                          const trackUrlInt = trackCodeInt ? `https://mshorizonuae.com/track?code=${trackCodeInt}` : `https://mshorizonuae.com/track`;
+                          let locationBlockInt = "";
+                          if (isOnlineInt) {
+                            locationBlockInt = `• *Format:* Online Virtual (${int.mode || "Video Call"})
+• *Meeting Link:* ${int.meetingLink || "Link will be shared prior to meeting"}
+${(int as any).meetingId ? `• *Meeting ID:* ${(int as any).meetingId}\n` : ""}${(int as any).passcode ? `• *Passcode:* ${(int as any).passcode}\n` : ""}`;
+                          } else {
+                            locationBlockInt = `• *Format:* Physical In-Person (${int.mode || "Office"})
+• *Venue / Office:* ${(int as any).location || (int as any).venue || "Main Office"}
+${(int as any).building ? `• *Building:* ${(int as any).building}\n` : ""}${(int as any).floor ? `• *Floor:* ${(int as any).floor}\n` : ""}${int.locationLink ? `• *Location Map:* ${int.locationLink}\n` : ""}`;
+                          }
+                          const waMsg = `📋 *INTERVIEW SCHEDULE CONFIRMATION*
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Dear *${int.personName}*,
+
+We are pleased to inform you that your *${int.type || "Interview"}* with *${int.company}* has been officially scheduled. Please review your complete details below:
+
+📌 *SCHEDULE DETAILS:*
+• *Candidate Name:* ${int.personName}
+• *Position:* ${int.position || int.meetingType || "General Position"}
+• *Interview Type:* ${int.type || "Interview"}
+• *Date & Time:* ${int.dateTime ? int.dateTime.replace("T", " ") : "To Be Confirmed"}
+• *Interviewer:* ${int.conductPerson || "HR Coordinator"}
+${trackCodeInt ? `• *Tracking Code:* ${trackCodeInt}\n` : ""}
+📍 *ACCESS & LOCATION DETAILS:*
+${locationBlockInt}
+📍 *TRACK YOUR RECRUITMENT STATUS:*
+👉 Check live updates here: ${trackUrlInt}
+
+${int.notes ? `📝 *NOTES & INSTRUCTIONS:*\n${int.notes}\n` : ""}
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Please ensure you are ready 5 minutes prior to the scheduled time. If you need to reschedule, kindly inform us in advance.
+
+Best regards,
+*${int.company} Recruitment Team*`;
                           const cleanNumber = int.whatsapp!.replace(/[^0-9]/g, "");
                           if (typeof window !== "undefined") {
                             window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(waMsg)}`, "_blank");
