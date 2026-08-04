@@ -951,12 +951,21 @@ export function generateWhatsAppContent(
     previousStatus?: string;
     placedCompany?: string;
     reason?: string;
+    meetingId?: string;
+    passcode?: string;
+    venue?: string;
+    building?: string;
+    floor?: string;
+    location?: string;
   }
 ): string {
   const name = data.applicantName || "Candidate";
   const company = data.company || "MS Company Management";
   const position = data.position || "General Position";
   const dateStr = data.dateTime ? data.dateTime.replace("T", " ") : "To Be Confirmed";
+  const trackUrl = data.trackingCode && data.trackingCode !== "N/A"
+    ? `https://mshorizonuae.com/track?code=${data.trackingCode}`
+    : `https://mshorizonuae.com/track`;
 
   switch (templateType) {
     case "Interview_Scheduled":
@@ -965,9 +974,17 @@ export function generateWhatsAppContent(
       const modeText = data.isOnline
         ? `Online Virtual (${data.meetingMode || "Video Call"})`
         : `Physical In-Person (${data.meetingMode || "Office Location"})`;
-      const locationDetail = data.isOnline
-        ? `• *Meeting Link:* ${data.meetingLink || "Link will be shared prior to meeting"}`
-        : `• *Location / Map:* ${data.googleMapLink || "Office Location"}`;
+      
+      let locationDetail = "";
+      if (data.isOnline) {
+        locationDetail = `• *Format:* ${modeText}
+• *Meeting Link:* ${data.meetingLink || "Link will be shared prior to meeting"}
+${data.meetingId ? `• *Meeting ID:* ${data.meetingId}\n` : ""}${data.passcode ? `• *Passcode:* ${data.passcode}\n` : ""}`;
+      } else {
+        locationDetail = `• *Format:* ${modeText}
+• *Venue / Office:* ${data.location || data.venue || "Main Office"}
+${data.building ? `• *Building:* ${data.building}\n` : ""}${data.floor ? `• *Floor:* ${data.floor}\n` : ""}${data.googleMapLink ? `• *Location Map:* ${data.googleMapLink}\n` : ""}`;
+      }
 
       return `📋 *INTERVIEW SCHEDULE CONFIRMATION*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -978,13 +995,15 @@ We are pleased to inform you that your *${data.type || "Interview"}* with *${com
 📌 *SCHEDULE DETAILS:*
 • *Candidate Name:* ${name}
 • *Position:* ${position}
-• *Interview Type:* ${data.type || "Interview"} (${data.isOnline ? "Online" : "Physical"})
+• *Interview Type:* ${data.type || "Interview"}
 • *Date & Time:* ${dateStr}
 • *Interviewer:* ${data.conductPerson || "HR Coordinator"}
+• *Tracking Code:* ${data.trackingCode || "N/A"}
 
-📍 *ACCESS & LOCATION:*
-• *Format:* ${modeText}
+📍 *ACCESS & LOCATION DETAILS:*
 ${locationDetail}
+📍 *TRACK YOUR RECRUITMENT STATUS:*
+👉 Check live updates here: ${trackUrl}
 
 ${data.notes ? `📝 *NOTES & INSTRUCTIONS:*\n${data.notes}\n` : ""}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -998,9 +1017,17 @@ Best regards,
       const modeText = data.isOnline
         ? `Online Virtual (${data.meetingMode || "Video Call"})`
         : `Physical In-Person (${data.meetingMode || "Office Location"})`;
-      const locationDetail = data.isOnline
-        ? `• *Meeting Link:* ${data.meetingLink || "Link will be shared prior to meeting"}`
-        : `• *Location / Map:* ${data.googleMapLink || "Office Location"}`;
+      
+      let locationDetail = "";
+      if (data.isOnline) {
+        locationDetail = `• *Format:* ${modeText}
+• *Meeting Link:* ${data.meetingLink || "Link will be shared prior to meeting"}
+${data.meetingId ? `• *Meeting ID:* ${data.meetingId}\n` : ""}${data.passcode ? `• *Passcode:* ${data.passcode}\n` : ""}`;
+      } else {
+        locationDetail = `• *Format:* ${modeText}
+• *Venue / Office:* ${data.location || data.venue || "Main Office"}
+${data.building ? `• *Building:* ${data.building}\n` : ""}${data.floor ? `• *Floor:* ${data.floor}\n` : ""}${data.googleMapLink ? `• *Location Map:* ${data.googleMapLink}\n` : ""}`;
+      }
 
       return `🔄 *INTERVIEW RESCHEDULED*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1013,8 +1040,12 @@ Please note that your *${data.type || "Interview"}* for *${position}* with *${co
 • *Position:* ${position}
 • *New Date & Time:* ${dateStr}
 • *Interviewer:* ${data.conductPerson || "HR Coordinator"}
-• *Format:* ${modeText}
+• *Tracking Code:* ${data.trackingCode || "N/A"}
+
+📍 *ACCESS & LOCATION DETAILS:*
 ${locationDetail}
+📍 *TRACK YOUR RECRUITMENT STATUS:*
+👉 Check live updates here: ${trackUrl}
 
 ${data.reason ? `📌 *Reason for Rescheduling:*\n${data.reason}\n` : ""}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1031,6 +1062,9 @@ We regret to inform you that your scheduled *${data.type || "Interview"}* for *$
 
 ${data.reason ? `📌 *Reason:* ${data.reason}\n` : ""}
 If you have any questions or wish to explore other opportunities, please feel free to reach out to us.
+
+📍 *TRACK YOUR RECRUITMENT STATUS:*
+👉 Check live updates here: ${trackUrl}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 Best regards,
@@ -1052,7 +1086,7 @@ Thank you for applying with *${company}*. We have successfully registered your j
 
 📍 *TRACK YOUR STATUS:*
 You can track your real-time selection status anytime at:
-https://mshorizonuae.com/apply?code=${data.trackingCode || ""}
+${trackUrl}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 Best regards,
@@ -1074,7 +1108,7 @@ Your job application status with *${company}* has been updated.
 • *New Status:* *${data.status || "Updated"}*
 ${data.placedCompany ? `• *Placed Company:* ${data.placedCompany}\n` : ""}${data.reason ? `• *Details:* ${data.reason}\n` : ""}
 📍 *TRACK YOUR STATUS:*
-View live updates at: https://mshorizonuae.com/apply?code=${data.trackingCode || ""}
+View live updates at: ${trackUrl}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 Best regards,

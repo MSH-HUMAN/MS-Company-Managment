@@ -383,7 +383,14 @@ Schedule Details:
         conductPerson: mappedResponse.conductPerson,
         meetingLink: mappedResponse.meetingLink ?? undefined,
         googleMapLink: mappedResponse.locationLink ?? undefined,
-        notes: mappedResponse.notes
+        notes: mappedResponse.notes,
+        trackingCode: applicantDetails?.trackingCode || applicantDetails?.id || undefined,
+        meetingId: mappedResponse.meetingId ?? undefined,
+        passcode: mappedResponse.passcode ?? undefined,
+        venue: mappedResponse.venue ?? undefined,
+        building: mappedResponse.building ?? undefined,
+        floor: mappedResponse.floor ?? undefined,
+        location: mappedResponse.location ?? undefined
       });
 
       try {
