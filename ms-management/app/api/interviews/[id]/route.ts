@@ -199,6 +199,13 @@ export async function PUT(request: Request, { params }: RouteParams) {
     const targetPhone = mappedResponse.whatsapp || mappedResponse.mobile;
     const shouldNotify = statusChanged || dateTimeChanged;
 
+    let applicantDetails: any = null;
+    if (shouldNotify && mappedResponse.applicantId) {
+      applicantDetails = await prisma.applicant.findUnique({
+        where: { id: mappedResponse.applicantId }
+      });
+    }
+
     if (shouldNotify && targetEmail) {
       let subject = "";
       let bodyText = `Dear ${mappedResponse.personName},
@@ -246,13 +253,7 @@ New Details:
         templateType = "Interview_Physical";
       }
 
-      // Fetch applicant details if registered
-      let applicantDetails: any = null;
-      if (mappedResponse.applicantId) {
-        applicantDetails = await prisma.applicant.findUnique({
-          where: { id: mappedResponse.applicantId }
-        });
-      }
+      // Resolved applicantDetails in outer scope
 
       // Resolve interviewer designation
       let interviewerDesignation = "N/A";
