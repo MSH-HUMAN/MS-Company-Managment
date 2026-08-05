@@ -425,8 +425,8 @@ ${form.notes ? `📝 *Additional Notes:*\n${form.notes}\n\n` : ""}If you have an
 Thank you, and we look forward to meeting you.
 
 *MS Human Resource Consultancies Co. L.L.C.*
-📞 +971 58 564 3634
-📧 hr@safayar-msjobs.com`;
+📞 +971 58 520 3005
+📧 mshorizonfze@gmail.com`;
         if (typeof window !== "undefined") {
           window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(waMsg)}`, "_blank");
         }
@@ -761,8 +761,8 @@ ${int.notes ? `📝 *Additional Notes:*\n${int.notes}\n\n` : ""}If you have any 
 Thank you, and we look forward to meeting you.
 
 *MS Human Resource Consultancies Co. L.L.C.*
-📞 +971 58 564 3634
-📧 hr@safayar-msjobs.com`;
+📞 +971 58 520 3005
+📧 mshorizonfze@gmail.com`;
                           const cleanNumber = int.whatsapp!.replace(/[^0-9]/g, "");
                           if (typeof window !== "undefined") {
                             window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(waMsg)}`, "_blank");

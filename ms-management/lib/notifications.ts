@@ -133,9 +133,9 @@ export async function sendEmail({
   let statusStr = deliveryStatus || "Pending";
 
   // Look up sender company details in DB to keep the template branded
-  let companyEmail = "hr@safayar-msjobs.com";
-  let companyPhone = "+971 58 532 2913";
-  let companyAddress = "Industrial Area 2, Ajman, UAE";
+  let companyEmail = "mshorizonfze@gmail.com";
+  let companyPhone = "+971 58 520 3005";
+  let companyAddress = "C1 Building, Ajman Free Zone, UAE";
   let companyLogo = "";
   let companyPrimaryColor = "#2563eb";
 
@@ -444,13 +444,18 @@ export async function sendEmail({
         ? `${siteDomain}/track?code=${templateData?.trackingCode || (safeData as any)?.trackingCode}`
         : `${siteDomain}/track`;
 
+    let derivedDomain = (companyEmail.match(/@(.+)$/)||[ "","mshorizonuae.com"])[1];
+    if (!derivedDomain || ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com"].includes(derivedDomain.toLowerCase())) {
+      derivedDomain = "mshorizonuae.com";
+    }
+
     const context = {
       companyEmail,
       companyPhone,
       companyAddress,
       companyLicense,
       logoText,
-      website: `https://${(companyEmail.match(/@(.+)$/)||["","mshorizonuae.com"])[1]}`,
+      website: templateData?.website || `https://${derivedDomain}`,
       year: new Date().getFullYear(),
       companyPrimaryColor: templateData?.companyPrimaryColor || companyPrimaryColor || process.env.PRIMARY_COLOR || '#2563eb',
       body,
@@ -637,14 +642,19 @@ export async function previewEmail({
     const recipientName = templateData?.recipientName || templateData?.applicantName || "Recipient";
     const logoText = (company || "MS").slice(0, 2).toUpperCase();
 
+    let previewDomain = ((templateData?.companyEmail || "mshorizonfze@gmail.com").match(/@(.+)$/)?.[1] || "mshorizonuae.com");
+    if (["gmail.com", "yahoo.com", "outlook.com", "hotmail.com"].includes(previewDomain.toLowerCase())) {
+      previewDomain = "mshorizonuae.com";
+    }
+
     const context = {
       recipientName,
-      companyName: company || templateData?.company || "MS Management",
-      companyEmail: templateData?.companyEmail || "hr@example.com",
-      companyPhone: templateData?.companyPhone || "+971000000",
-      companyAddress: templateData?.companyAddress || "",
+      companyName: company || templateData?.company || "MS Horizon",
+      companyEmail: templateData?.companyEmail || "mshorizonfze@gmail.com",
+      companyPhone: templateData?.companyPhone || "+971 58 520 3005",
+      companyAddress: templateData?.companyAddress || "C1 Building, Ajman Free Zone, UAE",
       logoText,
-      website: `https://${(templateData?.companyEmail || 'mshorizonuae.com').match(/@(.+)$/)?.[1] || 'mshorizonuae.com'}`,
+      website: templateData?.website || `https://${previewDomain}`,
       year: new Date().getFullYear(),
       companyPrimaryColor: process.env.PRIMARY_COLOR || '#2563eb',
       body,
@@ -1012,8 +1022,8 @@ ${data.notes ? `📝 *Additional Notes:*\n${data.notes}\n\n` : ""}If you have an
 Thank you, and we look forward to meeting you.
 
 *MS Human Resource Consultancies Co. L.L.C.*
-📞 +971 58 564 3634
-📧 hr@safayar-msjobs.com`;
+📞 +971 58 520 3005
+📧 mshorizonfze@gmail.com`;
     }
 
     case "Interview_Rescheduled": {
@@ -1059,8 +1069,8 @@ If you have any questions or need to reschedule, please contact us.
 Thank you, and we look forward to meeting you.
 
 *MS Human Resource Consultancies Co. L.L.C.*
-📞 +971 58 564 3634
-📧 hr@safayar-msjobs.com`;
+📞 +971 58 520 3005
+📧 mshorizonfze@gmail.com`;
     }
 
     case "Interview_Cancelled": {
@@ -1073,8 +1083,8 @@ ${data.reason ? `\n*Reason:* ${data.reason}\n` : ""}
 If you have any questions or wish to explore other opportunities, please feel free to reach out to us.
 
 *MS Human Resource Consultancies Co. L.L.C.*
-📞 +971 58 564 3634
-📧 hr@safayar-msjobs.com`;
+📞 +971 58 520 3005
+📧 mshorizonfze@gmail.com`;
     }
 
     case "Registration": {
@@ -1096,8 +1106,8 @@ ${trackUrl}
 If you have any questions, please contact us.
 
 *MS Human Resource Consultancies Co. L.L.C.*
-📞 +971 58 564 3634
-📧 hr@safayar-msjobs.com`;
+📞 +971 58 520 3005
+📧 mshorizonfze@gmail.com`;
     }
 
     case "Status_Changed":
@@ -1120,8 +1130,8 @@ ${trackUrl}
 If you have any questions, please contact us.
 
 *MS Human Resource Consultancies Co. L.L.C.*
-📞 +971 58 564 3634
-📧 hr@safayar-msjobs.com`;
+📞 +971 58 520 3005
+📧 mshorizonfze@gmail.com`;
     }
   }
 }

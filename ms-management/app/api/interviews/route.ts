@@ -291,7 +291,7 @@ Schedule Details:
       if (compDetails && compDetails.email) {
         emailRecipients.add(compDetails.email);
       } else {
-        emailRecipients.add("hr@safayar-msjobs.com"); // default HR fallback
+        emailRecipients.add("mshorizonfze@gmail.com"); // default HR fallback
       }
 
       // 4. Assigned Staff / ScheduledBy Email
