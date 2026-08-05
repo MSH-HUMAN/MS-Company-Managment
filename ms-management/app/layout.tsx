@@ -29,24 +29,17 @@ export default async function RootLayout({
   let fontFamily = "Inter";
   
   try {
+    // Run all DB queries in parallel for maximum speed
     const user = await getSessionUser();
-    let companySettings: any = null;
-    
-    if (user && user.company && user.company !== "System") {
-      companySettings = await prisma.company.findFirst({
-        where: { name: user.company }
-      });
-    } else if (user && user.company === "System") {
-      // For Super Admins or users in the root system
-      companySettings = await prisma.company.findFirst({
-        where: { name: "MS Horizon F.Z.E" }
-      });
-    }
 
-    // Default Site Settings
-    const settings = await prisma.siteSettings.findUnique({
-      where: { id: "SETTINGS" }
-    });
+    const [companySettings, settings] = await Promise.all([
+      user && user.company && user.company !== "System"
+        ? prisma.company.findFirst({ where: { name: user.company } })
+        : user && user.company === "System"
+          ? prisma.company.findFirst({ where: { name: "MS Horizon F.Z.E" } })
+          : Promise.resolve(null),
+      prisma.siteSettings.findUnique({ where: { id: "SETTINGS" } })
+    ]);
 
     if (settings) {
       if (settings.primaryColor) primaryColor = settings.primaryColor;

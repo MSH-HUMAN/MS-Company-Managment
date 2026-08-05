@@ -20,7 +20,14 @@ export interface SessionUser {
  * Cache for role permissions to prevent redundant DB lookups on concurrent API hits
  */
 const roleCache = new Map<string, { permissions: any; timestamp: number }>();
-const ROLE_CACHE_TTL = 10000; // 10 seconds TTL
+const ROLE_CACHE_TTL = 300000; // 5 minutes TTL — reduces repeated DB hits on every page load
+
+// Settings cache to avoid re-querying siteSettings on every layout render
+let settingsCache: { data: any; timestamp: number } | null = null;
+const SETTINGS_CACHE_TTL = 60000; // 1 minute
+
+export function getCachedSettings() { return settingsCache; }
+export function setCachedSettings(data: any) { settingsCache = { data, timestamp: Date.now() }; }
 
 export function clearRoleCache() {
   roleCache.clear();

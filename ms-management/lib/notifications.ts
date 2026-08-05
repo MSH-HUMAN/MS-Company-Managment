@@ -986,31 +986,34 @@ ${data.meetingId ? `• *Meeting ID:* ${data.meetingId}\n` : ""}${data.passcode 
 ${data.building ? `• *Building:* ${data.building}\n` : ""}${data.floor ? `• *Floor:* ${data.floor}\n` : ""}${data.googleMapLink ? `• *Location Map:* ${data.googleMapLink}\n` : ""}`;
       }
 
-      return `📋 *INTERVIEW SCHEDULE CONFIRMATION*
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-Dear *${name}*,
+      return `Hello *${name}*,
 
-We are pleased to inform you that your *${data.type || "Interview"}* with *${company}* has been officially scheduled. Please review your complete details below:
+Greetings from *MS Human Resource Consultancies Co. L.L.C.*
 
-📌 *SCHEDULE DETAILS:*
-• *Candidate Name:* ${name}
+We have reviewed your application and would like to invite you for an interview.
+
+*Interview Details:*
 • *Position:* ${position}
 • *Interview Type:* ${data.type || "Interview"}
-• *Date & Time:* ${dateStr}
+• *Date:* ${dateStr ? dateStr.split(" ")[0] || dateStr.split("T")[0] : "To Be Confirmed"}
+• *Time:* ${dateStr ? (dateStr.split(" ")[1] || dateStr.split("T")[1] || "To Be Confirmed") : "To Be Confirmed"}
+• *Format:* ${data.isOnline ? `Online Virtual (${data.meetingMode || "Video Call"})` : `Physical In-Person (${data.meetingMode || "Office"})`}
 • *Interviewer:* ${data.conductPerson || "HR Coordinator"}
-• *Tracking Code:* ${data.trackingCode || "N/A"}
+${data.isOnline
+  ? `• *Meeting Link:* ${data.meetingLink || "Link will be shared prior to meeting"}\n${data.meetingId ? `• *Meeting ID:* ${data.meetingId}\n` : ""}${data.passcode ? `• *Passcode:* ${data.passcode}\n` : ""}`
+  : `• *Location:* ${data.location || data.venue || "Main Office, UAE"}\n${data.building ? `• *Building:* ${data.building}\n` : ""}${data.floor ? `• *Floor:* ${data.floor}\n` : ""}${data.googleMapLink ? `• *Map:* ${data.googleMapLink}\n` : ""}`
+}
+${data.trackingCode && data.trackingCode !== "N/A" ? `• *Tracking Code:* ${data.trackingCode}` : ""}
 
-📍 *ACCESS & LOCATION DETAILS:*
-${locationDetail}
-📍 *TRACK YOUR RECRUITMENT STATUS:*
-👉 Check live updates here: ${trackUrl}
+Please confirm your attendance by replying *"Yes, I will attend."*
 
-${data.notes ? `📝 *NOTES & INSTRUCTIONS:*\n${data.notes}\n` : ""}
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-Please ensure you are ready 5 minutes prior to the scheduled time. If you need to reschedule, kindly inform us in advance.
+${data.notes ? `📝 *Additional Notes:*\n${data.notes}\n\n` : ""}If you have any questions or need to reschedule, please contact us.
 
-Best regards,
-*${company} Recruitment Team*`;
+Thank you, and we look forward to meeting you.
+
+*MS Human Resource Consultancies Co. L.L.C.*
+📞 +971 58 564 3634
+📧 hr@safayar-msjobs.com`;
     }
 
     case "Interview_Rescheduled": {
@@ -1029,90 +1032,96 @@ ${data.meetingId ? `• *Meeting ID:* ${data.meetingId}\n` : ""}${data.passcode 
 ${data.building ? `• *Building:* ${data.building}\n` : ""}${data.floor ? `• *Floor:* ${data.floor}\n` : ""}${data.googleMapLink ? `• *Location Map:* ${data.googleMapLink}\n` : ""}`;
       }
 
-      return `🔄 *INTERVIEW RESCHEDULED*
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-Dear *${name}*,
+      return `Hello *${name}*,
 
-Please note that your *${data.type || "Interview"}* for *${position}* with *${company}* has been rescheduled to a new time.
+Greetings from *MS Human Resource Consultancies Co. L.L.C.*
 
-📌 *UPDATED SCHEDULE DETAILS:*
-• *Candidate Name:* ${name}
+Please note that your interview appointment has been rescheduled to a new date and time.
+
+*Updated Interview Details:*
 • *Position:* ${position}
-• *New Date & Time:* ${dateStr}
+• *Interview Type:* ${data.type || "Interview"}
+• *New Date:* ${dateStr ? dateStr.split(" ")[0] || dateStr.split("T")[0] : "To Be Confirmed"}
+• *New Time:* ${dateStr ? (dateStr.split(" ")[1] || dateStr.split("T")[1] || "To Be Confirmed") : "To Be Confirmed"}
+• *Format:* ${data.isOnline ? `Online Virtual (${data.meetingMode || "Video Call"})` : `Physical In-Person (${data.meetingMode || "Office"})`}
 • *Interviewer:* ${data.conductPerson || "HR Coordinator"}
-• *Tracking Code:* ${data.trackingCode || "N/A"}
+${data.isOnline
+  ? `• *Meeting Link:* ${data.meetingLink || "Link will be shared prior to meeting"}\n${data.meetingId ? `• *Meeting ID:* ${data.meetingId}\n` : ""}${data.passcode ? `• *Passcode:* ${data.passcode}\n` : ""}`
+  : `• *Location:* ${data.location || data.venue || "Main Office, UAE"}\n${data.building ? `• *Building:* ${data.building}\n` : ""}${data.floor ? `• *Floor:* ${data.floor}\n` : ""}${data.googleMapLink ? `• *Map:* ${data.googleMapLink}\n` : ""}`
+}
+${data.trackingCode && data.trackingCode !== "N/A" ? `• *Tracking Code:* ${data.trackingCode}` : ""}
+${data.reason ? `\n*Reason for Rescheduling:* ${data.reason}` : ""}
 
-📍 *ACCESS & LOCATION DETAILS:*
-${locationDetail}
-📍 *TRACK YOUR RECRUITMENT STATUS:*
-👉 Check live updates here: ${trackUrl}
+Please confirm your attendance by replying *"Yes, I will attend."*
 
-${data.reason ? `📌 *Reason for Rescheduling:*\n${data.reason}\n` : ""}
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-Best regards,
-*${company} Recruitment Team*`;
+If you have any questions or need to reschedule, please contact us.
+
+Thank you, and we look forward to meeting you.
+
+*MS Human Resource Consultancies Co. L.L.C.*
+📞 +971 58 564 3634
+📧 hr@safayar-msjobs.com`;
     }
 
     case "Interview_Cancelled": {
-      return `❌ *INTERVIEW CANCELLATION NOTICE*
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-Dear *${name}*,
+      return `Hello *${name}*,
 
-We regret to inform you that your scheduled *${data.type || "Interview"}* for *${position}* on *${dateStr}* has been cancelled.
+Greetings from *MS Human Resource Consultancies Co. L.L.C.*
 
-${data.reason ? `📌 *Reason:* ${data.reason}\n` : ""}
+We regret to inform you that your scheduled *${data.type || "Interview"}* for the position of *${position}* has been cancelled.
+${data.reason ? `\n*Reason:* ${data.reason}\n` : ""}
 If you have any questions or wish to explore other opportunities, please feel free to reach out to us.
 
-📍 *TRACK YOUR RECRUITMENT STATUS:*
-👉 Check live updates here: ${trackUrl}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-Best regards,
-*${company} Recruitment Team*`;
+*MS Human Resource Consultancies Co. L.L.C.*
+📞 +971 58 564 3634
+📧 hr@safayar-msjobs.com`;
     }
 
     case "Registration": {
-      return `🎉 *APPLICATION RECEIVED & REGISTERED*
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-Dear *${name}*,
+      return `Hello *${name}*,
 
-Thank you for applying with *${company}*. We have successfully registered your job application in our system.
+Greetings from *MS Human Resource Consultancies Co. L.L.C.*
 
-📌 *APPLICATION SUMMARY:*
+Thank you for applying with us. We have successfully registered your job application in our system.
+
+*Application Summary:*
 • *Candidate Name:* ${name}
-• *Tracking Code:* ${data.trackingCode || "TRK-PENDING"}
 • *Applied Position:* ${position}
+• *Tracking Code:* ${data.trackingCode || "TRK-PENDING"}
 • *Registration Date:* ${new Date().toISOString().slice(0, 10)}
 
-📍 *TRACK YOUR STATUS:*
 You can track your real-time selection status anytime at:
 ${trackUrl}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-Best regards,
-*${company} Talent Acquisition*`;
+If you have any questions, please contact us.
+
+*MS Human Resource Consultancies Co. L.L.C.*
+📞 +971 58 564 3634
+📧 hr@safayar-msjobs.com`;
     }
 
     case "Status_Changed":
     default: {
-      return `📢 *APPLICATION STATUS UPDATE*
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-Dear *${name}*,
+      return `Hello *${name}*,
 
-Your job application status with *${company}* has been updated.
+Greetings from *MS Human Resource Consultancies Co. L.L.C.*
 
-📌 *STATUS UPDATE DETAILS:*
+Your job application status has been updated.
+
+*Status Update:*
 • *Candidate Name:* ${name}
-• *Tracking Code:* ${data.trackingCode || "N/A"}
 • *Applied Position:* ${position}
 • *New Status:* *${data.status || "Updated"}*
+• *Tracking Code:* ${data.trackingCode || "N/A"}
 ${data.placedCompany ? `• *Placed Company:* ${data.placedCompany}\n` : ""}${data.reason ? `• *Details:* ${data.reason}\n` : ""}
-📍 *TRACK YOUR STATUS:*
-View live updates at: ${trackUrl}
+Track your live application status anytime at:
+${trackUrl}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-Best regards,
-*${company} Recruitment Team*`;
+If you have any questions, please contact us.
+
+*MS Human Resource Consultancies Co. L.L.C.*
+📞 +971 58 564 3634
+📧 hr@safayar-msjobs.com`;
     }
   }
 }

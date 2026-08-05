@@ -397,30 +397,36 @@ ${(form as any).meetingId ? `• *Meeting ID:* ${(form as any).meetingId}\n` : "
 • *Venue / Office:* ${(form as any).location || (form as any).venue || "Main Office"}
 ${(form as any).building ? `• *Building:* ${(form as any).building}\n` : ""}${(form as any).floor ? `• *Floor:* ${(form as any).floor}\n` : ""}${form.locationLink ? `• *Location Map:* ${form.locationLink}\n` : ""}`;
         }
-        const waMsg = `📋 *INTERVIEW SCHEDULE CONFIRMATION*
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-Dear *${form.personName}*,
+        const waMsg = `Hello *${form.personName}*,
 
-We are pleased to inform you that your *${form.type || "Interview"}* with *${form.company}* has been officially scheduled. Please review your complete details below:
+Greetings from *MS Human Resource Consultancies Co. L.L.C.*
 
-📌 *SCHEDULE DETAILS:*
-• *Candidate Name:* ${form.personName}
+We have reviewed your application and would like to invite you for an interview.
+
+*Interview Details:*
 • *Position:* ${positionLabel || "General Position"}
 • *Interview Type:* ${form.type || "Interview"}
-• *Date & Time:* ${form.dateTime ? form.dateTime.replace("T", " ") : "To Be Confirmed"}
-• *Interviewer:* ${form.conductPerson || "HR Coordinator"}
-${trackCode ? `• *Tracking Code:* ${trackCode}\n` : ""}
-📍 *ACCESS & LOCATION DETAILS:*
-${locationBlock}
-📍 *TRACK YOUR RECRUITMENT STATUS:*
-👉 Check live updates here: ${trackUrl}
+• *Date:* ${form.dateTime ? (form.dateTime.replace("T", " ").split(" ")[0]) : "To Be Confirmed"}
+• *Time:* ${form.dateTime ? (form.dateTime.replace("T", " ").split(" ")[1] || "To Be Confirmed") : "To Be Confirmed"}
+${isOnline
+  ? `• *Format:* Online Virtual (${form.mode || "Video Call"})
+• *Meeting Link:* ${form.meetingLink || "Link will be shared prior to meeting"}
+${(form as any).meetingId ? `• *Meeting ID:* ${(form as any).meetingId}\n` : ""}${(form as any).passcode ? `• *Passcode:* ${(form as any).passcode}\n` : ""}`
+  : `• *Format:* Physical In-Person (${form.mode || "Office"})
+• *Location:* ${(form as any).location || (form as any).venue || "Main Office, UAE"}
+${(form as any).building ? `• *Building:* ${(form as any).building}\n` : ""}${(form as any).floor ? `• *Floor:* ${(form as any).floor}\n` : ""}${form.locationLink ? `• *Map:* ${form.locationLink}\n` : ""}`
+}• *Interviewer:* ${form.conductPerson || "HR Coordinator"}
+${trackCode ? `• *Tracking Code:* ${trackCode}` : ""}
 
-${form.notes ? `📝 *NOTES & INSTRUCTIONS:*\n${form.notes}\n` : ""}
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-Please ensure you are ready 5 minutes prior to the scheduled time. If you need to reschedule, kindly inform us in advance.
+Please confirm your attendance by replying *"Yes, I will attend."*
 
-Best regards,
-*${form.company} Recruitment Team*`;
+${form.notes ? `📝 *Additional Notes:*\n${form.notes}\n\n` : ""}If you have any questions or need to reschedule, please contact us.
+
+Thank you, and we look forward to meeting you.
+
+*MS Human Resource Consultancies Co. L.L.C.*
+📞 +971 58 564 3634
+📧 hr@safayar-msjobs.com`;
         if (typeof window !== "undefined") {
           window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(waMsg)}`, "_blank");
         }
@@ -727,30 +733,36 @@ ${(int as any).meetingId ? `• *Meeting ID:* ${(int as any).meetingId}\n` : ""}
 • *Venue / Office:* ${(int as any).location || (int as any).venue || "Main Office"}
 ${(int as any).building ? `• *Building:* ${(int as any).building}\n` : ""}${(int as any).floor ? `• *Floor:* ${(int as any).floor}\n` : ""}${int.locationLink ? `• *Location Map:* ${int.locationLink}\n` : ""}`;
                           }
-                          const waMsg = `📋 *INTERVIEW SCHEDULE CONFIRMATION*
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-Dear *${int.personName}*,
+                          const waMsg = `Hello *${int.personName}*,
 
-We are pleased to inform you that your *${int.type || "Interview"}* with *${int.company}* has been officially scheduled. Please review your complete details below:
+Greetings from *MS Human Resource Consultancies Co. L.L.C.*
 
-📌 *SCHEDULE DETAILS:*
-• *Candidate Name:* ${int.personName}
+We have reviewed your application and would like to invite you for an interview.
+
+*Interview Details:*
 • *Position:* ${int.position || int.meetingType || "General Position"}
 • *Interview Type:* ${int.type || "Interview"}
-• *Date & Time:* ${int.dateTime ? int.dateTime.replace("T", " ") : "To Be Confirmed"}
-• *Interviewer:* ${int.conductPerson || "HR Coordinator"}
-${trackCodeInt ? `• *Tracking Code:* ${trackCodeInt}\n` : ""}
-📍 *ACCESS & LOCATION DETAILS:*
-${locationBlockInt}
-📍 *TRACK YOUR RECRUITMENT STATUS:*
-👉 Check live updates here: ${trackUrlInt}
+• *Date:* ${int.dateTime ? (int.dateTime.replace("T", " ").split(" ")[0]) : "To Be Confirmed"}
+• *Time:* ${int.dateTime ? (int.dateTime.replace("T", " ").split(" ")[1] || "To Be Confirmed") : "To Be Confirmed"}
+${isOnlineInt
+  ? `• *Format:* Online Virtual (${int.mode || "Video Call"})
+• *Meeting Link:* ${int.meetingLink || "Link will be shared prior to meeting"}
+${(int as any).meetingId ? `• *Meeting ID:* ${(int as any).meetingId}\n` : ""}${(int as any).passcode ? `• *Passcode:* ${(int as any).passcode}\n` : ""}`
+  : `• *Format:* Physical In-Person (${int.mode || "Office"})
+• *Location:* ${(int as any).location || (int as any).venue || "Main Office, UAE"}
+${(int as any).building ? `• *Building:* ${(int as any).building}\n` : ""}${(int as any).floor ? `• *Floor:* ${(int as any).floor}\n` : ""}${int.locationLink ? `• *Map:* ${int.locationLink}\n` : ""}`
+}• *Interviewer:* ${int.conductPerson || "HR Coordinator"}
+${trackCodeInt ? `• *Tracking Code:* ${trackCodeInt}` : ""}
 
-${int.notes ? `📝 *NOTES & INSTRUCTIONS:*\n${int.notes}\n` : ""}
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-Please ensure you are ready 5 minutes prior to the scheduled time. If you need to reschedule, kindly inform us in advance.
+Please confirm your attendance by replying *"Yes, I will attend."*
 
-Best regards,
-*${int.company} Recruitment Team*`;
+${int.notes ? `📝 *Additional Notes:*\n${int.notes}\n\n` : ""}If you have any questions or need to reschedule, please contact us.
+
+Thank you, and we look forward to meeting you.
+
+*MS Human Resource Consultancies Co. L.L.C.*
+📞 +971 58 564 3634
+📧 hr@safayar-msjobs.com`;
                           const cleanNumber = int.whatsapp!.replace(/[^0-9]/g, "");
                           if (typeof window !== "undefined") {
                             window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(waMsg)}`, "_blank");
