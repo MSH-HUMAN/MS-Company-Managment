@@ -289,8 +289,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             currentUser: data.user,
             currentRole: data.user.role
           });
-          // Initialize stores for this authenticated user in the background (non-blocking)
-          get().initStore().catch(console.error);
+          // BLOCKING: await initStore so the loading spinner holds until data is ready
+          // This prevents the flash of empty tables on first load
+          await get().initStore();
           return true;
         }
       }
@@ -300,23 +301,30 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isAuthenticated: false, currentUser: DEFAULT_USER, currentRole: DEFAULT_USER.role });
     return false;
   },
+
   initStore: async (force = false) => {
     if (get().isStoreLoading) return;
     if (get().isStoreLoaded && !force) return;
 
     set({ isStoreLoading: true });
-    try {
+
+    const doFetch = async () => {
       const t = Date.now();
-      const res = await fetch(`/api/bootstrap?t=${t}`, { cache: "no-store" });
-      if (!res.ok) {
-        throw new Error("Bootstrap request failed");
-      }
+      const res = await fetch(`/api/bootstrap?t=${t}`, {
+        cache: "no-store",
+        headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
+      });
+      if (!res.ok) throw new Error(`Bootstrap HTTP ${res.status}`);
+      return res.json();
+    };
+
+    const applyData = (payload: any) => {
       const {
         companies, ownCompanies, users, branches, roles, staff, applicants, tasks,
         attendance, requests, payroll, interviews, vehicles, suppliers,
-        placements, notifications, logs, archivedLogs, settings, shifts, overtime, corrections,
-        emails, whatsapp, leaves
-      } = await res.json();
+        placements, notifications, logs, archivedLogs, settings, shifts, overtime,
+        corrections, emails, whatsapp, leaves
+      } = payload;
 
       const mappedShifts = (shifts || []).map((s: any) => ({
         ...s,
@@ -333,50 +341,72 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }));
 
       set({
-        companies,
-        ownCompanies,
-        users,
-        branches,
-        roles,
-        staff,
-        applicants,
+        companies: companies || [],
+        ownCompanies: ownCompanies || [],
+        users: users || [],
+        branches: branches || [],
+        roles: roles || [],
+        staff: staff || [],
+        applicants: applicants || [],
         tasks: (tasks || []).map((t: any) => ({
           ...t,
           deadline: t.deadline || t.dueDate || "",
           assignedDate: t.assignedDate || "",
           history: Array.isArray(t.history) ? t.history : (t.history ? JSON.parse(JSON.stringify(t.history)) : []),
         })),
-        staffAttendance: attendance,
-        staffRequests: requests,
-        payroll,
-        interviews,
-        vehicles,
-        suppliers,
-        placements,
-        notifications: notifications.map((n: any) => ({
+        staffAttendance: attendance || [],
+        staffRequests: requests || [],
+        payroll: payroll || [],
+        interviews: interviews || [],
+        vehicles: vehicles || [],
+        suppliers: suppliers || [],
+        placements: placements || [],
+        notifications: (notifications || []).map((n: any) => ({
           ...n,
           time: n.time || n.createdAt || new Date().toISOString()
         })),
-        activityLogs: logs,
-        archivedActivityLogs: archivedLogs,
+        activityLogs: logs || [],
+        archivedActivityLogs: archivedLogs || [],
         shifts: mappedShifts,
-        overtimeRequests: overtime,
-        attendanceCorrections: corrections,
-        sentEmails: emails,
-        sentWhatsApp: whatsapp,
-        leaveRequests: leaves,
+        overtimeRequests: overtime || [],
+        attendanceCorrections: corrections || [],
+        sentEmails: emails || [],
+        sentWhatsApp: whatsapp || [],
+        leaveRequests: leaves || [],
         siteSettings: settings || get().siteSettings,
         salarySetups,
         isStoreLoaded: true,
         isStoreLoading: false
       });
-      // Apply theme CSS variables immediately after store load
-      if (settings) {
-        applyThemeCssVars(settings);
+
+      if (settings) applyThemeCssVars(settings);
+    };
+
+    try {
+      const payload = await doFetch();
+
+      // If bootstrap detected DB query errors, retry once after a brief delay
+      // This handles transient PostgreSQL connection timeouts
+      if (payload._hasQueryErrors) {
+        console.warn("[initStore] Bootstrap had query errors, retrying in 1.5s:", payload._errors);
+        applyData(payload); // Apply partial data immediately so UI isn't blank
+        await new Promise(r => setTimeout(r, 1500));
+        try {
+          const retryPayload = await doFetch();
+          applyData(retryPayload);
+        } catch (retryErr) {
+          console.error("[initStore] Retry also failed:", retryErr);
+          // Keep the partial data from the first fetch - don't blank the UI
+          set({ isStoreLoading: false });
+        }
+      } else {
+        applyData(payload);
       }
     } catch (e) {
-      set({ isStoreLoading: false, isStoreLoaded: true });
-      console.error("initStore failed:", e);
+      console.error("[initStore] Bootstrap fetch failed:", e);
+      // IMPORTANT: Do NOT set isStoreLoaded=true on hard failure.
+      // This allows the next navigation to retry.
+      set({ isStoreLoading: false });
     }
   },
 
@@ -563,6 +593,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         shifts: newShifts
       };
     });
+    get().initStore(true).catch(console.error);
   },
   updateStaff: async (stf) => {
     const res = await fetch(`/api/staff/${stf.id}`, {
@@ -593,6 +624,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         shifts: newShifts
       };
     });
+    get().initStore(true).catch(console.error);
   },
   deleteStaff: async (id) => {
     const res = await fetch(`/api/staff/${id}`, { method: "DELETE" });
@@ -628,6 +660,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (res.ok) {
       const saved = await res.json();
       set((state) => ({ companies: [saved, ...state.companies] }));
+      get().initStore(true).catch(console.error);
     }
   },
   updateCompany: async (comp) => {
@@ -641,6 +674,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set((state) => ({
         companies: state.companies.map((c) => (c.id === saved.id ? saved : c))
       }));
+      get().initStore(true).catch(console.error);
     }
   },
   deleteCompany: async (id) => {
@@ -692,6 +726,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (res.ok) {
       const saved = await res.json();
       set((state) => ({ branches: [saved, ...state.branches] }));
+      get().initStore(true).catch(console.error);
     }
   },
   updateBranch: async (branch) => {
@@ -705,6 +740,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set((state) => ({
         branches: state.branches.map((b) => (b.id === saved.id ? saved : b))
       }));
+      get().initStore(true).catch(console.error);
     }
   },
   deleteBranch: async (id) => {
@@ -727,6 +763,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
     const saved = await res.json();
     set((state) => ({ users: [saved, ...state.users] }));
+    get().initStore(true).catch(console.error);
   },
   updateUser: async (usr) => {
     const res = await fetch(`/api/users/${usr.id}`, {
@@ -742,6 +779,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set((state) => ({
       users: state.users.map((u) => (u.id === saved.id ? saved : u))
     }));
+    get().initStore(true).catch(console.error);
   },
   deleteUser: async (id) => {
     const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
@@ -782,6 +820,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (res.ok) {
       const saved = await res.json();
       set((state) => ({ roles: [saved, ...state.roles] }));
+      get().initStore(true).catch(console.error);
     }
   },
   updateRole: async (role) => {
@@ -795,6 +834,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set((state) => ({
         roles: state.roles.map((r) => (r.id === saved.id ? saved : r))
       }));
+      get().initStore(true).catch(console.error);
     }
   },
   deleteRole: async (id) => {
@@ -820,6 +860,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         history: Array.isArray(saved.history) ? saved.history : (saved.history ? JSON.parse(JSON.stringify(saved.history)) : []),
       };
       set((state) => ({ tasks: [normalized, ...state.tasks] }));
+      get().initStore(true).catch(console.error);
     }
   },
   updateTask: async (task) => {
@@ -893,6 +934,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           applicants: updatedApplicants
         };
       });
+      get().initStore(true).catch(console.error);
     }
   },
   updateInterview: async (int) => {

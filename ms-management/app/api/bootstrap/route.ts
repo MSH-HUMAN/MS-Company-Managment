@@ -5,16 +5,24 @@ import { getSessionUser, getTenantScopeFilter, hasPermissionBackend, getPermissi
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const safeQuery = async <T>(fn: () => Promise<T>, fallback: T): Promise<T> => {
+// Track query errors separately from empty results so the client can retry
+const _errors: Record<string, string> = {};
+
+const safeQuery = async <T>(key: string, fn: () => Promise<T>, fallback: T): Promise<T> => {
   try {
-    return await fn();
-  } catch (err) {
-    console.error("Bootstrap sub-query error:", err);
+    const result = await fn();
+    return result;
+  } catch (err: any) {
+    console.error(`[Bootstrap] Query "${key}" failed:`, err?.message || err);
+    _errors[key] = err?.message || "Unknown error";
     return fallback;
   }
 };
 
 export async function GET(request: Request) {
+  // Reset error tracking on each request
+  Object.keys(_errors).forEach(k => delete _errors[k]);
+
   try {
     const user = await getSessionUser();
     if (!user) {
@@ -66,7 +74,7 @@ export async function GET(request: Request) {
       getPermissionScopedFilter(user, "leave", "view", "company", "branch")
     ]);
 
-    // Now query all 25 tables concurrently using Prisma with safeQuery wrappers
+    // Query all tables concurrently with per-query error tracking
     const [
       companies,
       ownCompanies,
@@ -94,9 +102,9 @@ export async function GET(request: Request) {
       whatsapp,
       leaves
     ] = await Promise.all([
-      companiesFilter ? safeQuery(() => prisma.company.findMany({ where: companiesFilter, orderBy: { name: "asc" } }), []) : [],
-      isSuperAdmin ? safeQuery(() => prisma.internalCompany.findMany(), []) : [],
-      usersFilter ? safeQuery(() => prisma.user.findMany({
+      companiesFilter ? safeQuery("companies", () => prisma.company.findMany({ where: companiesFilter, orderBy: { name: "asc" } }), []) : [],
+      isSuperAdmin ? safeQuery("ownCompanies", () => prisma.internalCompany.findMany(), []) : [],
+      usersFilter ? safeQuery("users", () => prisma.user.findMany({
         where: usersFilter,
         select: {
           id: true,
@@ -112,14 +120,14 @@ export async function GET(request: Request) {
           photo: true
         }
       }), []) : [],
-      branchesFilter ? safeQuery(() => prisma.branch.findMany({ where: branchesFilter }), []) : [],
-      safeQuery(() => prisma.role.findMany({ where: isSuperAdmin ? {} : { OR: [{ company: user.company }, { company: null }] } }), []),
-      staffFilter ? safeQuery(() => prisma.staff.findMany({ where: staffFilter, orderBy: { name: "asc" } }), []) : [],
-      applicantsFilter ? safeQuery(() => prisma.applicant.findMany({ where: applicantsFilter, orderBy: { createdAt: "desc" }, take: 500 }), []) : [],
-      tasksFilter ? safeQuery(() => prisma.task.findMany({ where: tasksFilter }), []) : [],
-      attendanceFilter ? safeQuery(() => prisma.staffAttendance.findMany({ where: attendanceFilter }), []) : [],
-      requestsFilter ? safeQuery(() => prisma.staffRequest.findMany({ where: requestsFilter }), []) : [],
-      payrollFilter ? safeQuery(async () => {
+      branchesFilter ? safeQuery("branches", () => prisma.branch.findMany({ where: branchesFilter }), []) : [],
+      safeQuery("roles", () => prisma.role.findMany({ where: isSuperAdmin ? {} : { OR: [{ company: user.company }, { company: null }] } }), []),
+      staffFilter ? safeQuery("staff", () => prisma.staff.findMany({ where: staffFilter, orderBy: { name: "asc" } }), []) : [],
+      applicantsFilter ? safeQuery("applicants", () => prisma.applicant.findMany({ where: applicantsFilter, orderBy: { createdAt: "desc" }, take: 500 }), []) : [],
+      tasksFilter ? safeQuery("tasks", () => prisma.task.findMany({ where: tasksFilter, orderBy: { createdAt: "desc" } }), []) : [],
+      attendanceFilter ? safeQuery("attendance", () => prisma.staffAttendance.findMany({ where: attendanceFilter, orderBy: { month: "desc" }, take: 200 }), []) : [],
+      requestsFilter ? safeQuery("requests", () => prisma.staffRequest.findMany({ where: requestsFilter, orderBy: { date: "desc" } }), []) : [],
+      payrollFilter ? safeQuery("payroll", async () => {
         let list = await prisma.payrollRecord.findMany({ where: payrollFilter, orderBy: { createdAt: "desc" }, take: 100 });
         if (list.length === 0) {
           try {
@@ -171,21 +179,25 @@ export async function GET(request: Request) {
         }
         return list;
       }, []) : [],
-      interviewsFilter ? safeQuery(() => prisma.interview.findMany({ where: interviewsFilter }), []) : [],
-      vehiclesFilter ? safeQuery(() => prisma.vehicle.findMany({ where: vehiclesFilter }), []) : [],
-      suppliersFilter ? safeQuery(() => prisma.supplier.findMany({ where: suppliersFilter }), []) : [],
-      placementsFilter ? safeQuery(() => prisma.placement.findMany({ where: placementsFilter }), []) : [],
-      safeQuery(() => prisma.notification.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 100 }), []),
-      hasReportsView ? safeQuery(() => prisma.activityLog.findMany({ where: { ...tenantFilter, archived: false }, orderBy: { dateTime: "desc" }, take: 50 }), []) : [],
-      hasReportsView ? safeQuery(() => prisma.activityLog.findMany({ where: { ...tenantFilter, archived: true }, orderBy: { dateTime: "desc" }, take: 50 }), []) : [],
-      safeQuery(() => prisma.siteSettings.findUnique({ where: { id: "SETTINGS" } }), null),
-      safeQuery(() => prisma.shift.findMany({ where: generalTenantFilter }), []),
-      overtimeFilter ? safeQuery(() => prisma.overtimeRequest.findMany({ where: overtimeFilter }), []) : [],
-      correctionsFilter ? safeQuery(() => prisma.attendanceCorrection.findMany({ where: correctionsFilter }), []) : [],
-      emailsFilter ? safeQuery(() => prisma.sentEmail.findMany({ where: emailsFilter, orderBy: { sentAt: "desc" }, take: 100 }), []) : [],
-      emailsFilter ? safeQuery(() => prisma.sentWhatsApp.findMany({ where: emailsFilter, orderBy: { sentAt: "desc" }, take: 100 }), []) : [],
-      leavesFilter ? safeQuery(() => prisma.leaveRequest.findMany({ where: leavesFilter }), []) : []
+      interviewsFilter ? safeQuery("interviews", () => prisma.interview.findMany({ where: interviewsFilter, orderBy: { dateTime: "desc" } }), []) : [],
+      vehiclesFilter ? safeQuery("vehicles", () => prisma.vehicle.findMany({ where: vehiclesFilter }), []) : [],
+      suppliersFilter ? safeQuery("suppliers", () => prisma.supplier.findMany({ where: suppliersFilter }), []) : [],
+      placementsFilter ? safeQuery("placements", () => prisma.placement.findMany({ where: placementsFilter, orderBy: { placementDate: "desc" } }), []) : [],
+      safeQuery("notifications", () => prisma.notification.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 100 }), []),
+      hasReportsView ? safeQuery("logs", () => prisma.activityLog.findMany({ where: { ...tenantFilter, archived: false }, orderBy: { dateTime: "desc" }, take: 50 }), []) : [],
+      hasReportsView ? safeQuery("archivedLogs", () => prisma.activityLog.findMany({ where: { ...tenantFilter, archived: true }, orderBy: { dateTime: "desc" }, take: 50 }), []) : [],
+      safeQuery("settings", () => prisma.siteSettings.findUnique({ where: { id: "SETTINGS" } }), null),
+      safeQuery("shifts", () => prisma.shift.findMany({ where: generalTenantFilter }), []),
+      overtimeFilter ? safeQuery("overtime", () => prisma.overtimeRequest.findMany({ where: overtimeFilter }), []) : [],
+      correctionsFilter ? safeQuery("corrections", () => prisma.attendanceCorrection.findMany({ where: correctionsFilter }), []) : [],
+      emailsFilter ? safeQuery("emails", () => prisma.sentEmail.findMany({ where: emailsFilter, orderBy: { sentAt: "desc" }, take: 100 }), []) : [],
+      emailsFilter ? safeQuery("whatsapp", () => prisma.sentWhatsApp.findMany({ where: emailsFilter, orderBy: { sentAt: "desc" }, take: 100 }), []) : [],
+      leavesFilter ? safeQuery("leaves", () => prisma.leaveRequest.findMany({ where: leavesFilter }), []) : []
     ]);
+
+    // Count how many critical queries had errors vs returned empty legitimately
+    const errorCount = Object.keys(_errors).length;
+    const hasQueryErrors = errorCount > 0;
 
     return NextResponse.json({
       companies,
@@ -212,11 +224,15 @@ export async function GET(request: Request) {
       corrections,
       emails,
       whatsapp,
-      leaves
+      leaves,
+      // Client uses this to know if it should retry instead of showing "No data"
+      _hasQueryErrors: hasQueryErrors,
+      _errors: hasQueryErrors ? { ..._errors } : undefined,
     }, {
       headers: {
-        "Cache-Control": "no-store, max-age=0, must-revalidate",
-        "Pragma": "no-cache"
+        "Cache-Control": "no-store, no-cache, max-age=0, must-revalidate",
+        "Pragma": "no-cache",
+        "Surrogate-Control": "no-store",
       }
     });
   } catch (error: any) {

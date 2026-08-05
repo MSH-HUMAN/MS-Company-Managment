@@ -106,13 +106,13 @@ const NAV_ITEM_PERMISSIONS = [
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { isAuthenticated, checkSession, currentRole, currentUser, hasPermission } = useAuthStore();
+  const { isAuthenticated, checkSession, currentRole, currentUser, hasPermission, isStoreLoaded, initStore } = useAuthStore();
   const [isChecking, setIsChecking] = useState(true);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
   const isPublicPage = PUBLIC_PATHS.some(p => pathname === p || pathname?.startsWith(p + "/"));
 
-  // Check backend session on mount
+  // Check backend session on mount — blocking (awaits full data load)
   useEffect(() => {
     async function verifySession() {
       try {
@@ -124,7 +124,30 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       }
     }
     verifySession();
-  }, [checkSession]);
+  }, []);
+
+  // Auto-refresh data when user returns to the tab after being away
+  useEffect(() => {
+    if (isPublicPage) return;
+    let lastHiddenAt = 0;
+    const STALE_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        lastHiddenAt = Date.now();
+      } else {
+        // Tab became visible again
+        const awayMs = Date.now() - lastHiddenAt;
+        if (lastHiddenAt > 0 && awayMs >= STALE_THRESHOLD_MS) {
+          // Been away 5+ minutes — silently refresh store in background
+          initStore(true).catch(console.error);
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [isPublicPage, initStore]);
 
   // Login guard: if not authenticated and not on a public page, redirect to /login
   useEffect(() => {
@@ -139,12 +162,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const isApplyPage = pathname === "/apply";
   const isFullWidthPage = isLoginPage || isTrackingPage || isForgotPasswordPage || isApplyPage;
 
-  if (isChecking) {
+  // Loading state: show spinner while session check is in progress OR data hasn't loaded yet
+  const showSpinner = isChecking || (!isPublicPage && isAuthenticated && !isStoreLoaded);
+
+  if (showSpinner) {
     return (
       <div className="min-h-[100dvh] bg-[#0A0F1C] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-400 text-sm font-medium">Loading session...</p>
+          <p className="text-slate-400 text-sm font-medium">
+            {isChecking ? "Verifying session..." : "Loading data..."}
+          </p>
         </div>
       </div>
     );
