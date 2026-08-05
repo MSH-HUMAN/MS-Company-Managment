@@ -143,51 +143,52 @@ export async function sendEmail({
   const lookupTerm = (company || "").trim();
 
   try {
-    let dbComp = null;
-    let dbIntComp = null;
-
-    if (lookupTerm && lookupTerm !== "System" && lookupTerm !== "Not Placed") {
-      dbComp = await prisma.company.findFirst({
-        where: {
-          OR: [
-            { name: { equals: lookupTerm, mode: "insensitive" } },
-            { email: { equals: lookupTerm, mode: "insensitive" } },
-          ]
-        }
-      });
-      if (!dbComp) {
-        dbIntComp = await prisma.internalCompany.findFirst({
+    // Try to find by name or email in Company table
+    const dbComp = (lookupTerm && lookupTerm !== "System" && lookupTerm !== "Not Placed")
+      ? await prisma.company.findFirst({
           where: {
             OR: [
               { name: { equals: lookupTerm, mode: "insensitive" } },
               { email: { equals: lookupTerm, mode: "insensitive" } },
             ]
           }
-        });
-      }
-    }
+        })
+      : null;
 
-    // Fallback search for default company "MS Horizon" if lookup term yielded nothing
-    if (!dbComp && !dbIntComp) {
-      dbComp = await prisma.company.findFirst({
-        where: {
-          OR: [
-            { name: { contains: "MS Horizon", mode: "insensitive" } },
-            { email: { equals: "mshorizonfze@gmail.com", mode: "insensitive" } }
-          ]
-        }
-      });
-    }
+    // If not found in Company, try InternalCompany
+    const dbIntComp = (!dbComp && lookupTerm && lookupTerm !== "System" && lookupTerm !== "Not Placed")
+      ? await prisma.internalCompany.findFirst({
+          where: {
+            OR: [
+              { name: { equals: lookupTerm, mode: "insensitive" } },
+              { email: { equals: lookupTerm, mode: "insensitive" } },
+            ]
+          }
+        })
+      : null;
 
-    if (dbComp) {
-      if (dbComp.name) resolvedCompanyName = dbComp.name;
-      if (dbComp.email) companyEmail = dbComp.email;
-      if (dbComp.telephone || dbComp.whatsapp) {
-        companyPhone = dbComp.telephone || dbComp.whatsapp;
+    // Fallback: find any MS Horizon company record
+    const fallbackComp = (!dbComp && !dbIntComp)
+      ? await prisma.company.findFirst({
+          where: {
+            OR: [
+              { name: { contains: "MS Horizon", mode: "insensitive" } },
+              { email: { equals: "mshorizonfze@gmail.com", mode: "insensitive" } }
+            ]
+          }
+        })
+      : null;
+
+    const found = dbComp || fallbackComp;
+    if (found) {
+      if (found.name) resolvedCompanyName = found.name;
+      if (found.email) companyEmail = found.email;
+      if (found.telephone || found.whatsapp) {
+        companyPhone = found.telephone || found.whatsapp || companyPhone;
       }
-      if (dbComp.address) companyAddress = dbComp.address;
-      if (dbComp.logo) companyLogo = dbComp.logo;
-      if (dbComp.brandColor) companyPrimaryColor = dbComp.brandColor;
+      if (found.address) companyAddress = found.address;
+      if (found.logo) companyLogo = found.logo;
+      if (found.brandColor) companyPrimaryColor = found.brandColor;
     } else if (dbIntComp) {
       if (dbIntComp.name) resolvedCompanyName = dbIntComp.name;
       if (dbIntComp.email) companyEmail = dbIntComp.email;
@@ -200,6 +201,7 @@ export async function sendEmail({
   } catch (err) {
     console.error("Error looking up company info inside sendEmail:", err);
   }
+
 
   let companyLicense = "";
   try {
