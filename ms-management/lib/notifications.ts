@@ -132,40 +132,73 @@ export async function sendEmail({
   let realEmailSent = false;
   let statusStr = deliveryStatus || "Pending";
 
-  // Look up sender company details in DB to keep the template branded
+  // Look up sender company details in DB by name or email to keep email & whatsapp branded
+  let resolvedCompanyName = "MS Horizon F.Z.E";
   let companyEmail = "mshorizonfze@gmail.com";
   let companyPhone = "+971 58 520 3005";
   let companyAddress = "C1 Building, Ajman Free Zone, UAE";
   let companyLogo = "";
   let companyPrimaryColor = "#2563eb";
 
-  if (company && company !== "System" && company !== "Not Placed") {
-    try {
-      const dbComp = await prisma.company.findFirst({
-        where: { name: company }
+  const lookupTerm = (company || "").trim();
+
+  try {
+    let dbComp = null;
+    let dbIntComp = null;
+
+    if (lookupTerm && lookupTerm !== "System" && lookupTerm !== "Not Placed") {
+      dbComp = await prisma.company.findFirst({
+        where: {
+          OR: [
+            { name: { equals: lookupTerm, mode: "insensitive" } },
+            { email: { equals: lookupTerm, mode: "insensitive" } },
+          ]
+        }
       });
-      if (dbComp) {
-        if (dbComp.email) companyEmail = dbComp.email;
-        if (dbComp.telephone || dbComp.whatsapp) {
-          companyPhone = dbComp.telephone || dbComp.whatsapp;
-        }
-        if (dbComp.address) companyAddress = dbComp.address;
-        if (dbComp.logo) companyLogo = dbComp.logo;
-        if (dbComp.brandColor) companyPrimaryColor = dbComp.brandColor;
-      } else {
-        const dbIntComp = await prisma.internalCompany.findFirst({
-          where: { name: company }
+      if (!dbComp) {
+        dbIntComp = await prisma.internalCompany.findFirst({
+          where: {
+            OR: [
+              { name: { equals: lookupTerm, mode: "insensitive" } },
+              { email: { equals: lookupTerm, mode: "insensitive" } },
+            ]
+          }
         });
-        if (dbIntComp) {
-          if (dbIntComp.email) companyEmail = dbIntComp.email;
-          if (dbIntComp.telephone) companyPhone = dbIntComp.telephone;
-          if (dbIntComp.address) companyAddress = dbIntComp.address;
-          if (dbIntComp.logo) companyLogo = dbIntComp.logo;
-        }
       }
-    } catch (err) {
-      console.error("Error looking up company info inside sendEmail:", err);
     }
+
+    // Fallback search for default company "MS Horizon" if lookup term yielded nothing
+    if (!dbComp && !dbIntComp) {
+      dbComp = await prisma.company.findFirst({
+        where: {
+          OR: [
+            { name: { contains: "MS Horizon", mode: "insensitive" } },
+            { email: { equals: "mshorizonfze@gmail.com", mode: "insensitive" } }
+          ]
+        }
+      });
+    }
+
+    if (dbComp) {
+      if (dbComp.name) resolvedCompanyName = dbComp.name;
+      if (dbComp.email) companyEmail = dbComp.email;
+      if (dbComp.telephone || dbComp.whatsapp) {
+        companyPhone = dbComp.telephone || dbComp.whatsapp;
+      }
+      if (dbComp.address) companyAddress = dbComp.address;
+      if (dbComp.logo) companyLogo = dbComp.logo;
+      if (dbComp.brandColor) companyPrimaryColor = dbComp.brandColor;
+    } else if (dbIntComp) {
+      if (dbIntComp.name) resolvedCompanyName = dbIntComp.name;
+      if (dbIntComp.email) companyEmail = dbIntComp.email;
+      if (dbIntComp.telephone) companyPhone = dbIntComp.telephone;
+      if (dbIntComp.address) companyAddress = dbIntComp.address;
+      if (dbIntComp.logo) companyLogo = dbIntComp.logo;
+    } else if (lookupTerm && !lookupTerm.includes("@") && lookupTerm !== "System" && lookupTerm !== "Not Placed") {
+      resolvedCompanyName = lookupTerm;
+    }
+  } catch (err) {
+    console.error("Error looking up company info inside sendEmail:", err);
   }
 
   let companyLicense = "";
@@ -364,11 +397,11 @@ export async function sendEmail({
       passcode: templateData?.passcode || "N/A",
       interviewerName: templateData?.interviewerName || templateData?.conductPersonName || "N/A",
       interviewerDesignation: interviewerDesignation || "N/A",
-      companyName: templateData?.companyName || company || "N/A",
+      companyName: (templateData?.companyName && !templateData.companyName.includes("@")) ? templateData.companyName : resolvedCompanyName,
       branchName: templateData?.branchName || branch || "N/A",
 
       hrName: templateData?.hrName || "HR Operations Team",
-      hrEmail: templateData?.hrEmail || companyEmail || "hr@safayar-msjobs.com",
+      hrEmail: templateData?.hrEmail || companyEmail || "mshorizonfze@gmail.com",
       consultantName: templateData?.consultantName || templateData?.createdBy || sentBy || "System Admin",
       salary: templateData?.salary || "N/A",
       joiningDate: templateData?.joiningDate || templateData?.placedDate || "N/A",
@@ -467,7 +500,7 @@ export async function sendEmail({
       showClientCompany,
       actionLink: finalActionLink,
       ...templateData,
-      companyName: company || "MS Management",
+      companyName: (templateData?.companyName && !templateData.companyName.includes("@")) ? templateData.companyName : (company && !company.includes("@") && company !== "System" ? company : resolvedCompanyName),
     };
 
     htmlContent = compiled(context);
@@ -970,7 +1003,7 @@ export function generateWhatsAppContent(
   }
 ): string {
   const name = data.applicantName || "Candidate";
-  const company = data.company || "MS Company Management";
+  let company = (data.company && !data.company.includes("@") && data.company !== "System" && data.company !== "Not Placed") ? data.company : "MS Horizon";
   const position = data.position || "General Position";
   const dateStr = data.dateTime ? data.dateTime.replace("T", " ") : "To Be Confirmed";
   const trackUrl = data.trackingCode && data.trackingCode !== "N/A"
