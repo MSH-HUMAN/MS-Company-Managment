@@ -307,7 +307,7 @@ export default function NewStaffPage() {
   const hasSystemAccess = Boolean(watch("role"));
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col w-full antialiased pb-28">
+    <div className="min-h-screen bg-slate-50 flex flex-col w-full antialiased pb-36 sm:pb-12">
       {/* Header */}
       <PageHeader 
         title="Add New Staff Member" 
@@ -1211,36 +1211,43 @@ export default function NewStaffPage() {
             </Card>
           )}
 
-          {/* Stepper Navigation Buttons Footer */}
-          <div className="flex items-center justify-between gap-3 pt-2">
+          {/* Stepper Navigation Buttons Footer — Sticky on Mobile above BottomNav */}
+          <div className="sticky bottom-16 sm:static z-40 bg-white/95 backdrop-blur-md p-3.5 sm:p-0 rounded-2xl sm:rounded-none border border-slate-200/80 sm:border-0 shadow-lg sm:shadow-none flex items-center justify-between gap-2.5 mt-4 transition-all">
             <div>
               {activeStep > 1 ? (
                 <Button 
                   type="button" 
                   variant="outline" 
                   onClick={prevStep}
-                  className="text-xs font-bold rounded-xl px-5 h-11 border-slate-200 gap-1.5 bg-white"
+                  className="text-xs font-bold rounded-xl px-3.5 sm:px-5 h-11 border-slate-200 gap-1.5 bg-white text-slate-700 hover:bg-slate-50 shadow-xs"
                 >
-                  <ChevronLeft className="w-4 h-4" /> Previous Step
+                  <ChevronLeft className="w-4 h-4" /> <span className="hidden xs:inline">Previous</span><span className="xs:hidden">Back</span>
                 </Button>
               ) : (
                 <Button 
                   type="button" 
                   variant="outline" 
                   onClick={() => router.back()}
-                  className="text-xs font-bold rounded-xl px-5 h-11 border-slate-200 bg-white"
+                  className="text-xs font-bold rounded-xl px-4 h-11 border-slate-200 bg-white text-slate-600 hover:bg-slate-50 shadow-xs"
                 >
                   Cancel
                 </Button>
               )}
             </div>
 
-            <div className="flex items-center gap-3">
+            {/* Mobile Step Indicator Pill */}
+            <div className="sm:hidden text-center">
+              <span className="text-[10px] font-extrabold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200/60">
+                Step {activeStep} of {STEPS.length}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
               {activeStep < STEPS.length ? (
                 <Button 
                   type="button" 
                   onClick={validateAndNextStep}
-                  className="text-xs font-bold rounded-xl px-6 h-11 bg-blue-600 hover:bg-blue-700 text-white gap-1.5 shadow-md"
+                  className="text-xs font-bold rounded-xl px-4 sm:px-6 h-11 bg-blue-600 hover:bg-blue-700 text-white gap-1.5 shadow-md shadow-blue-200 active:scale-95 transition-all"
                 >
                   Next Step <ChevronRight className="w-4 h-4" />
                 </Button>
@@ -1248,15 +1255,15 @@ export default function NewStaffPage() {
                 <Button 
                   type="submit" 
                   disabled={isSubmitting}
-                  className="text-xs font-bold rounded-xl px-7 h-11 bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-lg shadow-emerald-200"
+                  className="text-xs font-bold rounded-xl px-5 sm:px-7 h-11 bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-lg shadow-emerald-200 active:scale-95 transition-all"
                 >
                   {isSubmitting ? (
                     <>
-                      <RefreshCw className="w-4 h-4 animate-spin" /> Creating Staff...
+                      <RefreshCw className="w-4 h-4 animate-spin" /> Creating...
                     </>
                   ) : (
                     <>
-                      <Save className="w-4 h-4" /> Create Staff Member
+                      <Save className="w-4 h-4" /> Create Staff
                     </>
                   )}
                 </Button>
