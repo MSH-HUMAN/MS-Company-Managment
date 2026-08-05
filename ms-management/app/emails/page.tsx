@@ -157,7 +157,7 @@ const EMAIL_TEMPLATES = [
     fields: [
       { name: "recipientName", label: "Staff Name", placeholder: "e.g. Emily Watson", required: true },
       { name: "position", label: "Position", placeholder: "e.g. Receptionist", required: true },
-      { name: "company", label: "Our Company", placeholder: "e.g. MS Human Resource Consultancies", required: true },
+      { name: "company", label: "Our Company", placeholder: "e.g. MS HORIZON", required: true },
       { name: "branch", label: "Branch", placeholder: "e.g. Ajman Office", required: true },
       { name: "joiningDate", label: "Joining Date", placeholder: "e.g. 2026-07-01", required: true },
     ]

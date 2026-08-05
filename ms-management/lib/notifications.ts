@@ -1005,7 +1005,7 @@ export function generateWhatsAppContent(
   }
 ): string {
   const name = data.applicantName || "Candidate";
-  let company = (data.company && !data.company.includes("@") && data.company !== "System" && data.company !== "Not Placed") ? data.company : "MS Horizon";
+  let company = (data.company && !data.company.includes("@") && data.company !== "System" && data.company !== "Not Placed") ? data.company : "MS HORIZON";
   const position = data.position || "General Position";
   const dateStr = data.dateTime ? data.dateTime.replace("T", " ") : "To Be Confirmed";
   const trackUrl = data.trackingCode && data.trackingCode !== "N/A"
@@ -1033,7 +1033,7 @@ ${data.building ? `• *Building:* ${data.building}\n` : ""}${data.floor ? `• 
 
       return `Hello *${name}*,
 
-Greetings from *MS Human Resource Consultancies Co. L.L.C.*
+Greetings from *${company}*
 
 We have reviewed your application and would like to invite you for an interview.
 
@@ -1056,7 +1056,7 @@ ${data.notes ? `📝 *Additional Notes:*\n${data.notes}\n\n` : ""}If you have an
 
 Thank you, and we look forward to meeting you.
 
-*MS Human Resource Consultancies Co. L.L.C.*
+*${company}*
 📞 +971 58 520 3005
 📧 mshorizonfze@gmail.com`;
     }
@@ -1079,7 +1079,7 @@ ${data.building ? `• *Building:* ${data.building}\n` : ""}${data.floor ? `• 
 
       return `Hello *${name}*,
 
-Greetings from *MS Human Resource Consultancies Co. L.L.C.*
+Greetings from *${company}*
 
 Please note that your interview appointment has been rescheduled to a new date and time.
 
@@ -1103,7 +1103,7 @@ If you have any questions or need to reschedule, please contact us.
 
 Thank you, and we look forward to meeting you.
 
-*MS Human Resource Consultancies Co. L.L.C.*
+*${company}*
 📞 +971 58 520 3005
 📧 mshorizonfze@gmail.com`;
     }
@@ -1111,13 +1111,13 @@ Thank you, and we look forward to meeting you.
     case "Interview_Cancelled": {
       return `Hello *${name}*,
 
-Greetings from *MS Human Resource Consultancies Co. L.L.C.*
+Greetings from *${company}*
 
 We regret to inform you that your scheduled *${data.type || "Interview"}* for the position of *${position}* has been cancelled.
 ${data.reason ? `\n*Reason:* ${data.reason}\n` : ""}
 If you have any questions or wish to explore other opportunities, please feel free to reach out to us.
 
-*MS Human Resource Consultancies Co. L.L.C.*
+*${company}*
 📞 +971 58 520 3005
 📧 mshorizonfze@gmail.com`;
     }
@@ -1125,7 +1125,7 @@ If you have any questions or wish to explore other opportunities, please feel fr
     case "Registration": {
       return `Hello *${name}*,
 
-Greetings from *MS Human Resource Consultancies Co. L.L.C.*
+Greetings from *${company}*
 
 Thank you for applying with us. We have successfully registered your job application in our system.
 
@@ -1140,7 +1140,7 @@ ${trackUrl}
 
 If you have any questions, please contact us.
 
-*MS Human Resource Consultancies Co. L.L.C.*
+*${company}*
 📞 +971 58 520 3005
 📧 mshorizonfze@gmail.com`;
     }
@@ -1149,7 +1149,7 @@ If you have any questions, please contact us.
     default: {
       return `Hello *${name}*,
 
-Greetings from *MS Human Resource Consultancies Co. L.L.C.*
+Greetings from *${company}*
 
 Your job application status has been updated.
 
@@ -1164,7 +1164,7 @@ ${trackUrl}
 
 If you have any questions, please contact us.
 
-*MS Human Resource Consultancies Co. L.L.C.*
+*${company}*
 📞 +971 58 520 3005
 📧 mshorizonfze@gmail.com`;
     }

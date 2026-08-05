@@ -237,7 +237,7 @@ export async function POST(request: Request) {
 
     // Trigger real-time notifications asynchronously
     if (applicant.email && applicant.email.trim() !== "") {
-      const companyName = applicant.company && applicant.company !== "Not Placed" ? applicant.company : "MS Human Resource Consultancies";
+      const companyName = applicant.company && applicant.company !== "Not Placed" ? applicant.company : "MS HORIZON";
       const generated = generateEmailContent("Registration" as any, {
         applicantName: applicant.fullName,
         company: companyName,

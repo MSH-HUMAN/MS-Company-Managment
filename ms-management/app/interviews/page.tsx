@@ -397,9 +397,10 @@ ${(form as any).meetingId ? `• *Meeting ID:* ${(form as any).meetingId}\n` : "
 • *Venue / Office:* ${(form as any).location || (form as any).venue || "Main Office"}
 ${(form as any).building ? `• *Building:* ${(form as any).building}\n` : ""}${(form as any).floor ? `• *Floor:* ${(form as any).floor}\n` : ""}${form.locationLink ? `• *Location Map:* ${form.locationLink}\n` : ""}`;
         }
+        const companyLabel = form.company || "MS HORIZON";
         const waMsg = `Hello *${form.personName}*,
 
-Greetings from *MS Human Resource Consultancies Co. L.L.C.*
+Greetings from *${companyLabel}*
 
 We have reviewed your application and would like to invite you for an interview.
 
@@ -424,7 +425,7 @@ ${form.notes ? `📝 *Additional Notes:*\n${form.notes}\n\n` : ""}If you have an
 
 Thank you, and we look forward to meeting you.
 
-*MS Human Resource Consultancies Co. L.L.C.*
+*${companyLabel}*
 📞 +971 58 520 3005
 📧 mshorizonfze@gmail.com`;
         if (typeof window !== "undefined") {
@@ -733,9 +734,10 @@ ${(int as any).meetingId ? `• *Meeting ID:* ${(int as any).meetingId}\n` : ""}
 • *Venue / Office:* ${(int as any).location || (int as any).venue || "Main Office"}
 ${(int as any).building ? `• *Building:* ${(int as any).building}\n` : ""}${(int as any).floor ? `• *Floor:* ${(int as any).floor}\n` : ""}${int.locationLink ? `• *Location Map:* ${int.locationLink}\n` : ""}`;
                           }
+                          const intCompanyLabel = int.company || currentUser.company || "MS HORIZON";
                           const waMsg = `Hello *${int.personName}*,
 
-Greetings from *MS Human Resource Consultancies Co. L.L.C.*
+Greetings from *${intCompanyLabel}*
 
 We have reviewed your application and would like to invite you for an interview.
 
@@ -760,7 +762,7 @@ ${int.notes ? `📝 *Additional Notes:*\n${int.notes}\n\n` : ""}If you have any 
 
 Thank you, and we look forward to meeting you.
 
-*MS Human Resource Consultancies Co. L.L.C.*
+*${intCompanyLabel}*
 📞 +971 58 520 3005
 📧 mshorizonfze@gmail.com`;
                           const cleanNumber = int.whatsapp!.replace(/[^0-9]/g, "");

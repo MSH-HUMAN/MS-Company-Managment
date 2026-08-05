@@ -186,7 +186,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
     // If status has changed, trigger real-time notifications and send status update email for EVERY status
     if (data.status && data.status !== existing.status && updated.email) {
-      const companyName = updated.company && updated.company !== "Not Placed" ? updated.company : "MS Human Resource Consultancies";
+      const companyName = updated.company && updated.company !== "Not Placed" ? updated.company : "MS HORIZON";
       const positionsStr = Array.isArray(updated.applyingPositions) ? updated.applyingPositions.join(", ") : (updated.applyingPositions || "N/A");
 
       let templateType = "Status_Changed";
@@ -291,7 +291,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
       }).catch(err => console.error("Background status update email error:", err));
     } else if (updated.email && Object.keys(data).some(key => data[key] !== undefined && data[key] !== (existing as any)[key])) {
       // General profile update
-      const companyName = updated.company && updated.company !== "Not Placed" ? updated.company : "MS Human Resource Consultancies";
+      const companyName = updated.company && updated.company !== "Not Placed" ? updated.company : "MS HORIZON";
       const emailBody = `
           <p style="font-size: 14px; color: #334155; margin-bottom: 16px;">
             This is to notify you that your application profile details have been updated in our recruitment system.
@@ -337,7 +337,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
     if (data.status && data.status !== existing.status && (updated.whatsapp || updated.mobile)) {
       const waNumber = updated.whatsapp || updated.mobile;
-      const companyName = updated.company && updated.company !== "Not Placed" ? updated.company : "MS Human Resource Consultancies";
+      const companyName = updated.company && updated.company !== "Not Placed" ? updated.company : "MS HORIZON";
 
       const waMessage = generateWhatsAppContent("Status_Changed", {
         applicantName: updated.fullName,
