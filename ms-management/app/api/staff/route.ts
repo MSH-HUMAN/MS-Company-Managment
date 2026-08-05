@@ -238,6 +238,11 @@ export async function POST(request: Request) {
             <h4 style="margin-top: 0; margin-bottom: 12px; color: #0f172a; font-size: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Registration Details</h4>
             <ul style="list-style-type: none; padding: 0; margin: 0;">
               <li style="margin-bottom: 10px; font-size: 14px; display: flex; align-items: center;">
+                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #2563eb; margin-right: 10px;"></span>
+                <span style="color: #64748b; font-weight: 600; min-width: 130px; display: inline-block;">Employee ID:</span> 
+                <span style="color: #2563eb; font-weight: 700; font-family: monospace;">${newStaff.id}</span>
+              </li>
+              <li style="margin-bottom: 10px; font-size: 14px; display: flex; align-items: center;">
                 <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #059669; margin-right: 10px;"></span>
                 <span style="color: #64748b; font-weight: 600; min-width: 130px; display: inline-block;">Name:</span> 
                 <span style="color: #059669; font-weight: 600;">${newStaff.name}</span>
@@ -267,15 +272,20 @@ export async function POST(request: Request) {
       `;
 
       if (temporaryPassword) {
+        const portalUrl = `${(process.env.NEXT_PUBLIC_SITE_URL || process.env.APP_URL || "https://mshorizonuae.com").replace(/\/$/, "")}/login`;
         emailBody += `
           <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
-            <h4 style="margin-top: 0; margin-bottom: 8px; color: #166534; font-size: 14px;">System Access Created</h4>
-            <p style="margin-top: 0; margin-bottom: 12px; font-size: 13px; color: #15803d;">We have automatically generated a user login account for you:</p>
-            <ul style="list-style-type: none; padding: 0; margin: 0;">
+            <h4 style="margin-top: 0; margin-bottom: 8px; color: #166534; font-size: 14px;">System Access Account Created</h4>
+            <p style="margin-top: 0; margin-bottom: 12px; font-size: 13px; color: #15803d;">You can now log in to the Employee Portal with your credentials:</p>
+            <ul style="list-style-type: none; padding: 0; margin: 0 0 14px 0;">
+              <li style="margin-bottom: 6px; font-size: 13px;"><strong style="color: #166534;">Employee ID:</strong> <span style="font-family: monospace; font-weight: bold;">${newStaff.id}</span></li>
               <li style="margin-bottom: 6px; font-size: 13px;"><strong style="color: #166534;">Login Email:</strong> ${newStaff.email}</li>
-              <li style="font-size: 13px;"><strong style="color: #166534;">Temporary Password:</strong> <span style="font-family: monospace; background-color: #dcfce7; padding: 2px 6px; border-radius: 4px;">${temporaryPassword}</span></li>
+              <li style="font-size: 13px;"><strong style="color: #166534;">Temporary Password:</strong> <span style="font-family: monospace; background-color: #dcfce7; padding: 2px 6px; border-radius: 4px; font-weight: bold; border: 1px solid #86efac;">${temporaryPassword}</span></li>
             </ul>
-            <p style="margin-top: 12px; margin-bottom: 0; font-size: 12px; color: #15803d; font-style: italic;">Please log in and update your password immediately by clicking on your profile avatar in the sidebar.</p>
+            <div style="margin-top: 14px;">
+              <a href="${portalUrl}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #166534; color: #ffffff; text-decoration: none; font-weight: bold; border-radius: 6px; font-size: 13px;">🔑 Login to Employee Portal</a>
+            </div>
+            <p style="margin-top: 12px; margin-bottom: 0; font-size: 11px; color: #15803d; font-style: italic;">Please log in and change your temporary password after your first login.</p>
           </div>
         `;
       } else {

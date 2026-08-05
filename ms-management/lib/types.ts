@@ -86,6 +86,18 @@ export interface Staff {
   emiratesId: string;
   status: "Active" | "Inactive" | "Suspended";
   gender?: string | null;
+  address?: string;
+  department?: string;
+  employmentType?: string;
+  workMode?: string;
+  reportingManager?: string;
+  visaNumber?: string;
+  tradeLicense?: string;
+  overtimeEligible?: boolean;
+  bankName?: string;
+  accountNumber?: string;
+  accountHolderName?: string;
+  ibanSwift?: string;
   company: string;
   branch: string;
   createdBy: string;
