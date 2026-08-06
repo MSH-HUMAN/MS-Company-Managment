@@ -119,9 +119,9 @@ export async function POST(request: Request) {
 
     return response;
   } catch (error: any) {
-    console.error("Login API error:", error);
+    console.error("Login API error:", error?.message || error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: error?.message || "Internal Server Error" },
       { status: 500 }
     );
   }
