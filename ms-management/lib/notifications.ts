@@ -148,8 +148,8 @@ export async function sendEmail({
       ? await prisma.company.findFirst({
           where: {
             OR: [
-              { name: { equals: lookupTerm, mode: "insensitive" } },
-              { email: { equals: lookupTerm, mode: "insensitive" } },
+              { name: { equals: lookupTerm } },
+              { email: { equals: lookupTerm } },
             ]
           }
         })
@@ -160,8 +160,8 @@ export async function sendEmail({
       ? await prisma.internalCompany.findFirst({
           where: {
             OR: [
-              { name: { equals: lookupTerm, mode: "insensitive" } },
-              { email: { equals: lookupTerm, mode: "insensitive" } },
+              { name: { equals: lookupTerm } },
+              { email: { equals: lookupTerm } },
             ]
           }
         })
@@ -172,8 +172,8 @@ export async function sendEmail({
       ? await prisma.company.findFirst({
           where: {
             OR: [
-              { name: { contains: "MS Horizon", mode: "insensitive" } },
-              { email: { equals: "mshorizonfze@gmail.com", mode: "insensitive" } }
+              { name: { contains: "MS Horizon" } },
+              { email: { equals: "mshorizonfze@gmail.com" } }
             ]
           }
         })

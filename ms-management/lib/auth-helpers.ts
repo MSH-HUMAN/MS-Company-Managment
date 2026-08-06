@@ -131,7 +131,7 @@ export async function hasPermissionBackend(user: SessionUser, moduleKey: string,
     permissions = cached.permissions;
   } else {
     const role = await prisma.role.findFirst({
-      where: { name: { equals: user.role, mode: "insensitive" } }
+      where: { name: { equals: user.role } }
     });
     if (role) {
       permissions = role.permissions ? (

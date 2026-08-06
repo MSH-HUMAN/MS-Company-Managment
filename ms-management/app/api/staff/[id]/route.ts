@@ -128,7 +128,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
       const passportTrimmed = data.passportNumber.trim();
       
       const existingStaffPassport = await prisma.staff.findFirst({
-        where: { passportNumber: { equals: passportTrimmed, mode: 'insensitive' }, id: { not: id } }
+        where: { passportNumber: { equals: passportTrimmed }, id: { not: id } }
       });
       if (existingStaffPassport) {
         return NextResponse.json(
@@ -138,7 +138,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
       }
 
       const existingAppPassport = await prisma.applicant.findFirst({
-        where: { passportNumber: { equals: passportTrimmed, mode: 'insensitive' } }
+        where: { passportNumber: { equals: passportTrimmed } }
       });
       if (existingAppPassport) {
         return NextResponse.json(
