@@ -1,14 +1,23 @@
 import { PrismaClient } from "@prisma/client";
 
 const getDatabaseUrl = () => {
+  // Option 1: HOSTINGER_DATABASE_URL — set this directly in Hostinger Node.js
+  // app manager environment variables with localhost as the host.
+  // This is the most reliable approach and takes highest priority.
+  if (process.env.HOSTINGER_DATABASE_URL) {
+    console.log("[Prisma] Using HOSTINGER_DATABASE_URL.");
+    return process.env.HOSTINGER_DATABASE_URL;
+  }
+
   let url = process.env.DATABASE_URL;
   if (!url) return url;
 
-  // Detect if we are running in Hostinger hosting environment.
-  // 1. Path/username patterns match Hostinger format (u followed by digits)
-  // 2. Or we are on a Linux production environment but NOT on Vercel.
-  const isHostinger = 
-    typeof process !== "undefined" && (
+  // Option 2: Auto-detect Hostinger environment and rewrite the host.
+  // Hostinger Node.js apps run on Linux, Vercel sets process.env.VERCEL.
+  // Path patterns like /home/u568514543 are unique to Hostinger cPanel.
+  const isHostinger =
+    typeof process !== "undefined" &&
+    (
       (process.env.USER && /^u\d+$/.test(process.env.USER)) ||
       (process.env.HOME && /\/home\/u\d+/.test(process.env.HOME)) ||
       (process.env.PWD && /\/home\/u\d+/.test(process.env.PWD)) ||
@@ -18,10 +27,10 @@ const getDatabaseUrl = () => {
     );
 
   if (isHostinger && url.includes("193.203.184.121")) {
-    console.log("[Prisma] Hostinger environment detected. Rewriting database host to localhost.");
+    console.log("[Prisma] Hostinger detected — rewriting DB host to localhost.");
     url = url.replace("193.203.184.121", "localhost");
   }
-  
+
   return url;
 };
 
