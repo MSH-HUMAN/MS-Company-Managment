@@ -194,6 +194,11 @@ model Applicant {
   maritalStatus      String?  @default("")
   education          String?  @default("")
   experience         String?  @default("")
+  collegeUniversity  String?  @default("")
+  graduatedYear      String?  @default("")
+  certification      String?  @default("")
+  referencePersonName String? @default("")
+  referencePersonMobile String? @default("")
 
   @@index([company])
   @@index([branch])

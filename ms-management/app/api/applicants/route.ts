@@ -214,7 +214,14 @@ export async function POST(request: Request) {
         clientMobile: data.clientMobile || null,
         clientWhatsapp: data.clientWhatsapp || null,
         clientEmail: data.clientEmail || null,
-        memberActive: data.memberActive || false
+        memberActive: data.memberActive || false,
+        education: data.education || "",
+        experience: data.experience || "",
+        collegeUniversity: data.collegeUniversity || "",
+        graduatedYear: data.graduatedYear || "",
+        certification: data.certification || "",
+        referencePersonName: data.referencePersonName || "",
+        referencePersonMobile: data.referencePersonMobile || ""
       }
     });
     // 1. Notify Agency (Own Company) admins

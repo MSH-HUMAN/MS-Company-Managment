@@ -66,6 +66,11 @@ export interface Applicant {
   maritalStatus?: string | null;
   education?: string | null;
   experience?: string | null;
+  collegeUniversity?: string | null;
+  graduatedYear?: string | null;
+  certification?: string | null;
+  referencePersonName?: string | null;
+  referencePersonMobile?: string | null;
 }
 
 export interface Staff {

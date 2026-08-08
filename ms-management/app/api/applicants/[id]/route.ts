@@ -179,7 +179,14 @@ export async function PUT(request: Request, { params }: RouteParams) {
         clientMobile: data.clientMobile !== undefined ? data.clientMobile : undefined,
         clientWhatsapp: data.clientWhatsapp !== undefined ? data.clientWhatsapp : undefined,
         clientEmail: data.clientEmail !== undefined ? data.clientEmail : undefined,
-        memberActive: data.memberActive !== undefined ? data.memberActive : undefined
+        memberActive: data.memberActive !== undefined ? data.memberActive : undefined,
+        education: data.education !== undefined ? data.education : undefined,
+        experience: data.experience !== undefined ? data.experience : undefined,
+        collegeUniversity: data.collegeUniversity !== undefined ? data.collegeUniversity : undefined,
+        graduatedYear: data.graduatedYear !== undefined ? data.graduatedYear : undefined,
+        certification: data.certification !== undefined ? data.certification : undefined,
+        referencePersonName: data.referencePersonName !== undefined ? data.referencePersonName : undefined,
+        referencePersonMobile: data.referencePersonMobile !== undefined ? data.referencePersonMobile : undefined
       }
     });
 

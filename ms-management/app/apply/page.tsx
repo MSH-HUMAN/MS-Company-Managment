@@ -60,7 +60,14 @@ function ApplyContent() {
     passportNumber: "",
     photo: null as string | null,
     company: "",
-    branch: ""
+    branch: "",
+    education: "",
+    experience: "",
+    collegeUniversity: "",
+    graduatedYear: "",
+    certification: "",
+    referencePersonName: "",
+    referencePersonMobile: ""
   });
 
   const [positionInput, setPositionInput] = useState("");
@@ -247,6 +254,13 @@ function ApplyContent() {
       visaExpiry: form.visaExpiry,
       passportExpiry: form.passportExpiry,
       passportNumber: form.passportNumber,
+      education: form.education,
+      experience: form.experience,
+      collegeUniversity: form.collegeUniversity,
+      graduatedYear: form.graduatedYear,
+      certification: form.certification,
+      referencePersonName: form.referencePersonName,
+      referencePersonMobile: form.referencePersonMobile,
       status: "Pending" as const,
       trackingCode: trackingCode,
       company: form.company,
@@ -573,6 +587,57 @@ function ApplyContent() {
                     <div className="space-y-1.5">
                       <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Passport Expiry Date</Label>
                       <Input type="date" value={form.passportExpiry} onChange={e => setForm(f => ({ ...f, passportExpiry: e.target.value }))} className="bg-slate-50 border-slate-200 rounded-xl text-xs h-10 focus:bg-white" />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-3 uppercase tracking-wider">Education & Qualifications</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-3">
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Education Level</Label>
+                      <Select value={form.education} onValueChange={v => setForm(f => ({ ...f, education: v || "" }))}>
+                        <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl text-xs h-10"><SelectValue placeholder="Select Education Level"/></SelectTrigger>
+                        <SelectContent className="bg-white rounded-xl text-xs">
+                          <SelectItem value="High School">High School</SelectItem>
+                          <SelectItem value="Higher Secondary">Higher Secondary</SelectItem>
+                          <SelectItem value="Diploma">Diploma</SelectItem>
+                          <SelectItem value="Bachelor's Degree">Bachelor's Degree</SelectItem>
+                          <SelectItem value="Master's Degree">Master's Degree</SelectItem>
+                          <SelectItem value="Doctorate / PhD">Doctorate / PhD</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">College / University</Label>
+                      <Input value={form.collegeUniversity} onChange={e => setForm(f => ({ ...f, collegeUniversity: e.target.value }))} placeholder="University of Oxford / Oxford College" className="bg-slate-50 border-slate-200 rounded-xl text-xs h-10 focus:bg-white" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Graduated Year</Label>
+                      <Input type="number" min="1950" max="2035" value={form.graduatedYear} onChange={e => setForm(f => ({ ...f, graduatedYear: e.target.value }))} placeholder="e.g. 2022" className="bg-slate-50 border-slate-200 rounded-xl text-xs h-10 focus:bg-white" />
+                    </div>
+                    <div className="space-y-1.5 md:col-span-2 lg:col-span-3">
+                      <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Certifications & Licenses</Label>
+                      <Input value={form.certification} onChange={e => setForm(f => ({ ...f, certification: e.target.value }))} placeholder="e.g. PMP, AWS Certified, IELTS, First Aid" className="bg-slate-50 border-slate-200 rounded-xl text-xs h-10 focus:bg-white" />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-3 uppercase tracking-wider">Work Experience & References</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3">
+                    <div className="space-y-1.5 md:col-span-2">
+                      <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Work Experience Details</Label>
+                      <Input value={form.experience} onChange={e => setForm(f => ({ ...f, experience: e.target.value }))} placeholder="e.g. 3 Years experience as Accountant at ABC Corp" className="bg-slate-50 border-slate-200 rounded-xl text-xs h-10 focus:bg-white" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Reference Person Name</Label>
+                      <Input value={form.referencePersonName} onChange={e => setForm(f => ({ ...f, referencePersonName: e.target.value }))} placeholder="e.g. Robert Smith (Manager)" className="bg-slate-50 border-slate-200 rounded-xl text-xs h-10 focus:bg-white" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Reference Person Mobile Number</Label>
+                      <Input value={form.referencePersonMobile} onChange={e => setForm(f => ({ ...f, referencePersonMobile: e.target.value }))} placeholder="+971 50 987 6543" className="bg-slate-50 border-slate-200 rounded-xl text-xs h-10 focus:bg-white" />
                     </div>
                   </div>
                 </div>

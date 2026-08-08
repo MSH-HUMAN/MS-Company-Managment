@@ -34,6 +34,13 @@ interface FormData {
   visaExpiry: string;
   passportExpiry: string;
   passportNumber: string;
+  education?: string;
+  experience?: string;
+  collegeUniversity?: string;
+  graduatedYear?: string;
+  certification?: string;
+  referencePersonName?: string;
+  referencePersonMobile?: string;
 }
 
 export default function EditApplicantPage({ params }: { params: Promise<{ id: string }> }) {
@@ -74,7 +81,14 @@ export default function EditApplicantPage({ params }: { params: Promise<{ id: st
         visaType: applicant.visaType || "Visit",
         visaExpiry: applicant.visaExpiry || "",
         passportExpiry: applicant.passportExpiry || "",
-        passportNumber: applicant.passportNumber || ""
+        passportNumber: applicant.passportNumber || "",
+        education: applicant.education || "",
+        experience: applicant.experience || "",
+        collegeUniversity: applicant.collegeUniversity || "",
+        graduatedYear: applicant.graduatedYear || "",
+        certification: applicant.certification || "",
+        referencePersonName: applicant.referencePersonName || "",
+        referencePersonMobile: applicant.referencePersonMobile || ""
       });
       setPositions(applicant.applyingPositions || []);
       setPhoto(applicant.photo || null);
@@ -536,7 +550,115 @@ export default function EditApplicantPage({ params }: { params: Promise<{ id: st
 
           <Card className="rounded-2xl border-slate-100 p-6 bg-white shadow-sm space-y-4">
             <h3 className="text-xs font-bold text-slate-800 tracking-wider uppercase border-b border-slate-100 pb-2">
-              3. Document Verification Uploads
+              3. Education, Experience & References
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Education Level */}
+              <div className="space-y-1">
+                <Label htmlFor="education" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  Education Level
+                </Label>
+                <select
+                  id="education"
+                  className="w-full bg-white border border-slate-200 rounded-xl text-xs h-10 px-3 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                  {...register("education")}
+                >
+                  <option value="">Select Education Level</option>
+                  <option value="High School">High School</option>
+                  <option value="Higher Secondary">Higher Secondary</option>
+                  <option value="Diploma">Diploma</option>
+                  <option value="Bachelor's Degree">Bachelor's Degree</option>
+                  <option value="Master's Degree">Master's Degree</option>
+                  <option value="Doctorate / PhD">Doctorate / PhD</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              {/* College / University */}
+              <div className="space-y-1">
+                <Label htmlFor="collegeUniversity" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  College / University
+                </Label>
+                <Input
+                  id="collegeUniversity"
+                  placeholder="e.g. Oxford University / City College"
+                  className="bg-white border-slate-200 rounded-xl text-xs h-10 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                  {...register("collegeUniversity")}
+                />
+              </div>
+
+              {/* Graduated Year */}
+              <div className="space-y-1">
+                <Label htmlFor="graduatedYear" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  Graduated Year
+                </Label>
+                <Input
+                  id="graduatedYear"
+                  type="number"
+                  placeholder="e.g. 2022"
+                  className="bg-white border-slate-200 rounded-xl text-xs h-10 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                  {...register("graduatedYear")}
+                />
+              </div>
+
+              {/* Certifications */}
+              <div className="space-y-1 md:col-span-2 lg:col-span-3">
+                <Label htmlFor="certification" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  Certifications & Licenses
+                </Label>
+                <Input
+                  id="certification"
+                  placeholder="e.g. PMP, AWS Certified, IELTS, First Aid"
+                  className="bg-white border-slate-200 rounded-xl text-xs h-10 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                  {...register("certification")}
+                />
+              </div>
+
+              {/* Work Experience */}
+              <div className="space-y-1 md:col-span-2 lg:col-span-3">
+                <Label htmlFor="experience" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  Work Experience Details
+                </Label>
+                <Input
+                  id="experience"
+                  placeholder="e.g. 3 Years experience as Accountant at ABC Corp"
+                  className="bg-white border-slate-200 rounded-xl text-xs h-10 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                  {...register("experience")}
+                />
+              </div>
+
+              {/* Reference Person Name */}
+              <div className="space-y-1">
+                <Label htmlFor="referencePersonName" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  Reference Person Name
+                </Label>
+                <Input
+                  id="referencePersonName"
+                  placeholder="e.g. Robert Smith (Manager)"
+                  className="bg-white border-slate-200 rounded-xl text-xs h-10 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                  {...register("referencePersonName")}
+                />
+              </div>
+
+              {/* Reference Person Mobile Number */}
+              <div className="space-y-1 md:col-span-2">
+                <Label htmlFor="referencePersonMobile" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  Reference Person Mobile Number
+                </Label>
+                <Input
+                  id="referencePersonMobile"
+                  placeholder="+971509876543"
+                  className="bg-white border-slate-200 rounded-xl text-xs h-10 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                  {...register("referencePersonMobile")}
+                />
+              </div>
+            </div>
+          </Card>
+
+          <Card className="rounded-2xl border-slate-100 p-6 bg-white shadow-sm space-y-4">
+            <h3 className="text-xs font-bold text-slate-800 tracking-wider uppercase border-b border-slate-100 pb-2">
+              4. Document Verification Uploads
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

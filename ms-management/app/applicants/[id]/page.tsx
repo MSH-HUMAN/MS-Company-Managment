@@ -825,6 +825,41 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
                     <div className="text-slate-400 font-semibold">Assigned Branch</div>
                     <div className="text-slate-800 font-bold">{applicant.branch} ({applicant.company})</div>
                   </div>
+
+                  <div className="space-y-1">
+                    <div className="text-slate-400 font-semibold">Education Level</div>
+                    <div className="text-slate-800 font-bold">{applicant.education || "Not specified"}</div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="text-slate-400 font-semibold">College / University</div>
+                    <div className="text-slate-800 font-bold">{applicant.collegeUniversity || "Not specified"}</div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="text-slate-400 font-semibold">Graduated Year</div>
+                    <div className="text-slate-800 font-bold">{applicant.graduatedYear || "Not specified"}</div>
+                  </div>
+
+                  <div className="space-y-1 sm:col-span-2">
+                    <div className="text-slate-400 font-semibold">Certifications & Licenses</div>
+                    <div className="text-slate-800 font-bold">{applicant.certification || "None listed"}</div>
+                  </div>
+
+                  <div className="space-y-1 sm:col-span-2">
+                    <div className="text-slate-400 font-semibold">Work Experience Details</div>
+                    <div className="text-slate-800 font-bold">{applicant.experience || "No details provided"}</div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="text-slate-400 font-semibold">Reference Person Name</div>
+                    <div className="text-slate-800 font-bold">{applicant.referencePersonName || "Not provided"}</div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="text-slate-400 font-semibold">Reference Mobile Number</div>
+                    <div className="text-slate-800 font-bold">{applicant.referencePersonMobile || "Not provided"}</div>
+                  </div>
                   {applicant.clientName && (
                     <div className="space-y-1 col-span-2 border-t border-slate-100 pt-3 mt-1">
                       <div className="text-slate-400 font-semibold mb-2">Client / Hiring Company Contact</div>
