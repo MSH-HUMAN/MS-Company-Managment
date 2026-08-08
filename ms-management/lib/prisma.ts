@@ -1,20 +1,32 @@
 import { PrismaClient } from "@prisma/client";
 
 const getDatabaseUrl = (): string | undefined => {
-  // PRIORITY 1: HOSTINGER_DATABASE_URL env var (set manually in Hostinger panel)
+  // Auto-detect Hostinger (Linux, not Vercel)
+  const isHostinger =
+    typeof process !== "undefined" &&
+    (
+      (process.env.USER && /^u\d+$/.test(process.env.USER)) ||
+      (process.env.HOME && /\/home\/u\d+/.test(process.env.HOME)) ||
+      (process.cwd && /\/home\/u\d+/.test(process.cwd())) ||
+      (typeof __dirname !== "undefined" && /\/home\/u\d+/.test(__dirname)) ||
+      (process.platform === "linux" && !process.env.VERCEL)
+    );
+
+  if (isHostinger) {
+    console.log("[Prisma] Hostinger environment detected — using localhost MySQL database URL.");
+    return "mysql://u568514543_Mshorizon2026:MSHorizon2026!@localhost:3306/u568514543_ms_company_db";
+  }
+
+  // PRIORITY 1: HOSTINGER_DATABASE_URL env var
   if (process.env.HOSTINGER_DATABASE_URL) {
     console.log("[Prisma] Using HOSTINGER_DATABASE_URL.");
     return process.env.HOSTINGER_DATABASE_URL;
   }
 
   // PRIORITY 2: Read DATABASE_URL directly from .env FILE on disk.
-  // This bypasses Hostinger's panel env var injection which can corrupt
-  // special characters like %40 (the @ in the password Mshorizon@2026).
-  // The .env file on disk is written correctly with Node.js fs.writeFileSync.
   try {
     const fs = require("fs");
     const path = require("path");
-    // Check CWD and __dirname for .env file
     for (const dir of [process.cwd(), __dirname, path.join(__dirname, "..")]) {
       const envPath = path.join(dir, ".env");
       if (fs.existsSync(envPath)) {
@@ -31,27 +43,7 @@ const getDatabaseUrl = (): string | undefined => {
     console.warn("[Prisma] Could not read .env file:", e.message);
   }
 
-  // PRIORITY 3: Fall back to process.env.DATABASE_URL with host rewrite for Hostinger
-  let url = process.env.DATABASE_URL;
-  if (!url) return url;
-
-  // Auto-detect Hostinger (Linux, not Vercel) and rewrite public IP to localhost
-  const isHostinger =
-    typeof process !== "undefined" &&
-    (
-      (process.env.USER && /^u\d+$/.test(process.env.USER)) ||
-      (process.env.HOME && /\/home\/u\d+/.test(process.env.HOME)) ||
-      (process.cwd && /\/home\/u\d+/.test(process.cwd())) ||
-      (typeof __dirname !== "undefined" && /\/home\/u\d+/.test(__dirname)) ||
-      (process.platform === "linux" && !process.env.VERCEL)
-    );
-
-  if (isHostinger && url.includes("193.203.184.121")) {
-    console.log("[Prisma] Hostinger detected — rewriting DB host to localhost.");
-    url = url.replace("193.203.184.121", "localhost");
-  }
-
-  return url;
+  return process.env.DATABASE_URL;
 };
 
 
