@@ -126,17 +126,6 @@ export default function NewApplicantPage() {
       toast.error("Invalid file format. Only JPG, JPEG, PNG, and PDF formats are allowed for Profile Photo.");
       return false;
     }
-    if (ext === "pdf") {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("PDF Profile Photo is too large. Size must be less than 5MB.");
-        return false;
-      }
-    } else {
-      if (file.size > 2 * 1024 * 1024) {
-        toast.error("Profile photo image is too large. Size must be less than 2MB.");
-        return false;
-      }
-    }
     return true;
   };
 
@@ -144,10 +133,6 @@ export default function NewApplicantPage() {
     const ext = file.name.split(".").pop()?.toLowerCase();
     if (ext !== "pdf") {
       toast.error(`Invalid format for ${fieldName}. Only PDF format is allowed.`);
-      return false;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error(`File is too large. ${fieldName} size must be less than 5MB.`);
       return false;
     }
     return true;

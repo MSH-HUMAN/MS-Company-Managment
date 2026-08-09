@@ -175,10 +175,6 @@ export default function NewStaffPage() {
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("Profile photo must be less than 5MB");
-        return;
-      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhotoBase64(reader.result as string);
@@ -409,7 +405,7 @@ export default function NewStaffPage() {
                 </div>
                 <div className="space-y-1.5 flex-1 text-center sm:text-left">
                   <Label htmlFor="staffPhoto" className="text-xs font-bold text-slate-700">Staff Profile Photo</Label>
-                  <p className="text-[10px] text-slate-400">Upload high-resolution JPG or PNG (Max 5MB)</p>
+                  <p className="text-[10px] text-slate-400">Upload high-resolution JPG or PNG</p>
                   <div className="relative inline-block mt-1">
                     <Input id="staffPhoto" type="file" accept="image/*" onChange={handlePhotoUpload} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
                     <Button type="button" variant="outline" size="sm" className="text-xs font-bold rounded-xl h-9 border-slate-200 gap-1.5 bg-white">

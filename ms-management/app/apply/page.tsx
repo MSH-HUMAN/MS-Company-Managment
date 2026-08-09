@@ -144,10 +144,6 @@ function ApplyContent() {
         toast.error("Invalid file type. Only PDF, DOC, and DOCX formats are allowed for CV.");
         return;
       }
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("File is too large. CV size must be less than 5MB.");
-        return;
-      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setUploads(prev => ({
@@ -674,7 +670,7 @@ function ApplyContent() {
                       <FileText className="w-6 h-6 text-slate-400" />
                       <div>
                         <div className="text-[10px] font-bold text-slate-700">CV / Resume (PDF/DOCX)</div>
-                        <div className="text-[8px] font-semibold text-slate-400 mt-0.5">{uploads.CV ? uploads.CV.name : "Click to select (Max 5MB)"}</div>
+                        <div className="text-[8px] font-semibold text-slate-400 mt-0.5">{uploads.CV ? uploads.CV.name : "Click to select file"}</div>
                       </div>
                     </div>
                   </div>

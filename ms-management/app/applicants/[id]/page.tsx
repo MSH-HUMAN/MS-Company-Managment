@@ -147,17 +147,6 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
       toast.error("Invalid file format. Only JPG, JPEG, PNG, and PDF formats are allowed for Profile Photo.");
       return false;
     }
-    if (ext === "pdf") {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("PDF Profile Photo is too large. Size must be less than 5MB.");
-        return false;
-      }
-    } else {
-      if (file.size > 2 * 1024 * 1024) {
-        toast.error("Profile photo image is too large. Size must be less than 2MB.");
-        return false;
-      }
-    }
     return true;
   };
 
@@ -165,10 +154,6 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
     const ext = file.name.split(".").pop()?.toLowerCase();
     if (ext !== "pdf") {
       toast.error(`Invalid format for ${fieldName}. Only PDF format is allowed.`);
-      return false;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error(`File is too large. ${fieldName} size must be less than 5MB.`);
       return false;
     }
     return true;
@@ -921,7 +906,7 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
                   { key: "Passport Copy", label: "Passport Copy", hint: "Upload passport bio-data page" },
                   { key: "Visa Page", label: "Visa Page", hint: "Upload current visa stamp page" },
                   { key: "Applicant Photo", label: "Profile Photo", hint: "Passport-style photo" },
-                  { key: "CV", label: "Curriculum Vitae (CV) / Resume", hint: "Upload PDF or DOCX format (Max 5MB)" }
+                  { key: "CV", label: "Curriculum Vitae (CV) / Resume", hint: "Upload PDF or DOCX format" }
                 ].map((slot) => {
                   const doc = slotDoc(slot.key);
                   return (
@@ -1020,7 +1005,7 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-xs font-bold text-slate-800">Other Documents</div>
-                      <div className="text-[9px] text-slate-400 font-medium">Emirates ID, references, and other certificates (PDF only, Max 5MB)</div>
+                      <div className="text-[9px] text-slate-400 font-medium">Emirates ID, references, and other certificates (PDF only)</div>
                     </div>
                     {canUpload && (
                       <label className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl cursor-pointer transition-colors">

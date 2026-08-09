@@ -41,11 +41,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // Max 50 MB
-    const MAX_SIZE = 50 * 1024 * 1024;
+    // Max 500 MB
+    const MAX_SIZE = 500 * 1024 * 1024;
     if (file.size > MAX_SIZE) {
       return NextResponse.json(
-        { error: "File too large. Maximum size is 50 MB." },
+        { error: "File too large. Maximum size is 500 MB." },
         { status: 400 }
       );
     }
