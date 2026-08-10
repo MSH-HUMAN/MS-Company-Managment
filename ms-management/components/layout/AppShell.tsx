@@ -162,8 +162,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const isApplyPage = pathname === "/apply";
   const isFullWidthPage = isLoginPage || isTrackingPage || isForgotPasswordPage || isApplyPage;
 
-  // Loading state: show spinner while session check is in progress OR data hasn't loaded yet
-  const showSpinner = isChecking || (!isPublicPage && isAuthenticated && !isStoreLoaded);
+  // Loading state: show full page spinner ONLY while session verification is in progress
+  const showSpinner = isChecking;
 
   if (showSpinner) {
     return (

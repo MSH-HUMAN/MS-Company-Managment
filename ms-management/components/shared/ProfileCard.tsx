@@ -87,9 +87,13 @@ export default function ProfileCard({
     }
   };
 
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+
   const profileImage = image || (documents || []).find((d: any) => {
     const n = (d.name || "").toLowerCase();
-    return n.includes("photo") || n.includes("profile") || n.includes("avatar");
+    const t = (d.type || "").toLowerCase();
+    const u = (d.url || "");
+    return n.endsWith(".jpg") || n.endsWith(".jpeg") || n.endsWith(".png") || n.endsWith(".webp") || t.startsWith("image/") || u.startsWith("data:image/");
   })?.url;
 
   return (
@@ -104,19 +108,23 @@ export default function ProfileCard({
 
         <div>
           {/* Header: Photo / Avatar + status */}
-          <div className="flex items-start justify-between gap-2 mb-3.5 border-b border-slate-100 pb-3">
+          <div className="flex items-start justify-between gap-2.5 mb-3.5 border-b border-slate-100 pb-3">
             <div className="flex items-start gap-3 flex-1 min-w-0">
-              <Avatar className="w-12 h-12 rounded-xl border border-slate-100 flex-shrink-0 bg-slate-50 overflow-hidden">
+              <Avatar 
+                onClick={() => profileImage && !profileImage.endsWith(".pdf") && setShowPhotoModal(true)}
+                className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border border-slate-200 flex-shrink-0 bg-slate-50 overflow-hidden shadow-sm ${profileImage ? "cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all" : ""}`}
+                title={profileImage ? "Click to view full photo" : name}
+              >
                 {profileImage ? (
                   profileImage.startsWith("data:application/pdf") || profileImage.endsWith(".pdf") ? (
-                    <div className="w-full h-full bg-rose-50 flex items-center justify-center text-rose-500 rounded-xl">
+                    <div className="w-full h-full bg-rose-50 flex items-center justify-center text-rose-500 rounded-2xl">
                       <FileText className="w-6 h-6 animate-pulse" />
                     </div>
                   ) : (
-                    <img src={profileImage} alt={name} className="w-full h-full object-cover rounded-xl" />
+                    <img src={profileImage} alt={name} className="w-full h-full object-cover object-top rounded-2xl" />
                   )
                 ) : (
-                  <AvatarFallback className="rounded-xl bg-slate-50 font-bold text-slate-700 text-xs">
+                  <AvatarFallback className="rounded-2xl bg-slate-100 font-bold text-slate-700 text-sm">
                     {getInitials(name) || getPlaceholderIcon()}
                   </AvatarFallback>
                 )}
@@ -369,7 +377,17 @@ export default function ProfileCard({
                     </div>
                   </div>
                 ))}
-              </div>
+      {/* DIALOG: PHOTO LIGHTBOX PREVIEW */}
+      <Dialog open={showPhotoModal} onOpenChange={setShowPhotoModal}>
+        <DialogContent className="rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-4 max-w-lg text-white">
+          <DialogHeader className="pb-2 border-b border-slate-800">
+            <DialogTitle className="text-sm font-bold text-white flex items-center gap-2">
+              <User className="w-4 h-4 text-blue-400" /> {name} — Profile Photo
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-2 flex items-center justify-center bg-black/40 rounded-2xl overflow-hidden max-h-[75vh]">
+            {profileImage && (
+              <img src={profileImage} alt={name} className="max-w-full max-h-[70vh] object-contain rounded-xl shadow-lg" />
             )}
           </div>
         </DialogContent>

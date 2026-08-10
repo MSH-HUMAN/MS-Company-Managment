@@ -46,6 +46,7 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
   const [simulateSubject, setSimulateSubject] = useState("");
   const [simulateBody, setSimulateBody] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isPhotoZoomOpen, setIsPhotoZoomOpen] = useState(false);
 
   const handleConfirmDelete = async () => {
     if (!applicant) return;
@@ -669,7 +670,11 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
         {/* Profile left sidebar summary */}
         <div className="lg:col-span-1 space-y-6">
           <Card className="rounded-2xl border-slate-100 p-6 bg-white shadow-sm flex flex-col items-center text-center">
-            <div className="w-20 h-20 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-extrabold text-2xl mb-4 shadow-sm overflow-hidden relative group">
+            <div 
+              onClick={() => profilePhoto && !profilePhoto.endsWith(".pdf") && setIsPhotoZoomOpen(true)}
+              className={`w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-blue-600 font-extrabold text-2xl mb-4 shadow-sm overflow-hidden relative group ${profilePhoto ? "cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all" : ""}`}
+              title={profilePhoto ? "Click to view full photo" : applicant.fullName}
+            >
               {profilePhoto ? (
                 profilePhoto.startsWith("data:application/pdf") || profilePhoto.endsWith(".pdf") ? (
                   <div className="flex flex-col items-center justify-center w-full h-full bg-rose-50 border border-rose-100">
@@ -677,7 +682,7 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
                     <span className="text-[7px] font-bold text-rose-700 uppercase mt-0.5">PDF</span>
                   </div>
                 ) : (
-                  <img src={profilePhoto} alt={applicant.fullName} className="w-full h-full object-cover rounded-2xl" />
+                  <img src={profilePhoto} alt={applicant.fullName} className="w-full h-full object-cover object-top rounded-2xl" />
                 )
               ) : (
                 applicant.fullName.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()
@@ -1833,6 +1838,22 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
         confirmText="Delete Profile"
         variant="danger"
       />
+
+      {/* Photo Lightbox Dialog */}
+      <Dialog open={isPhotoZoomOpen} onOpenChange={setIsPhotoZoomOpen}>
+        <DialogContent className="rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-4 max-w-xl text-white">
+          <DialogHeader className="pb-2 border-b border-slate-800">
+            <DialogTitle className="text-sm font-bold text-white flex items-center gap-2">
+              <User className="w-4 h-4 text-blue-400" /> {applicant.fullName} — Profile Photo
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-2 flex items-center justify-center bg-black/40 rounded-2xl overflow-hidden max-h-[80vh]">
+            {profilePhoto && (
+              <img src={profilePhoto} alt={applicant.fullName} className="max-w-full max-h-[75vh] object-contain rounded-xl shadow-lg" />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
