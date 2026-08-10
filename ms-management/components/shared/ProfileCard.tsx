@@ -87,9 +87,14 @@ export default function ProfileCard({
     }
   };
 
+  const profileImage = image || (documents || []).find((d: any) => {
+    const n = (d.name || "").toLowerCase();
+    return n.includes("photo") || n.includes("profile") || n.includes("avatar");
+  })?.url;
+
   return (
     <>
-      <Card className="rounded-2xl shadow-sm border border-slate-100 bg-white p-5 hover:shadow-md hover:border-slate-200 transition-all flex flex-col justify-between h-full relative select-none">
+      <Card className="rounded-2xl shadow-sm border border-slate-100 bg-white p-4 sm:p-5 hover:shadow-md hover:border-slate-200 transition-all flex flex-col justify-between h-full relative select-none overflow-hidden">
         {/* Expiry alerts inside card */}
         {alert && (
           <div className={`absolute top-0 left-0 right-0 h-1.5 rounded-t-2xl ${
@@ -99,35 +104,38 @@ export default function ProfileCard({
 
         <div>
           {/* Header: Photo / Avatar + status */}
-          <div className="flex items-start justify-between gap-3 mb-4">
-            <div className="flex items-center gap-3">
-              <Avatar className="w-12 h-12 rounded-xl border border-slate-100 flex-shrink-0">
-                {image ? (
-                  image.startsWith("data:application/pdf") || image.endsWith(".pdf") ? (
+          <div className="flex items-start justify-between gap-2 mb-3.5 border-b border-slate-100 pb-3">
+            <div className="flex items-start gap-3 flex-1 min-w-0">
+              <Avatar className="w-12 h-12 rounded-xl border border-slate-100 flex-shrink-0 bg-slate-50 overflow-hidden">
+                {profileImage ? (
+                  profileImage.startsWith("data:application/pdf") || profileImage.endsWith(".pdf") ? (
                     <div className="w-full h-full bg-rose-50 flex items-center justify-center text-rose-500 rounded-xl">
                       <FileText className="w-6 h-6 animate-pulse" />
                     </div>
                   ) : (
-                    <AvatarImage src={image} className="object-cover rounded-xl w-12 h-12" />
+                    <img src={profileImage} alt={name} className="w-full h-full object-cover rounded-xl" />
                   )
-                ) : null}
-                <AvatarFallback className="rounded-xl bg-slate-50 font-bold text-slate-700 text-sm">
-                  {getInitials(name) || getPlaceholderIcon()}
-                </AvatarFallback>
+                ) : (
+                  <AvatarFallback className="rounded-xl bg-slate-50 font-bold text-slate-700 text-xs">
+                    {getInitials(name) || getPlaceholderIcon()}
+                  </AvatarFallback>
+                )}
               </Avatar>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <h4 className="text-sm font-bold text-slate-800 tracking-tight truncate leading-tight">
+              <div className="flex-1 min-w-0 pr-1">
+                <div className="flex items-start gap-1 flex-wrap">
+                  <h4 className="text-xs font-extrabold text-slate-800 tracking-tight leading-snug line-clamp-2 uppercase break-words" title={name}>
                     {name}
                   </h4>
-                  {flag && <span className="text-sm flex-shrink-0" title={nationality}>{flag}</span>}
+                  {flag && <span className="text-xs flex-shrink-0" title={nationality}>{flag}</span>}
                 </div>
-                <span className="text-[10px] font-semibold text-slate-500 truncate block mt-0.5">
+                <span className="text-[10px] font-semibold text-slate-500 line-clamp-2 block mt-1 break-words" title={subtitle}>
                   {subtitle}
                 </span>
               </div>
             </div>
-            <StatusBadge status={status} />
+            <div className="flex-shrink-0">
+              <StatusBadge status={status} />
+            </div>
           </div>
 
           {/* Dynamic Alerts */}

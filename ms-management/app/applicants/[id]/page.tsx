@@ -37,6 +37,11 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
   
   const applicant = applicants.find((a: Applicant) => a.id === id);
 
+  const profilePhoto = applicant?.photo || (applicant?.documents || []).find((d: any) => {
+    const n = (d.name || "").toLowerCase();
+    return n.includes("photo") || n.includes("profile") || n.includes("avatar");
+  })?.url;
+
   const [isSimulateModalOpen, setIsSimulateModalOpen] = useState(false);
   const [simulateSubject, setSimulateSubject] = useState("");
   const [simulateBody, setSimulateBody] = useState("");
@@ -665,14 +670,14 @@ export default function ApplicantDetailPage({ params }: { params: Promise<{ id: 
         <div className="lg:col-span-1 space-y-6">
           <Card className="rounded-2xl border-slate-100 p-6 bg-white shadow-sm flex flex-col items-center text-center">
             <div className="w-20 h-20 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-extrabold text-2xl mb-4 shadow-sm overflow-hidden relative group">
-              {applicant.photo ? (
-                applicant.photo.startsWith("data:application/pdf") || applicant.photo.endsWith(".pdf") ? (
+              {profilePhoto ? (
+                profilePhoto.startsWith("data:application/pdf") || profilePhoto.endsWith(".pdf") ? (
                   <div className="flex flex-col items-center justify-center w-full h-full bg-rose-50 border border-rose-100">
                     <FileText className="w-8 h-8 text-rose-500 animate-pulse" />
                     <span className="text-[7px] font-bold text-rose-700 uppercase mt-0.5">PDF</span>
                   </div>
                 ) : (
-                  <img src={applicant.photo} alt={applicant.fullName} className="w-full h-full object-cover rounded-2xl" />
+                  <img src={profilePhoto} alt={applicant.fullName} className="w-full h-full object-cover rounded-2xl" />
                 )
               ) : (
                 applicant.fullName.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()
