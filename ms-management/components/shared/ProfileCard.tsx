@@ -377,6 +377,12 @@ export default function ProfileCard({
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* DIALOG: PHOTO LIGHTBOX PREVIEW */}
       <Dialog open={showPhotoModal} onOpenChange={setShowPhotoModal}>
         <DialogContent className="rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-4 max-w-lg text-white">
