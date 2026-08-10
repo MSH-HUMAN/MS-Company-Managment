@@ -21,7 +21,38 @@ export async function GET(request: Request) {
       orderBy: { createdAt: "desc" }
     });
 
-    return NextResponse.json(applicants);
+    const sanitizedApplicants = applicants.map((app: any) => {
+      let docs = app.documents;
+      if (typeof docs === "string") {
+        try { docs = JSON.parse(docs); } catch (e) {}
+      }
+      if (Array.isArray(docs)) {
+        docs = docs.map((d: any) => {
+          if (!d) return d;
+          const urlStr = d.url || "";
+          if (urlStr.startsWith("data:") && urlStr.length > 500) {
+            return {
+              id: d.id,
+              name: d.name,
+              type: d.type,
+              size: d.size,
+              uploadedBy: d.uploadedBy,
+              uploadedDate: d.uploadedDate,
+              slotLabel: d.slotLabel,
+              documentType: d.documentType,
+              hasFile: true
+            };
+          }
+          return d;
+        });
+      }
+      return {
+        ...app,
+        documents: docs
+      };
+    });
+
+    return NextResponse.json(sanitizedApplicants);
   } catch (error: any) {
     console.error("GET applicants error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

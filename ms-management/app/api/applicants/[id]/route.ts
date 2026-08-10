@@ -447,3 +447,30 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+
+export async function GET(request: Request, { params }: RouteParams) {
+  try {
+    const { id } = await params;
+    const user = await getSessionUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const applicant = await prisma.applicant.findUnique({
+      where: { id }
+    });
+
+    if (!applicant) {
+      return NextResponse.json({ error: "Applicant not found" }, { status: 404 });
+    }
+
+    if (!(await canModifyRecord(user, "applicants", "view", applicant))) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    return NextResponse.json(applicant);
+  } catch (error: any) {
+    console.error("GET applicant detail error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}

@@ -199,14 +199,77 @@ export async function GET(request: Request) {
     const errorCount = Object.keys(_errors).length;
     const hasQueryErrors = errorCount > 0;
 
+    // Sanitize applicant and staff documents for bootstrap payload to keep payload under 50KB for fast < 1s loading
+    const sanitizedApplicants = (applicants || []).map((app: any) => {
+      let docs = app.documents;
+      if (typeof docs === "string") {
+        try { docs = JSON.parse(docs); } catch (e) {}
+      }
+      if (Array.isArray(docs)) {
+        docs = docs.map((d: any) => {
+          if (!d) return d;
+          const urlStr = d.url || "";
+          if (urlStr.startsWith("data:") && urlStr.length > 500) {
+            return {
+              id: d.id,
+              name: d.name,
+              type: d.type,
+              size: d.size,
+              uploadedBy: d.uploadedBy,
+              uploadedDate: d.uploadedDate,
+              slotLabel: d.slotLabel,
+              documentType: d.documentType,
+              hasFile: true
+            };
+          }
+          return d;
+        });
+      }
+      return {
+        ...app,
+        documents: docs
+      };
+    });
+
+    const sanitizedStaff = (staff || []).map((s: any) => {
+      let docs = s.documents;
+      if (typeof docs === "string") {
+        try { docs = JSON.parse(docs); } catch (e) {}
+      }
+      if (Array.isArray(docs)) {
+        docs = docs.map((d: any) => {
+          if (!d) return d;
+          const urlStr = d.url || "";
+          if (urlStr.startsWith("data:") && urlStr.length > 500) {
+            return {
+              id: d.id,
+              name: d.name,
+              type: d.type,
+              size: d.size,
+              uploadedBy: d.uploadedBy,
+              uploadedDate: d.uploadedDate,
+              slotLabel: d.slotLabel,
+              documentType: d.documentType,
+              hasFile: true
+            };
+          }
+          return d;
+        });
+      }
+      return {
+        ...s,
+        documents: docs
+      };
+    });
+
     return NextResponse.json({
       companies,
       ownCompanies,
       users,
       branches,
       roles,
-      staff,
-      applicants,
+      staff: sanitizedStaff,
+      applicants: sanitizedApplicants,
       tasks,
       attendance,
       requests,
@@ -225,7 +288,6 @@ export async function GET(request: Request) {
       emails,
       whatsapp,
       leaves,
-      // Client uses this to know if it should retry instead of showing "No data"
       _hasQueryErrors: hasQueryErrors,
       _errors: hasQueryErrors ? { ..._errors } : undefined,
     }, {
