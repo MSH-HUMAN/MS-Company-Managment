@@ -215,7 +215,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className={cn("font-sans", "min-h-[100dvh] bg-background flex text-foreground antialiased overflow-hidden print:overflow-visible w-full")}>
+    <div className={cn("font-sans", "min-h-[100dvh] bg-background flex text-foreground antialiased print:overflow-visible w-full")}>
       {/* Mobile Drawer */}
       <MobileDrawer isOpen={isMobileDrawerOpen} onClose={() => setIsMobileDrawerOpen(false)} />
 
@@ -225,7 +225,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Main Panel Wrapper */}
-      <div className="flex-1 flex flex-col md:pl-[70px] lg:pl-[260px] print:pl-0 h-[100dvh] print:h-auto overflow-hidden print:overflow-visible relative transition-all duration-300">
+      <div className="flex-1 flex flex-col md:pl-[70px] lg:pl-[260px] print:pl-0 min-h-[100dvh] print:h-auto print:overflow-visible relative transition-all duration-300">
         {/* Top Header */}
         <div className="print:hidden">
           <Header onMenuClick={() => setIsMobileDrawerOpen(true)} />
@@ -237,7 +237,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto min-h-0 print:overflow-visible bg-transparent flex flex-col">
+        <main className="flex-1 min-h-0 print:overflow-visible bg-transparent flex flex-col">
           {pageContent}
         </main>
 
