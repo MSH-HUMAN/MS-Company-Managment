@@ -538,7 +538,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
     const saved = await res.json();
     set((state) => ({ applicants: [saved, ...state.applicants] }));
-    get().initStore(true).catch(console.error);
   },
   updateApplicant: async (app) => {
     const res = await fetch(`/api/applicants/${app.id}`, {
@@ -554,7 +553,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set((state) => ({
       applicants: state.applicants.map((a) => (a.id === saved.id ? saved : a))
     }));
-    get().initStore(true).catch(console.error);
   },
   deleteApplicant: async (id) => {
     const res = await fetch(`/api/applicants/${id}`, { method: "DELETE" });

@@ -342,7 +342,38 @@ export async function POST(request: Request) {
       }).catch(err => console.error("Background WhatsApp sending error:", err));
     }
 
-    return NextResponse.json(applicant);
+    // Sanitize applicant documents for response payload to keep HTTP response under 2KB for sub-second saves
+    let docs = applicant.documents;
+    if (typeof docs === "string") {
+      try { docs = JSON.parse(docs); } catch (e) {}
+    }
+    if (Array.isArray(docs)) {
+      docs = docs.map((d: any) => {
+        if (!d) return d;
+        const urlStr = d.url || "";
+        if (urlStr.startsWith("data:") && urlStr.length > 500) {
+          return {
+            id: d.id,
+            name: d.name,
+            type: d.type,
+            size: d.size,
+            uploadedBy: d.uploadedBy,
+            uploadedDate: d.uploadedDate,
+            slotLabel: d.slotLabel,
+            documentType: d.documentType,
+            hasFile: true
+          };
+        }
+        return d;
+      });
+    }
+
+    const sanitizedApplicant = {
+      ...applicant,
+      documents: docs
+    };
+
+    return NextResponse.json(sanitizedApplicant);
   } catch (error: any) {
     console.error("POST applicant error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
