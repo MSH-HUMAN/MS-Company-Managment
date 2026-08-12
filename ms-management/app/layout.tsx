@@ -29,16 +29,16 @@ export default async function RootLayout({
   let fontFamily = "Inter";
   
   try {
-    // Run all DB queries in parallel for maximum speed
-    const user = await getSessionUser();
+    // Safely query user and settings with individual fallbacks
+    const user = await getSessionUser().catch(() => null);
 
     const [companySettings, settings] = await Promise.all([
       user && user.company && user.company !== "System"
-        ? prisma.company.findFirst({ where: { name: user.company } })
+        ? prisma.company.findFirst({ where: { name: user.company } }).catch(() => null)
         : user && user.company === "System"
-          ? prisma.company.findFirst({ where: { name: "MS Horizon F.Z.E" } })
+          ? prisma.company.findFirst({ where: { name: "MS Horizon F.Z.E" } }).catch(() => null)
           : Promise.resolve(null),
-      prisma.siteSettings.findUnique({ where: { id: "SETTINGS" } })
+      prisma.siteSettings.findUnique({ where: { id: "SETTINGS" } }).catch(() => null)
     ]);
 
     if (settings) {
