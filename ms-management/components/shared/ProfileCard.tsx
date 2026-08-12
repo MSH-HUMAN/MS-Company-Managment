@@ -98,7 +98,7 @@ export default function ProfileCard({
 
   return (
     <>
-      <Card className="rounded-2xl shadow-sm border border-slate-100 bg-white p-4 sm:p-5 hover:shadow-md hover:border-slate-200 transition-all flex flex-col justify-between h-full relative select-none overflow-hidden">
+      <Card className="rounded-2xl shadow-sm border border-slate-100 bg-white p-4 sm:p-5 hover:shadow-md hover:border-slate-200 transition-all flex flex-col justify-between w-full h-auto min-h-[220px] max-w-full relative select-none overflow-hidden">
         {/* Expiry alerts inside card */}
         {alert && (
           <div className={`absolute top-0 left-0 right-0 h-1.5 rounded-t-2xl ${
@@ -131,12 +131,12 @@ export default function ProfileCard({
               </Avatar>
               <div className="flex-1 min-w-0 pr-1">
                 <div className="flex items-start gap-1 flex-wrap">
-                  <h4 className="text-xs font-extrabold text-slate-800 tracking-tight leading-snug line-clamp-2 uppercase break-words" title={name}>
+                  <h4 className="text-xs font-extrabold text-slate-800 tracking-tight leading-snug line-clamp-2 uppercase break-all sm:[word-break:break-word]" title={name}>
                     {name}
                   </h4>
                   {flag && <span className="text-xs flex-shrink-0" title={nationality}>{flag}</span>}
                 </div>
-                <span className="text-[10px] font-semibold text-slate-500 line-clamp-2 block mt-1 break-words" title={subtitle}>
+                <span className="text-[10px] font-semibold text-slate-500 line-clamp-2 block mt-1 break-all sm:[word-break:break-word]" title={subtitle}>
                   {subtitle}
                 </span>
               </div>

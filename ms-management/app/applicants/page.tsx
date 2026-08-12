@@ -246,7 +246,7 @@ export default function ApplicantsPage() {
           />
         ) : viewMode === "grid" ? (
           /* GRID VIEW */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 items-start">
             {paginatedList.map((app) => {
               // Calculate critical alerts
               let alert: { message: string; type: "critical" | "warning" } | null = null;
