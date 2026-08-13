@@ -312,7 +312,7 @@ function ApplyContent() {
         whatsapp: "",
         nationality: "India",
         currentCountry: "UAE",
-        applyingPositions: [],
+        applyingPositions: [] as string[],
         salaryExpectation: "",
         applyCountry: "UAE",
         visaType: "Visit",
@@ -321,7 +321,14 @@ function ApplyContent() {
         passportNumber: "",
         photo: null,
         company: "",
-        branch: ""
+        branch: "",
+        education: "",
+        experience: "",
+        collegeUniversity: "",
+        graduatedYear: "",
+        certification: "",
+        referencePersonName: "",
+        referencePersonMobile: ""
       });
       setUploads({});
       setCustomDocs([]);

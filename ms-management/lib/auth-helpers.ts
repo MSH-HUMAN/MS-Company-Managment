@@ -472,7 +472,7 @@ export async function getPermissionScopedFilter(
 export async function canModifyRecord(
   user: SessionUser,
   moduleKey: string,
-  actionKey: "edit" | "delete",
+  actionKey: "view" | "edit" | "delete",
   record: any,
   staffIdField = "staffId"
 ): Promise<boolean> {
