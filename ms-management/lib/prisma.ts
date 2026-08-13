@@ -1,35 +1,46 @@
 import { PrismaClient } from "@prisma/client";
 
-const getDatabaseUrl = (): string | undefined => {
-  // Auto-detect Hostinger production environment (Linux server under /home/u... directory)
+/**
+ * Build the correct DATABASE_URL for the current runtime environment.
+ *
+ * Priority:
+ *  1. Hostinger VPS (Linux, not Vercel) → localhost MySQL with tight timeouts
+ *  2. DATABASE_URL env variable (Vercel / local dev)
+ *  3. HOSTINGER_DATABASE_URL env variable
+ */
+const getDatabaseUrl = (): string => {
+  // ── Hostinger detection ──────────────────────────────────────────────────
+  // Hostinger Node.js hosting runs on Linux and is NOT Vercel.
+  // On Hostinger, MySQL must use localhost (not the public IP).
   const isHostinger =
     typeof process !== "undefined" &&
-    (
-      (process.env.USER && /^u\d+$/.test(process.env.USER)) ||
-      (process.env.HOME && /\/home\/u\d+/.test(process.env.HOME)) ||
-      (process.cwd && /\/home\/u\d+/.test(process.cwd())) ||
-      (typeof __dirname !== "undefined" && /\/home\/u\d+/.test(__dirname)) ||
-      (process.platform === "linux" && !process.env.VERCEL)
-    );
+    process.platform === "linux" &&
+    !process.env.VERCEL &&
+    !process.env.NEXT_PUBLIC_VERCEL_URL;
 
   if (isHostinger) {
-    console.log("[Prisma] Hostinger production environment detected — using localhost MySQL connection.");
-    return "mysql://u568514543_Mshorizon2026:MSHorizon2026!@localhost:3306/u568514543_ms_company_db";
+    console.log("[Prisma] Hostinger detected → using localhost MySQL.");
+    // Add connection timeouts so a misconfigured DB fails fast (5 s) instead
+    // of hanging for 30+ seconds and causing an empty-body 500 response.
+    return (
+      "mysql://u568514543_Mshorizon2026:MSHorizon2026!@localhost:3306/u568514543_ms_company_db" +
+      "?connection_limit=5&pool_timeout=10&connect_timeout=5&socket_timeout=10"
+    );
   }
 
-  // For Local Dev / Vercel / Remote: use DATABASE_URL if available
+  // ── Vercel / local dev ───────────────────────────────────────────────────
   if (process.env.DATABASE_URL) {
     return process.env.DATABASE_URL;
   }
 
-  // Fallback to HOSTINGER_DATABASE_URL if explicitly provided and not localhost on local machine
   if (process.env.HOSTINGER_DATABASE_URL) {
     return process.env.HOSTINGER_DATABASE_URL;
   }
 
-  return undefined;
+  // Last-resort fallback (should never be reached in production)
+  console.warn("[Prisma] WARNING: No DATABASE_URL found — using fallback localhost.");
+  return "mysql://u568514543_Mshorizon2026:MSHorizon2026!@localhost:3306/u568514543_ms_company_db";
 };
-
 
 const prismaClientSingleton = () => {
   return new PrismaClient({
