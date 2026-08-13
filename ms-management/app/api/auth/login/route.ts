@@ -3,9 +3,14 @@ import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { signToken } from "@/lib/jwt";
 
+// Guarantee that this route always returns a JSON response,
+// even when Prisma crashes during module initialisation.
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    const body = await request.json().catch(() => ({}));
+    const { email, password } = body;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -14,12 +19,21 @@ export async function POST(request: Request) {
       );
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail = (email as string).trim().toLowerCase();
 
     // Query database for the user
-    const user = await prisma.user.findUnique({
-      where: { email: normalizedEmail }
-    });
+    let user: any;
+    try {
+      user = await prisma.user.findUnique({
+        where: { email: normalizedEmail }
+      });
+    } catch (dbErr: any) {
+      console.error("Login DB query error:", dbErr);
+      return NextResponse.json(
+        { error: "Database connection failed. Please try again later. (" + (dbErr?.code || dbErr?.message || "unknown") + ")" },
+        { status: 503 }
+      );
+    }
 
     if (!user) {
       return NextResponse.json(
@@ -57,9 +71,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Block client company users if they are configured as external clients in the future
-    // In this SaaS, users must belong to own internal companies or System
-    
     // Generate JWT token
     const token = await signToken({
       id: user.id,
@@ -70,7 +81,7 @@ export async function POST(request: Request) {
       branch: user.branch
     });
 
-    // Create log entry and update lastLogin asynchronously in background for ultra-fast response
+    // Create log entry and update lastLogin asynchronously in background
     prisma.activityLog.create({
       data: {
         dateTime: new Date().toISOString().replace("T", " ").slice(0, 19),
@@ -119,9 +130,10 @@ export async function POST(request: Request) {
 
     return response;
   } catch (error: any) {
-    console.error("Login API error detailed:", error);
+    console.error("Login API error:", error);
+    // Always return JSON — never let Next.js emit an empty 500 body
     return NextResponse.json(
-      { error: error?.message || String(error) },
+      { error: error?.message || "An unexpected error occurred. Please try again." },
       { status: 500 }
     );
   }

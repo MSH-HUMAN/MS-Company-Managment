@@ -39,10 +39,25 @@ export default function LoginPage() {
         body: JSON.stringify({ email: email.trim(), password })
       });
 
-      const data = await response.json();
+      // Safely parse the response — server may return empty body on crash
+      let data: any = {};
+      const text = await response.text();
+      if (text) {
+        try {
+          data = JSON.parse(text);
+        } catch {
+          // Non-JSON response (e.g. server HTML error page)
+          data = {};
+        }
+      }
 
       if (!response.ok) {
-        setError(data.error || "Login failed. Please check your credentials.");
+        setError(
+          data.error ||
+          (response.status === 500
+            ? "A server error occurred. Please try again or contact your administrator."
+            : "Login failed. Please check your credentials.")
+        );
         setIsLoading(false);
         return;
       }
@@ -53,7 +68,7 @@ export default function LoginPage() {
       router.push("/dashboard");
     } catch (err) {
       console.error("Login request error:", err);
-      setError("Unable to connect to the login service. Please try again later.");
+      setError("Unable to reach the server. Please check your internet connection and try again.");
       setIsLoading(false);
     }
   };
