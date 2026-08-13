@@ -13,7 +13,7 @@ export async function GET() {
 
   try {
     diagnostic.step = "importing_prisma_client";
-    const prismaClientModule = await import("@prisma/client");
+    const prismaClientModule = await import("@/lib/generated/client");
     diagnostic.prismaClientImported = true;
 
     diagnostic.step = "instantiating_prisma_client";

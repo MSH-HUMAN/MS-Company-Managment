@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "./generated/client";
 
 /**
  * Build the correct DATABASE_URL for the current runtime environment.

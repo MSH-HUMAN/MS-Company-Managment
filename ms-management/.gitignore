@@ -43,3 +43,7 @@ next-env.d.ts
 # scratch files
 /scratch/
 
+# Prisma query engine binaries
+lib/generated/client/*.node
+lib/generated/client/*.wasm
+
