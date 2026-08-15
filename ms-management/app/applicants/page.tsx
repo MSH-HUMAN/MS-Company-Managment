@@ -221,15 +221,15 @@ export default function ApplicantsPage() {
         }
       />
 
-      <FilterBar
-        moduleKey="applicants"
-        statusOptions={["Pending", "Processing", "Placed", "Rejected", "Returned"]}
-        showNationality={true}
-        onExport={canExportApplicants ? handleExport : undefined}
-        onPrint={canPrintApplicants ? handlePrint : undefined}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-      />
+     <FilterBar
+  moduleKey="applicants"
+  statusOptions={["Pending", "Processing", "Placed", "Rejected", "Returned"]}
+  showNationality={true}
+  onExport={canExportApplicants ? handleExport : undefined}
+  onPrint={canPrintApplicants ? handlePrint : undefined}
+  viewMode={viewMode}
+  onViewModeChange={setViewMode}
+/>
 
       <div className="flex-1 p-4 md:p-6 pb-36 md:pb-12 space-y-4">
         {paginatedList.length === 0 ? (
@@ -246,7 +246,7 @@ export default function ApplicantsPage() {
           />
         ) : viewMode === "grid" ? (
           /* GRID VIEW */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 items-stretch">
             {paginatedList.map((app) => {
               // Calculate critical alerts
               let alert: { message: string; type: "critical" | "warning" } | null = null;

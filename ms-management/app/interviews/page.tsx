@@ -410,15 +410,15 @@ We have reviewed your application and would like to invite you for an interview.
 • *Date:* ${form.dateTime ? (form.dateTime.replace("T", " ").split(" ")[0]) : "To Be Confirmed"}
 • *Time:* ${form.dateTime ? (form.dateTime.replace("T", " ").split(" ")[1] || "To Be Confirmed") : "To Be Confirmed"}
 ${isOnline
-  ? `• *Format:* Online Virtual (${form.mode || "Video Call"})
-• *Meeting Link:* ${form.meetingLink || "Link will be shared prior to meeting"}
-${(form as any).meetingId ? `• *Meeting ID:* ${(form as any).meetingId}\n` : ""}${(form as any).passcode ? `• *Passcode:* ${(form as any).passcode}\n` : ""}`
-  : `• *Format:* Physical In-Person (${form.mode || "Office"})
-• *Location:* ${(form as any).location || (form as any).venue || "Main Office, UAE"}
-${(form as any).building ? `• *Building:* ${(form as any).building}\n` : ""}${(form as any).floor ? `• *Floor:* ${(form as any).floor}\n` : ""}${form.locationLink ? `• *Map:* ${form.locationLink}\n` : ""}`
-}• *Interviewer:* ${form.conductPerson || "HR Coordinator"}
-${trackCode ? `• *Tracking Code:* ${trackCode}` : ""}
+  ? `*Format:* Online Virtual (${form.mode || "Video Call"})
+*Meeting Link:* ${form.meetingLink || "Link will be shared prior to meeting"}
+${(form as any).meetingId ? `*Meeting ID:* ${(form as any).meetingId}` : ""}`
+  : `*Format:* Physical In-Person (${form.mode || "Office"})
+*Location:* ${(form as any).location || (form as any).venue || "Main Office, UAE"}
+${(form as any).building ? `*Building:* ${(form as any).building}` : ""}`}
 
+*Interviewer:* ${form.conductPerson || "HR Coordinator"}
+${trackCode ? `*Tracking Code:* ${trackCode}` : ""}
 Please confirm your attendance by replying *"Yes, I will attend."*
 
 ${form.notes ? `📝 *Additional Notes:*\n${form.notes}\n\n` : ""}If you have any questions or need to reschedule, please contact us.
@@ -426,8 +426,8 @@ ${form.notes ? `📝 *Additional Notes:*\n${form.notes}\n\n` : ""}If you have an
 Thank you, and we look forward to meeting you.
 
 *${companyLabel}*
-📞 +971 58 520 3005
-📧 mshorizonfze@gmail.com`;
+📞 +971 58 553 8199
+📧 info@safayar-msjobs.com`;
         if (typeof window !== "undefined") {
           window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(waMsg)}`, "_blank");
         }

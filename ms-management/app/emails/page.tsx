@@ -41,7 +41,9 @@ const EMAIL_TEMPLATES = [
       { name: "dateTime", label: "Date & Time", placeholder: "e.g. Monday, July 12 at 10:00 AM GST", required: true },
       { name: "onlinePhysical", label: "Format", placeholder: "e.g. Online or Physical", required: true },
       { name: "meetingMode", label: "Platform / Location Mode", placeholder: "e.g. Zoom, Google Meet, Ajman Office", required: true },
-      { name: "conductPersonName", label: "Interviewer Name", placeholder: "e.g. HR Manager", required: true },
+{ name: "conductPersonName", label: "Interviewer Name", placeholder: "e.g. Mohamed Sahib" },
+{ name: "conductPersonPosition", label: "Interviewer Position", placeholder: "e.g. HR Manager" },
+{ name: "conductPersonMobile", label: "Interviewer Mobile", placeholder: "e.g. +971585538199" },
       { name: "meetingLink", label: "Online Meeting Link (Optional)", placeholder: "e.g. https://zoom.us/j/...", required: false },
       { name: "googleMapLink", label: "Office Map Link (Optional)", placeholder: "e.g. https://maps.google.com/...", required: false },
       { name: "notes", label: "Special Instructions (Optional)", placeholder: "e.g. Please join 5 mins early...", required: false },
@@ -711,16 +713,16 @@ export default function EmailsPage() {
     }
 
     try {
-      const payload = {
+      const payload = {to:to,
         subject: subject,
         body: activeTemplate ? "" : body,
         templateType: activeTemplate?.type || "System",
         templateData: activeTemplate ? {
           ...templateData,
           to: to,
-          companyEmail: currentUser?.email || "support@mshorizon.ae",
-          companyPhone: "+971 58 532 2913",
-          companyAddress: "Ajman, UAE"
+          companyEmail: "info@safayar-msjobs.com",
+companyPhone: "058 553 8199",
+companyAddress: "Ajman, UAE",
         } : {
           body: body,
           recipientName: "Recipient",

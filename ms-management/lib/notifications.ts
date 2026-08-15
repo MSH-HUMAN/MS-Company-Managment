@@ -134,11 +134,11 @@ export async function sendEmail({
 
   // Look up sender company details in DB by name or email to keep email & whatsapp branded
   let resolvedCompanyName = "MS Horizon F.Z.E";
-  let companyEmail = "mshorizonfze@gmail.com";
-  let companyPhone = "+971 58 520 3005";
+  let companyEmail = "support@mshorizon.net";
+  let companyPhone = "+971 58 553 8199";
   let companyAddress = "C1 Building, Ajman Free Zone, UAE";
   let companyLogo = "";
-  let companyPrimaryColor = "#2563eb";
+  let companyPrimaryColor = "#10c0bd";
 
   const lookupTerm = (company || "").trim();
 
@@ -173,7 +173,7 @@ export async function sendEmail({
           where: {
             OR: [
               { name: { contains: "MS Horizon" } },
-              { email: { equals: "mshorizonfze@gmail.com" } }
+              { email: { equals: "support@mshorizon.net" } }
             ]
           }
         })
@@ -403,7 +403,7 @@ export async function sendEmail({
       branchName: templateData?.branchName || branch || "N/A",
 
       hrName: templateData?.hrName || "HR Operations Team",
-      hrEmail: templateData?.hrEmail || companyEmail || "mshorizonfze@gmail.com",
+      hrEmail: templateData?.hrEmail || companyEmail || "support@mshorizon.net",
       consultantName: templateData?.consultantName || templateData?.createdBy || sentBy || "System Admin",
       salary: templateData?.salary || "N/A",
       joiningDate: templateData?.joiningDate || templateData?.placedDate || "N/A",
@@ -677,7 +677,7 @@ export async function previewEmail({
     const recipientName = templateData?.recipientName || templateData?.applicantName || "Recipient";
     const logoText = (company || "MS").slice(0, 2).toUpperCase();
 
-    let previewDomain = ((templateData?.companyEmail || "mshorizonfze@gmail.com").match(/@(.+)$/)?.[1] || "mshorizonuae.com");
+    let previewDomain = ((templateData?.companyEmail || "support@mshorizon.net ").match(/@(.+)$/)?.[1] || "mshorizonuae.com");
     if (["gmail.com", "yahoo.com", "outlook.com", "hotmail.com"].includes(previewDomain.toLowerCase())) {
       previewDomain = "mshorizonuae.com";
     }
@@ -685,13 +685,13 @@ export async function previewEmail({
     const context = {
       recipientName,
       companyName: company || templateData?.company || "MS Horizon",
-      companyEmail: templateData?.companyEmail || "mshorizonfze@gmail.com",
-      companyPhone: templateData?.companyPhone || "+971 58 520 3005",
+      companyEmail: templateData?.companyEmail || "support@mshorizon.net",
+      companyPhone: templateData?.companyPhone || "+971 58 553 8199",
       companyAddress: templateData?.companyAddress || "C1 Building, Ajman Free Zone, UAE",
       logoText,
       website: templateData?.website || `https://${previewDomain}`,
       year: new Date().getFullYear(),
-      companyPrimaryColor: process.env.PRIMARY_COLOR || '#2563eb',
+      companyPrimaryColor: process.env.PRIMARY_COLOR || '#25d7eb',
       body,
       subject,
       ...templateData,
@@ -1057,8 +1057,8 @@ ${data.notes ? `📝 *Additional Notes:*\n${data.notes}\n\n` : ""}If you have an
 Thank you, and we look forward to meeting you.
 
 *${company}*
-📞 +971 58 520 3005
-📧 mshorizonfze@gmail.com`;
+📞 +971 58 553 8199
+📧 support@mshorizon.net`;
     }
 
     case "Interview_Rescheduled": {
@@ -1104,8 +1104,8 @@ If you have any questions or need to reschedule, please contact us.
 Thank you, and we look forward to meeting you.
 
 *${company}*
-📞 +971 58 520 3005
-📧 mshorizonfze@gmail.com`;
+📞 +971 58 553 8199
+📧 support@mshorizon.net`;
     }
 
     case "Interview_Cancelled": {
@@ -1118,8 +1118,8 @@ ${data.reason ? `\n*Reason:* ${data.reason}\n` : ""}
 If you have any questions or wish to explore other opportunities, please feel free to reach out to us.
 
 *${company}*
-📞 +971 58 520 3005
-📧 mshorizonfze@gmail.com`;
+📞 +971 58 553 8199
+📧 support@mshorizon.net`;
     }
 
     case "Registration": {
@@ -1141,8 +1141,8 @@ ${trackUrl}
 If you have any questions, please contact us.
 
 *${company}*
-📞 +971 58 520 3005
-📧 mshorizonfze@gmail.com`;
+📞 +971 58 553 8199
+📧 support@mshorizon.net`;
     }
 
     case "Status_Changed":
@@ -1165,8 +1165,8 @@ ${trackUrl}
 If you have any questions, please contact us.
 
 *${company}*
-📞 +971 58 520 3005
-📧 mshorizonfze@gmail.com`;
+📞 +971 58 553 8199
+📧 support@mshorizon.net`;
     }
   }
 }

@@ -184,9 +184,9 @@ export async function POST(request: Request) {
       applicantName: interview.applicantName,
       type: interview.type,
       conductPerson: interview.conductPersonName,
-      personName: interview.personName,
-      mobile: interview.mobileNumber,
-      whatsapp: interview.whatsAppNumber,
+      conductPersonPosition: interview.conductPersonPosition || "",
+      conductPersonMobile: interview.conductPersonMobile || "",
+      personName:interview.personName,
       email: interview.emailId,
       nationality: interview.nationality,
       meetingType: interview.meetingType || undefined,
@@ -324,12 +324,15 @@ Schedule Details:
               applicantId: mappedResponse.applicantId || "N/A",
               trackingNumber: applicantDetails?.trackingCode || applicantDetails?.id || "N/A",
               trackingCode: applicantDetails?.trackingCode || applicantDetails?.id || "N/A",
-              position: mappedResponse.position || applicantDetails?.applyingPositions?.[0] || "N/A",
+              position: mappedResponse.position || applicantDetails?.applyingPositions?.[0] || "",
+conductPerson: mappedResponse.conductPerson || "",
+conductPersonPosition: mappedResponse.conductPersonPosition || "",
+conductPersonMobile: mappedResponse.conductPersonMobile || "",
               applyingPosition: mappedResponse.position || applicantDetails?.applyingPositions?.[0] || "N/A",
               nationality: applicantDetails?.nationality || mappedResponse.nationality || "N/A",
               passportNumber: applicantDetails?.passportNumber || "N/A",
               visaStatus: applicantDetails?.visaStatus || applicantDetails?.visaType || "N/A",
-              mobileNumber: mappedResponse.mobile || applicantDetails?.mobile || "N/A",
+              mobileNumber: applicantDetails?.mobile || "N/A",
               emailAddress: mappedResponse.email || applicantDetails?.email || "N/A",
               currentStatus: applicantDetails?.status || "N/A",
               applicantCompany: applicantDetails?.company || "N/A",
@@ -369,8 +372,8 @@ Schedule Details:
     }
 
     // Trigger Twilio WhatsApp Alert
-    if ((mappedResponse.whatsapp || mappedResponse.mobile) && data.autoWhatsapp !== false) {
-      const waNumber = mappedResponse.whatsapp || mappedResponse.mobile;
+    if (applicantDetails?.mobile && data.autoWhatsapp !== false) {
+  const waNumber = applicantDetails.mobile;
       const waMessage = generateWhatsAppContent("Interview_Scheduled", {
         applicantName: mappedResponse.personName,
         company: mappedResponse.company || company,

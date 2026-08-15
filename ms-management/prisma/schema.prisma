@@ -242,8 +242,10 @@ model Interview {
   applicantName     String
   type              String   // "Interview" | "Meeting"
   conductPersonName String
-  personName        String
-  mobileNumber      String
+  conductPersonPosition String?
+  conductPersonMobile String?
+  mobileNumber String?
+  personName     String
   whatsAppNumber    String
   emailId           String
   nationality       String

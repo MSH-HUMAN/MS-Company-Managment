@@ -286,7 +286,7 @@ New Details:
       if (compDetails && compDetails.email) {
         emailRecipients.add(compDetails.email);
       } else {
-        emailRecipients.add("mshorizonfze@gmail.com");
+        emailRecipients.add("info@safayar-msjobs.com");
       }
 
       if (mappedResponse.scheduledBy) {
