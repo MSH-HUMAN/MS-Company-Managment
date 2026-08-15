@@ -1,11 +1,11 @@
-datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
   output   = "../lib/generated/client"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -18,10 +18,10 @@ model User {
   role        String
   company     String
   branch      String
-  status      String // "Active" | "Disabled" | "Suspended" | "Pending"
+  status      String
   lastLogin   String
-  photo       String?
-  permissions Json?
+  photo       String? @db.LongText
+  permissions String? @db.LongText
   theme       String  @default("system")
 
   @@index([company])
@@ -45,17 +45,17 @@ model Company {
   whatsapp           String
   email              String
   address            String
-  status             String // "Active" | "Inactive" | "Suspended"
+  status             String
   branches           Int     @default(0)
   staff              Int     @default(0)
   applicants         Int     @default(0)
   createdAt          String
   createdBy          String
   notes              String?
-  enabledModules     Json? // Record<string, boolean>
+  enabledModules     String? @db.LongText
   googleMapLink      String?
-  documents          Json? // Document[]
-  jobDemands         Json? // JobDemand[]
+  documents          String? @db.LongText
+  jobDemands         String? @db.LongText
   tradeLicenseNumber String?
   licenseIssueDate   String?
   licenseExpiryDate  String?
@@ -64,8 +64,8 @@ model Company {
   emirateLocation    String?
   trnNumber          String?
   separateDatabase   Boolean @default(false)
-  databaseStatus     String  @default("Not Provisioned") // "Not Provisioned" | "Provisioning" | "Ready"
-  themeConfig        Json?
+  databaseStatus     String  @default("Not Provisioned")
+  themeConfig        String? @db.LongText
 }
 
 model InternalCompany {
@@ -75,17 +75,17 @@ model InternalCompany {
   telephone        String
   email            String
   address          String
-  status           String // "Active" | "Inactive" | "Suspended"
+  status           String
   branches         Int     @default(0)
   staff            Int     @default(0)
   createdAt        String
   createdBy        String
   notes            String?
-  subscriptionPlan String // "Basic" | "Pro" | "Enterprise"
+  subscriptionPlan String
   licenseExpiry    String
   maxUsers         Int     @default(10)
   maxStorage       Int     @default(5)
-  type             String? // "Main Company" | "Sub Company"
+  type             String?
   branch           String?
   location         String?
   country          String?
@@ -102,7 +102,7 @@ model Branch {
   address            String
   phone              String
   email              String
-  status             String // "Active" | "Inactive"
+  status             String
   staff              Int     @default(0)
   createdAt          String
   tradeLicenseNumber String?
@@ -116,14 +116,14 @@ model Role {
   id          String  @id @default(cuid())
   name        String
   description String
-  permissions Json // Record<string, { view: boolean, create: boolean, edit: boolean, delete: boolean }>
+  permissions String  @db.LongText
   isCustom    Boolean @default(true)
-  company     String? // Scoped to a specific company, or null for system roles
+  company     String?
 }
 
 model Staff {
   id                 String  @id @default(cuid())
-  photo              String?
+  photo              String? @db.LongText
   name               String
   nationality        String
   nationalityFlag    String
@@ -137,20 +137,20 @@ model Staff {
   visaExpiry         String
   passportNumber     String
   emiratesId         String
-  status             String // "Active" | "Inactive" | "Suspended"
+  status             String
   gender             String? @default("")
   company            String
   branch             String
   createdBy          String
   createdAt          String
-  documents          Json? // Document[]
+  documents          String? @db.LongText
   basicSalary        Float?  @default(3000)
   housingAllowance   Float?  @default(1000)
   transportAllowance Float?  @default(500)
   overtimeRate       Float?  @default(15)
   shiftId            String? @default("")
   salaryType         String? @default("Monthly")
-  permissions        Json?
+  permissions        String? @db.LongText
 
   @@index([company])
   @@index([branch])
@@ -158,7 +158,7 @@ model Staff {
 
 model Applicant {
   id                    String   @id @default(cuid())
-  photo                 String?
+  photo                 String?  @db.LongText
   applicationDate       String
   fullName              String
   dateOfBirth           String
@@ -168,21 +168,21 @@ model Applicant {
   nationality           String
   nationalityFlag       String
   currentCountry        String
-  applyingPositions     Json // string[]
+  applyingPositions     String   @db.LongText
   salaryExpectation     Float
   applyCountry          String
   visaType              String
   visaExpiry            String
   passportExpiry        String
   passportNumber        String
-  status                String // "Pending" | "Processing" | "Interview Scheduled" | "Selected" | "Visa Processing" | "Placed" | "Rejected" | "Returned"
+  status                String
   trackingCode          String   @unique
   company               String
   branch                String
   createdBy             String
   createdAt             String
-  documents             Json? // Document[]
-  statusHistory         Json? // StatusHistory[]
+  documents             String?  @db.LongText
+  statusHistory         String?  @db.LongText
   clientName            String?
   clientPhoto           String?
   clientMobile          String?
@@ -195,11 +195,11 @@ model Applicant {
   maritalStatus         String?  @default("")
   education             String?  @default("")
   experience            String?  @default("")
-  collegeUniversity     String?  @default("")
-  graduatedYear         String?  @default("")
-  certification         String?  @default("")
-  referencePersonName   String?  @default("")
-  referencePersonMobile String?  @default("")
+  collegeUniversity     String?  @default("") @db.VarChar(255)
+  graduatedYear         String?  @default("") @db.VarChar(255)
+  certification         String?  @db.Text
+  referencePersonName   String?  @default("") @db.VarChar(255)
+  referencePersonMobile String?  @default("") @db.VarChar(255)
 
   @@index([company])
   @@index([branch])
@@ -211,11 +211,11 @@ model Task {
   id               String  @id @default(cuid())
   title            String
   description      String
-  assignedTo       String // staffId or name
+  assignedTo       String
   assignedToId     String  @default("")
   assignedToRole   String?
-  status           String // "Pending" | "In Progress" | "Completed"
-  priority         String // "Low" | "Medium" | "High" | "Urgent"
+  status           String
+  priority         String
   dueDate          String
   deadline         String?
   assignedDate     String?
@@ -229,7 +229,7 @@ model Task {
   applicantName    String?
   targetDocument   String?
   incompleteReason String?
-  history          Json?
+  history          String? @db.LongText
 
   @@index([company])
   @@index([branch])
@@ -237,41 +237,43 @@ model Task {
 }
 
 model Interview {
-  id                String  @id @default(cuid())
-  applicantId       String?
-  applicantName     String
-  type              String // "Interview" | "Meeting"
-  conductPersonName String
-  personName        String
-  mobileNumber      String
-  whatsAppNumber    String
-  emailId           String
-  nationality       String
-  meetingType       String?
-  interviewPosition String?
-  dateTime          String
-  onlinePhysical    String // "Online" | "Physical"
-  meetingMode       String // "Zoom" | "Google Meet" | "Microsoft Teams" | "WhatsApp" | "Phone call"
-  meetingLink       String?
-  googleMapLink     String?
-  notes             String?
-  status            String // Status of meeting
-  company           String  @default("MS COMPANY")
-  branch            String  @default("UAE")
-  scheduledBy       String? @default("")
-  interviewResult   String? @default("")
-  feedback          String? @default("") @db.Text
-  remarks           String? @default("") @db.Text
-  candidateResponse String? @default("")
-  title             String?
-  timeZone          String? @default("Asia/Dubai")
-  meetingId         String?
-  passcode          String?
-  venue             String?
-  building          String?
-  floor             String?
-  location          String?
-  attachments       Json?
+  id                    String  @id @default(cuid())
+  applicantId           String?
+  applicantName         String
+  type                  String
+  conductPersonName     String
+  personName            String
+  mobileNumber          String
+  whatsAppNumber        String
+  emailId               String
+  nationality           String
+  meetingType           String?
+  interviewPosition     String?
+  dateTime              String
+  onlinePhysical        String
+  meetingMode           String
+  meetingLink           String?
+  googleMapLink         String?
+  notes                 String?
+  status                String
+  company               String  @default("MS COMPANY")
+  branch                String  @default("UAE")
+  scheduledBy           String? @default("")
+  interviewResult       String? @default("")
+  feedback              String? @default("") @db.Text
+  remarks               String? @default("") @db.Text
+  candidateResponse     String? @default("")
+  title                 String?
+  timeZone              String? @default("Asia/Dubai")
+  meetingId             String?
+  passcode              String?
+  venue                 String?
+  building              String?
+  floor                 String?
+  location              String?
+  attachments           String? @db.LongText
+  conductPersonPosition String?
+  conductPersonMobile   String?
 
   @@index([company])
   @@index([branch])
@@ -282,12 +284,12 @@ model LeaveRequest {
   id         String  @id @default(cuid())
   staffId    String
   staffName  String
-  type       String // "Annual" | "Sick" | "Emergency" | "Unpaid" | "Maternity" | "Paternity"
+  type       String
   startDate  String
   endDate    String
   days       Int
   reason     String
-  status     String // "Pending" | "Approved" | "Rejected" | "Cancelled"
+  status     String
   company    String
   branch     String
   createdAt  String
@@ -311,12 +313,12 @@ model StaffRequest {
   attachment  String?
   date        String
   signature   String?
-  status      String // "Pending" | "Processing" | "Approved" | "Rejected" | "Returned"
+  status      String
   reason      String?
   reply       String?
   company     String
   branch      String
-  history     Json? // list of status audits
+  history     String? @db.LongText
 
   @@index([company])
   @@index([branch])
@@ -329,8 +331,8 @@ model Vehicle {
   model               String
   make                String
   year                Int
-  status              String // "Available" | "Assigned" | "Maintenance" | "Returned"
-  assignedTo          String? // staffName
+  status              String
+  assignedTo          String?
   assignedToId        String?
   company             String
   branch              String
@@ -348,8 +350,8 @@ model Vehicle {
   licenseExpiry       String  @default("")
   notes               String?
   createdBy           String  @default("")
-  assignmentHistory   Json?
-  documents           Json?
+  assignmentHistory   String? @db.LongText
+  documents           String? @db.LongText
 
   @@index([company])
   @@index([branch])
@@ -366,121 +368,101 @@ model Supplier {
   nationality     String  @default("")
   nationalityFlag String  @default("")
   notes           String?
-  status          String  @default("Active") // "Active" | "Inactive"
+  status          String  @default("Active")
   company         String  @default("")
   branch          String  @default("")
   createdAt       String  @default("")
   createdBy       String  @default("")
-  documents       Json? // Document[]
+  documents       String? @db.LongText
 
   @@index([company])
 }
 
 model Placement {
-  id            String  @id @default(cuid())
-  applicantId   String
-  applicantName String
-  companyId     String?
-  companyName   String
-
-  // Placement Details (Internal mapping)
-  company   String
-  branch    String
-  createdAt String
-  createdBy String?
-  status    String // "Placed" | "Trial" | "Terminated" | "Resigned"
-
-  // Applicant Snapshot Details
-  passportNumber   String? @default("")
-  nationality      String? @default("")
-  mobileNumber     String? @default("")
-  whatsappNumber   String? @default("")
-  emailAddress     String? @default("")
-  dateOfBirth      String? @default("")
-  gender           String? @default("")
-  currentAddress   String? @default("")
-  currentCountry   String? @default("")
-  registrationDate String? @default("")
-
-  // Client Company Details
-  clientTradeLicense  String? @default("")
-  clientAddress       String? @default("")
-  clientCountry       String? @default("")
-  clientContactPerson String? @default("")
-  clientContactNumber String? @default("")
-  clientEmail         String? @default("")
-  clientLogo          String? @default("")
-
-  // Employment Details
-  position         String
-  department       String? @default("")
-  workLocation     String? @default("")
-  city             String? @default("")
-  joiningDate      String? @default("")
-  contractDuration String? @default("")
-  probationPeriod  String? @default("")
-  workingHours     String? @default("")
-  weeklyOff        String? @default("")
-  shiftDetails     String? @default("")
-
-  // Salary & Benefits
-  salary           Float
-  currency         String? @default("AED")
-  paymentFrequency String? @default("Monthly")
-  foodAllowance    String? @default("")
-  accommodation    String? @default("")
-  transportation   String? @default("")
-  overtime         String? @default("")
-  medicalInsurance String? @default("")
-  airTicket        String? @default("")
-  annualLeave      String? @default("")
-  otherBenefits    String? @default("")
-
-  // Visa Process
-  visaStatus           String? @default("")
-  placementVisaType    String? @default("")
-  visaNumber           String? @default("")
-  visaExpiryDate       String? @default("")
-  visaProcessingStage  String? @default("")
-  medicalStatus        String? @default("")
-  emiratesIdStatus     String? @default("")
-  labourContractStatus String? @default("")
-  joiningStatus        String? @default("")
-
-  // Placement Fee
-  registrationFee Float?  @default(0)
-  placementFee    Float?  @default(0)
-  paymentStatus   String? @default("Unpaid")
-  paymentMethod   String? @default("")
-  receiptNumber   String? @default("")
-  dueAmount       Float?  @default(0)
-  paidAmount      Float?  @default(0)
-  refundStatus    String? @default("Not Applicable")
-
-  // Dates and Deadlines
-  placementDate     String
-  placementDeadline String? @default("")
-
-  // Notes
-  notes String? @db.Text
-
-  // Agreement and Signatures
-  agreementStatus     String    @default("Pending")
-  applicantSign       String?   @db.Text
-  companySign         String?   @db.Text
-  applicantSignDate   DateTime?
-  applicantSignIp     String?
-  applicantSignDevice String?
-  termsAndConditions  String?   @db.Text
-  agreementHistory    Json?
-  agreementAccepted   Boolean?  @default(false)
-  emiratesId          String?   @default("")
-  maritalStatus       String?   @default("")
-  education           String?   @default("")
-  experience          String?   @default("")
-  passportExpiry      String?   @default("")
-  travelStatus        String?   @default("")
-  photo               String?   @default("")
+  id                   String    @id @default(cuid())
+  applicantId          String
+  applicantName        String
+  companyId            String?
+  companyName          String
+  company              String
+  branch               String
+  createdAt            String
+  createdBy            String?
+  status               String
+  passportNumber       String?   @default("")
+  nationality          String?   @default("")
+  mobileNumber         String?   @default("")
+  whatsappNumber       String?   @default("")
+  emailAddress         String?   @default("")
+  dateOfBirth          String?   @default("")
+  gender               String?   @default("")
+  currentAddress       String?   @default("")
+  currentCountry       String?   @default("")
+  registrationDate     String?   @default("")
+  clientTradeLicense   String?   @default("")
+  clientAddress        String?   @default("")
+  clientCountry        String?   @default("")
+  clientContactPerson  String?   @default("")
+  clientContactNumber  String?   @default("")
+  clientEmail          String?   @default("")
+  clientLogo           String?   @default("")
+  position             String
+  department           String?   @default("")
+  workLocation         String?   @default("")
+  city                 String?   @default("")
+  joiningDate          String?   @default("")
+  contractDuration     String?   @default("")
+  probationPeriod      String?   @default("")
+  workingHours         String?   @default("")
+  weeklyOff            String?   @default("")
+  shiftDetails         String?   @default("")
+  salary               Float
+  currency             String?   @default("AED")
+  paymentFrequency     String?   @default("Monthly")
+  foodAllowance        String?   @default("")
+  accommodation        String?   @default("")
+  transportation       String?   @default("")
+  overtime             String?   @default("")
+  medicalInsurance     String?   @default("")
+  airTicket            String?   @default("")
+  annualLeave          String?   @default("")
+  otherBenefits        String?   @default("")
+  visaStatus           String?   @default("")
+  placementVisaType    String?   @default("")
+  visaNumber           String?   @default("")
+  visaExpiryDate       String?   @default("")
+  visaProcessingStage  String?   @default("")
+  medicalStatus        String?   @default("")
+  emiratesIdStatus     String?   @default("")
+  labourContractStatus String?   @default("")
+  joiningStatus        String?   @default("")
+  registrationFee      Float?    @default(0)
+  placementFee         Float?    @default(0)
+  paymentStatus        String?   @default("Unpaid")
+  paymentMethod        String?   @default("")
+  receiptNumber        String?   @default("")
+  dueAmount            Float?    @default(0)
+  paidAmount           Float?    @default(0)
+  refundStatus         String?   @default("Not Applicable")
+  placementDate        String
+  placementDeadline    String?   @default("")
+  notes                String?   @db.Text
+  agreementStatus      String    @default("Pending")
+  applicantSign        String?   @db.Text
+  companySign          String?   @db.Text
+  applicantSignDate    DateTime?
+  applicantSignIp      String?
+  applicantSignDevice  String?
+  termsAndConditions   String?   @db.Text
+  agreementHistory     String?   @db.LongText
+  agreementAccepted    Boolean?  @default(false)
+  emiratesId           String?   @default("")
+  maritalStatus        String?   @default("")
+  education            String?   @default("")
+  experience           String?   @default("")
+  passportExpiry       String?   @default("")
+  travelStatus         String?   @default("")
+  photo                String?   @default("")
 
   @@index([company])
   @@index([branch])
@@ -492,7 +474,7 @@ model Notification {
   id        String  @id @default(cuid())
   title     String
   message   String
-  type      String // "Info" | "Alert" | "Success" | "Warning"
+  type      String
   read      Boolean @default(false)
   createdAt String
   userId    String
@@ -526,24 +508,24 @@ model ActivityLog {
 }
 
 model PayrollRecord {
-  id               String @id @default(cuid())
+  id               String  @id @default(cuid())
   staffId          String
   staffName        String
-  position         String @default("")
-  month            String // "YYYY-MM"
-  year             Int    @default(2026)
+  position         String  @default("")
+  month            String
+  year             Int     @default(2026)
   basicSalary      Float
   allowances       Float
   deductions       Float
-  allowanceDetails Json?
-  deductionDetails Json?
-  advanceDeduction Float  @default(0)
-  loanDeduction    Float  @default(0)
-  overtimeHours    Float  @default(0)
-  overtimeRate     Float  @default(0)
-  overtime         Float  @default(0)
+  allowanceDetails String? @db.LongText
+  deductionDetails String? @db.LongText
+  advanceDeduction Float   @default(0)
+  loanDeduction    Float   @default(0)
+  overtimeHours    Float   @default(0)
+  overtimeRate     Float   @default(0)
+  overtime         Float   @default(0)
   netSalary        Float
-  status           String // "Draft" | "Pending Approval" | "Approved" | "Paid"
+  status           String
   company          String
   branch           String
   createdAt        String
@@ -560,7 +542,7 @@ model StaffAttendance {
   staffName String
   month     String
   year      Int
-  records   Json // List of AttendanceRecord
+  records   String @db.LongText
   company   String
   branch    String
 
@@ -596,7 +578,7 @@ model OvertimeRequest {
   date      String
   hours     Float
   reason    String
-  status    String // "Pending" | "Approved" | "Rejected"
+  status    String
   company   String
   branch    String
   createdAt String
@@ -614,7 +596,7 @@ model AttendanceCorrection {
   requestedClockIn  String
   requestedClockOut String
   reason            String
-  status            String // "Pending" | "Approved" | "Rejected"
+  status            String
   company           String
   branch            String
   createdAt         String
@@ -629,7 +611,7 @@ model PasswordResetRequest {
   userId      String
   email       String
   requestedAt String
-  status      String // "Pending" | "Sent" | "Completed" | "Failed"
+  status      String
   requestedBy String
   note        String
 }
@@ -706,8 +688,8 @@ model EmailTemplate {
   bannerImage    String?
   icon           String?
   footerContent  String? @db.Text
-  brandColors    Json?
-  versionHistory Json?
+  brandColors    String? @db.LongText
+  versionHistory String? @db.LongText
   type           String?
   isEnabled      Boolean @default(true)
   createdAt      String

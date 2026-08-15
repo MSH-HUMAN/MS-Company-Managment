@@ -3283,6 +3283,7 @@ export namespace Prisma {
     status: string | null
     lastLogin: string | null
     photo: string | null
+    permissions: string | null
     theme: string | null
   }
 
@@ -3299,6 +3300,7 @@ export namespace Prisma {
     status: string | null
     lastLogin: string | null
     photo: string | null
+    permissions: string | null
     theme: string | null
   }
 
@@ -3334,6 +3336,7 @@ export namespace Prisma {
     status?: true
     lastLogin?: true
     photo?: true
+    permissions?: true
     theme?: true
   }
 
@@ -3350,6 +3353,7 @@ export namespace Prisma {
     status?: true
     lastLogin?: true
     photo?: true
+    permissions?: true
     theme?: true
   }
 
@@ -3456,7 +3460,7 @@ export namespace Prisma {
     status: string
     lastLogin: string
     photo: string | null
-    permissions: JsonValue | null
+    permissions: string | null
     theme: string
     _count: UserCountAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
@@ -3531,7 +3535,7 @@ export namespace Prisma {
       status: string
       lastLogin: string
       photo: string | null
-      permissions: Prisma.JsonValue | null
+      permissions: string | null
       theme: string
     }, ExtArgs["result"]["user"]>
     composites: {}
@@ -3914,7 +3918,7 @@ export namespace Prisma {
     readonly status: FieldRef<"User", 'String'>
     readonly lastLogin: FieldRef<"User", 'String'>
     readonly photo: FieldRef<"User", 'String'>
-    readonly permissions: FieldRef<"User", 'Json'>
+    readonly permissions: FieldRef<"User", 'String'>
     readonly theme: FieldRef<"User", 'String'>
   }
     
@@ -4285,7 +4289,10 @@ export namespace Prisma {
     createdAt: string | null
     createdBy: string | null
     notes: string | null
+    enabledModules: string | null
     googleMapLink: string | null
+    documents: string | null
+    jobDemands: string | null
     tradeLicenseNumber: string | null
     licenseIssueDate: string | null
     licenseExpiryDate: string | null
@@ -4295,6 +4302,7 @@ export namespace Prisma {
     trnNumber: string | null
     separateDatabase: boolean | null
     databaseStatus: string | null
+    themeConfig: string | null
   }
 
   export type CompanyMaxAggregateOutputType = {
@@ -4321,7 +4329,10 @@ export namespace Prisma {
     createdAt: string | null
     createdBy: string | null
     notes: string | null
+    enabledModules: string | null
     googleMapLink: string | null
+    documents: string | null
+    jobDemands: string | null
     tradeLicenseNumber: string | null
     licenseIssueDate: string | null
     licenseExpiryDate: string | null
@@ -4331,6 +4342,7 @@ export namespace Prisma {
     trnNumber: string | null
     separateDatabase: boolean | null
     databaseStatus: string | null
+    themeConfig: string | null
   }
 
   export type CompanyCountAggregateOutputType = {
@@ -4411,7 +4423,10 @@ export namespace Prisma {
     createdAt?: true
     createdBy?: true
     notes?: true
+    enabledModules?: true
     googleMapLink?: true
+    documents?: true
+    jobDemands?: true
     tradeLicenseNumber?: true
     licenseIssueDate?: true
     licenseExpiryDate?: true
@@ -4421,6 +4436,7 @@ export namespace Prisma {
     trnNumber?: true
     separateDatabase?: true
     databaseStatus?: true
+    themeConfig?: true
   }
 
   export type CompanyMaxAggregateInputType = {
@@ -4447,7 +4463,10 @@ export namespace Prisma {
     createdAt?: true
     createdBy?: true
     notes?: true
+    enabledModules?: true
     googleMapLink?: true
+    documents?: true
+    jobDemands?: true
     tradeLicenseNumber?: true
     licenseIssueDate?: true
     licenseExpiryDate?: true
@@ -4457,6 +4476,7 @@ export namespace Prisma {
     trnNumber?: true
     separateDatabase?: true
     databaseStatus?: true
+    themeConfig?: true
   }
 
   export type CompanyCountAggregateInputType = {
@@ -4610,10 +4630,10 @@ export namespace Prisma {
     createdAt: string
     createdBy: string
     notes: string | null
-    enabledModules: JsonValue | null
+    enabledModules: string | null
     googleMapLink: string | null
-    documents: JsonValue | null
-    jobDemands: JsonValue | null
+    documents: string | null
+    jobDemands: string | null
     tradeLicenseNumber: string | null
     licenseIssueDate: string | null
     licenseExpiryDate: string | null
@@ -4623,7 +4643,7 @@ export namespace Prisma {
     trnNumber: string | null
     separateDatabase: boolean
     databaseStatus: string
-    themeConfig: JsonValue | null
+    themeConfig: string | null
     _count: CompanyCountAggregateOutputType | null
     _avg: CompanyAvgAggregateOutputType | null
     _sum: CompanySumAggregateOutputType | null
@@ -4756,10 +4776,10 @@ export namespace Prisma {
       createdAt: string
       createdBy: string
       notes: string | null
-      enabledModules: Prisma.JsonValue | null
+      enabledModules: string | null
       googleMapLink: string | null
-      documents: Prisma.JsonValue | null
-      jobDemands: Prisma.JsonValue | null
+      documents: string | null
+      jobDemands: string | null
       tradeLicenseNumber: string | null
       licenseIssueDate: string | null
       licenseExpiryDate: string | null
@@ -4769,7 +4789,7 @@ export namespace Prisma {
       trnNumber: string | null
       separateDatabase: boolean
       databaseStatus: string
-      themeConfig: Prisma.JsonValue | null
+      themeConfig: string | null
     }, ExtArgs["result"]["company"]>
     composites: {}
   }
@@ -5162,10 +5182,10 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Company", 'String'>
     readonly createdBy: FieldRef<"Company", 'String'>
     readonly notes: FieldRef<"Company", 'String'>
-    readonly enabledModules: FieldRef<"Company", 'Json'>
+    readonly enabledModules: FieldRef<"Company", 'String'>
     readonly googleMapLink: FieldRef<"Company", 'String'>
-    readonly documents: FieldRef<"Company", 'Json'>
-    readonly jobDemands: FieldRef<"Company", 'Json'>
+    readonly documents: FieldRef<"Company", 'String'>
+    readonly jobDemands: FieldRef<"Company", 'String'>
     readonly tradeLicenseNumber: FieldRef<"Company", 'String'>
     readonly licenseIssueDate: FieldRef<"Company", 'String'>
     readonly licenseExpiryDate: FieldRef<"Company", 'String'>
@@ -5175,7 +5195,7 @@ export namespace Prisma {
     readonly trnNumber: FieldRef<"Company", 'String'>
     readonly separateDatabase: FieldRef<"Company", 'Boolean'>
     readonly databaseStatus: FieldRef<"Company", 'String'>
-    readonly themeConfig: FieldRef<"Company", 'Json'>
+    readonly themeConfig: FieldRef<"Company", 'String'>
   }
     
 
@@ -7641,6 +7661,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     description: string | null
+    permissions: string | null
     isCustom: boolean | null
     company: string | null
   }
@@ -7649,6 +7670,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     description: string | null
+    permissions: string | null
     isCustom: boolean | null
     company: string | null
   }
@@ -7668,6 +7690,7 @@ export namespace Prisma {
     id?: true
     name?: true
     description?: true
+    permissions?: true
     isCustom?: true
     company?: true
   }
@@ -7676,6 +7699,7 @@ export namespace Prisma {
     id?: true
     name?: true
     description?: true
+    permissions?: true
     isCustom?: true
     company?: true
   }
@@ -7766,7 +7790,7 @@ export namespace Prisma {
     id: string
     name: string
     description: string
-    permissions: JsonValue
+    permissions: string
     isCustom: boolean
     company: string | null
     _count: RoleCountAggregateOutputType | null
@@ -7817,7 +7841,7 @@ export namespace Prisma {
       id: string
       name: string
       description: string
-      permissions: Prisma.JsonValue
+      permissions: string
       isCustom: boolean
       company: string | null
     }, ExtArgs["result"]["role"]>
@@ -8192,7 +8216,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Role", 'String'>
     readonly name: FieldRef<"Role", 'String'>
     readonly description: FieldRef<"Role", 'String'>
-    readonly permissions: FieldRef<"Role", 'Json'>
+    readonly permissions: FieldRef<"Role", 'String'>
     readonly isCustom: FieldRef<"Role", 'Boolean'>
     readonly company: FieldRef<"Role", 'String'>
   }
@@ -8564,12 +8588,14 @@ export namespace Prisma {
     branch: string | null
     createdBy: string | null
     createdAt: string | null
+    documents: string | null
     basicSalary: number | null
     housingAllowance: number | null
     transportAllowance: number | null
     overtimeRate: number | null
     shiftId: string | null
     salaryType: string | null
+    permissions: string | null
   }
 
   export type StaffMaxAggregateOutputType = {
@@ -8594,12 +8620,14 @@ export namespace Prisma {
     branch: string | null
     createdBy: string | null
     createdAt: string | null
+    documents: string | null
     basicSalary: number | null
     housingAllowance: number | null
     transportAllowance: number | null
     overtimeRate: number | null
     shiftId: string | null
     salaryType: string | null
+    permissions: string | null
   }
 
   export type StaffCountAggregateOutputType = {
@@ -8672,12 +8700,14 @@ export namespace Prisma {
     branch?: true
     createdBy?: true
     createdAt?: true
+    documents?: true
     basicSalary?: true
     housingAllowance?: true
     transportAllowance?: true
     overtimeRate?: true
     shiftId?: true
     salaryType?: true
+    permissions?: true
   }
 
   export type StaffMaxAggregateInputType = {
@@ -8702,12 +8732,14 @@ export namespace Prisma {
     branch?: true
     createdBy?: true
     createdAt?: true
+    documents?: true
     basicSalary?: true
     housingAllowance?: true
     transportAllowance?: true
     overtimeRate?: true
     shiftId?: true
     salaryType?: true
+    permissions?: true
   }
 
   export type StaffCountAggregateInputType = {
@@ -8851,14 +8883,14 @@ export namespace Prisma {
     branch: string
     createdBy: string
     createdAt: string
-    documents: JsonValue | null
+    documents: string | null
     basicSalary: number | null
     housingAllowance: number | null
     transportAllowance: number | null
     overtimeRate: number | null
     shiftId: string | null
     salaryType: string | null
-    permissions: JsonValue | null
+    permissions: string | null
     _count: StaffCountAggregateOutputType | null
     _avg: StaffAvgAggregateOutputType | null
     _sum: StaffSumAggregateOutputType | null
@@ -8973,14 +9005,14 @@ export namespace Prisma {
       branch: string
       createdBy: string
       createdAt: string
-      documents: Prisma.JsonValue | null
+      documents: string | null
       basicSalary: number | null
       housingAllowance: number | null
       transportAllowance: number | null
       overtimeRate: number | null
       shiftId: string | null
       salaryType: string | null
-      permissions: Prisma.JsonValue | null
+      permissions: string | null
     }, ExtArgs["result"]["staff"]>
     composites: {}
   }
@@ -9371,14 +9403,14 @@ export namespace Prisma {
     readonly branch: FieldRef<"Staff", 'String'>
     readonly createdBy: FieldRef<"Staff", 'String'>
     readonly createdAt: FieldRef<"Staff", 'String'>
-    readonly documents: FieldRef<"Staff", 'Json'>
+    readonly documents: FieldRef<"Staff", 'String'>
     readonly basicSalary: FieldRef<"Staff", 'Float'>
     readonly housingAllowance: FieldRef<"Staff", 'Float'>
     readonly transportAllowance: FieldRef<"Staff", 'Float'>
     readonly overtimeRate: FieldRef<"Staff", 'Float'>
     readonly shiftId: FieldRef<"Staff", 'String'>
     readonly salaryType: FieldRef<"Staff", 'String'>
-    readonly permissions: FieldRef<"Staff", 'Json'>
+    readonly permissions: FieldRef<"Staff", 'String'>
   }
     
 
@@ -9732,6 +9764,7 @@ export namespace Prisma {
     nationality: string | null
     nationalityFlag: string | null
     currentCountry: string | null
+    applyingPositions: string | null
     salaryExpectation: number | null
     applyCountry: string | null
     visaType: string | null
@@ -9744,6 +9777,8 @@ export namespace Prisma {
     branch: string | null
     createdBy: string | null
     createdAt: string | null
+    documents: string | null
+    statusHistory: string | null
     clientName: string | null
     clientPhoto: string | null
     clientMobile: string | null
@@ -9775,6 +9810,7 @@ export namespace Prisma {
     nationality: string | null
     nationalityFlag: string | null
     currentCountry: string | null
+    applyingPositions: string | null
     salaryExpectation: number | null
     applyCountry: string | null
     visaType: string | null
@@ -9787,6 +9823,8 @@ export namespace Prisma {
     branch: string | null
     createdBy: string | null
     createdAt: string | null
+    documents: string | null
+    statusHistory: string | null
     clientName: string | null
     clientPhoto: string | null
     clientMobile: string | null
@@ -9874,6 +9912,7 @@ export namespace Prisma {
     nationality?: true
     nationalityFlag?: true
     currentCountry?: true
+    applyingPositions?: true
     salaryExpectation?: true
     applyCountry?: true
     visaType?: true
@@ -9886,6 +9925,8 @@ export namespace Prisma {
     branch?: true
     createdBy?: true
     createdAt?: true
+    documents?: true
+    statusHistory?: true
     clientName?: true
     clientPhoto?: true
     clientMobile?: true
@@ -9917,6 +9958,7 @@ export namespace Prisma {
     nationality?: true
     nationalityFlag?: true
     currentCountry?: true
+    applyingPositions?: true
     salaryExpectation?: true
     applyCountry?: true
     visaType?: true
@@ -9929,6 +9971,8 @@ export namespace Prisma {
     branch?: true
     createdBy?: true
     createdAt?: true
+    documents?: true
+    statusHistory?: true
     clientName?: true
     clientPhoto?: true
     clientMobile?: true
@@ -10093,7 +10137,7 @@ export namespace Prisma {
     nationality: string
     nationalityFlag: string
     currentCountry: string
-    applyingPositions: JsonValue
+    applyingPositions: string
     salaryExpectation: number
     applyCountry: string
     visaType: string
@@ -10106,8 +10150,8 @@ export namespace Prisma {
     branch: string
     createdBy: string
     createdAt: string
-    documents: JsonValue | null
-    statusHistory: JsonValue | null
+    documents: string | null
+    statusHistory: string | null
     clientName: string | null
     clientPhoto: string | null
     clientMobile: string | null
@@ -10257,7 +10301,7 @@ export namespace Prisma {
       nationality: string
       nationalityFlag: string
       currentCountry: string
-      applyingPositions: Prisma.JsonValue
+      applyingPositions: string
       salaryExpectation: number
       applyCountry: string
       visaType: string
@@ -10270,8 +10314,8 @@ export namespace Prisma {
       branch: string
       createdBy: string
       createdAt: string
-      documents: Prisma.JsonValue | null
-      statusHistory: Prisma.JsonValue | null
+      documents: string | null
+      statusHistory: string | null
       clientName: string | null
       clientPhoto: string | null
       clientMobile: string | null
@@ -10669,7 +10713,7 @@ export namespace Prisma {
     readonly nationality: FieldRef<"Applicant", 'String'>
     readonly nationalityFlag: FieldRef<"Applicant", 'String'>
     readonly currentCountry: FieldRef<"Applicant", 'String'>
-    readonly applyingPositions: FieldRef<"Applicant", 'Json'>
+    readonly applyingPositions: FieldRef<"Applicant", 'String'>
     readonly salaryExpectation: FieldRef<"Applicant", 'Float'>
     readonly applyCountry: FieldRef<"Applicant", 'String'>
     readonly visaType: FieldRef<"Applicant", 'String'>
@@ -10682,8 +10726,8 @@ export namespace Prisma {
     readonly branch: FieldRef<"Applicant", 'String'>
     readonly createdBy: FieldRef<"Applicant", 'String'>
     readonly createdAt: FieldRef<"Applicant", 'String'>
-    readonly documents: FieldRef<"Applicant", 'Json'>
-    readonly statusHistory: FieldRef<"Applicant", 'Json'>
+    readonly documents: FieldRef<"Applicant", 'String'>
+    readonly statusHistory: FieldRef<"Applicant", 'String'>
     readonly clientName: FieldRef<"Applicant", 'String'>
     readonly clientPhoto: FieldRef<"Applicant", 'String'>
     readonly clientMobile: FieldRef<"Applicant", 'String'>
@@ -11054,6 +11098,7 @@ export namespace Prisma {
     applicantName: string | null
     targetDocument: string | null
     incompleteReason: string | null
+    history: string | null
   }
 
   export type TaskMaxAggregateOutputType = {
@@ -11078,6 +11123,7 @@ export namespace Prisma {
     applicantName: string | null
     targetDocument: string | null
     incompleteReason: string | null
+    history: string | null
   }
 
   export type TaskCountAggregateOutputType = {
@@ -11129,6 +11175,7 @@ export namespace Prisma {
     applicantName?: true
     targetDocument?: true
     incompleteReason?: true
+    history?: true
   }
 
   export type TaskMaxAggregateInputType = {
@@ -11153,6 +11200,7 @@ export namespace Prisma {
     applicantName?: true
     targetDocument?: true
     incompleteReason?: true
+    history?: true
   }
 
   export type TaskCountAggregateInputType = {
@@ -11275,7 +11323,7 @@ export namespace Prisma {
     applicantName: string | null
     targetDocument: string | null
     incompleteReason: string | null
-    history: JsonValue | null
+    history: string | null
     _count: TaskCountAggregateOutputType | null
     _min: TaskMinAggregateOutputType | null
     _max: TaskMaxAggregateOutputType | null
@@ -11374,7 +11422,7 @@ export namespace Prisma {
       applicantName: string | null
       targetDocument: string | null
       incompleteReason: string | null
-      history: Prisma.JsonValue | null
+      history: string | null
     }, ExtArgs["result"]["task"]>
     composites: {}
   }
@@ -11765,7 +11813,7 @@ export namespace Prisma {
     readonly applicantName: FieldRef<"Task", 'String'>
     readonly targetDocument: FieldRef<"Task", 'String'>
     readonly incompleteReason: FieldRef<"Task", 'String'>
-    readonly history: FieldRef<"Task", 'Json'>
+    readonly history: FieldRef<"Task", 'String'>
   }
     
 
@@ -12132,6 +12180,9 @@ export namespace Prisma {
     building: string | null
     floor: string | null
     location: string | null
+    attachments: string | null
+    conductPersonPosition: string | null
+    conductPersonMobile: string | null
   }
 
   export type InterviewMaxAggregateOutputType = {
@@ -12169,6 +12220,9 @@ export namespace Prisma {
     building: string | null
     floor: string | null
     location: string | null
+    attachments: string | null
+    conductPersonPosition: string | null
+    conductPersonMobile: string | null
   }
 
   export type InterviewCountAggregateOutputType = {
@@ -12207,6 +12261,8 @@ export namespace Prisma {
     floor: number
     location: number
     attachments: number
+    conductPersonPosition: number
+    conductPersonMobile: number
     _all: number
   }
 
@@ -12246,6 +12302,9 @@ export namespace Prisma {
     building?: true
     floor?: true
     location?: true
+    attachments?: true
+    conductPersonPosition?: true
+    conductPersonMobile?: true
   }
 
   export type InterviewMaxAggregateInputType = {
@@ -12283,6 +12342,9 @@ export namespace Prisma {
     building?: true
     floor?: true
     location?: true
+    attachments?: true
+    conductPersonPosition?: true
+    conductPersonMobile?: true
   }
 
   export type InterviewCountAggregateInputType = {
@@ -12321,6 +12383,8 @@ export namespace Prisma {
     floor?: true
     location?: true
     attachments?: true
+    conductPersonPosition?: true
+    conductPersonMobile?: true
     _all?: true
   }
 
@@ -12431,7 +12495,9 @@ export namespace Prisma {
     building: string | null
     floor: string | null
     location: string | null
-    attachments: JsonValue | null
+    attachments: string | null
+    conductPersonPosition: string | null
+    conductPersonMobile: string | null
     _count: InterviewCountAggregateOutputType | null
     _min: InterviewMinAggregateOutputType | null
     _max: InterviewMaxAggregateOutputType | null
@@ -12487,6 +12553,8 @@ export namespace Prisma {
     floor?: boolean
     location?: boolean
     attachments?: boolean
+    conductPersonPosition?: boolean
+    conductPersonMobile?: boolean
   }, ExtArgs["result"]["interview"]>
 
 
@@ -12527,9 +12595,11 @@ export namespace Prisma {
     floor?: boolean
     location?: boolean
     attachments?: boolean
+    conductPersonPosition?: boolean
+    conductPersonMobile?: boolean
   }
 
-  export type InterviewOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "applicantId" | "applicantName" | "type" | "conductPersonName" | "personName" | "mobileNumber" | "whatsAppNumber" | "emailId" | "nationality" | "meetingType" | "interviewPosition" | "dateTime" | "onlinePhysical" | "meetingMode" | "meetingLink" | "googleMapLink" | "notes" | "status" | "company" | "branch" | "scheduledBy" | "interviewResult" | "feedback" | "remarks" | "candidateResponse" | "title" | "timeZone" | "meetingId" | "passcode" | "venue" | "building" | "floor" | "location" | "attachments", ExtArgs["result"]["interview"]>
+  export type InterviewOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "applicantId" | "applicantName" | "type" | "conductPersonName" | "personName" | "mobileNumber" | "whatsAppNumber" | "emailId" | "nationality" | "meetingType" | "interviewPosition" | "dateTime" | "onlinePhysical" | "meetingMode" | "meetingLink" | "googleMapLink" | "notes" | "status" | "company" | "branch" | "scheduledBy" | "interviewResult" | "feedback" | "remarks" | "candidateResponse" | "title" | "timeZone" | "meetingId" | "passcode" | "venue" | "building" | "floor" | "location" | "attachments" | "conductPersonPosition" | "conductPersonMobile", ExtArgs["result"]["interview"]>
 
   export type $InterviewPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Interview"
@@ -12569,7 +12639,9 @@ export namespace Prisma {
       building: string | null
       floor: string | null
       location: string | null
-      attachments: Prisma.JsonValue | null
+      attachments: string | null
+      conductPersonPosition: string | null
+      conductPersonMobile: string | null
     }, ExtArgs["result"]["interview"]>
     composites: {}
   }
@@ -12973,7 +13045,9 @@ export namespace Prisma {
     readonly building: FieldRef<"Interview", 'String'>
     readonly floor: FieldRef<"Interview", 'String'>
     readonly location: FieldRef<"Interview", 'String'>
-    readonly attachments: FieldRef<"Interview", 'Json'>
+    readonly attachments: FieldRef<"Interview", 'String'>
+    readonly conductPersonPosition: FieldRef<"Interview", 'String'>
+    readonly conductPersonMobile: FieldRef<"Interview", 'String'>
   }
     
 
@@ -14326,6 +14400,7 @@ export namespace Prisma {
     reply: string | null
     company: string | null
     branch: string | null
+    history: string | null
   }
 
   export type StaffRequestMaxAggregateOutputType = {
@@ -14345,6 +14420,7 @@ export namespace Prisma {
     reply: string | null
     company: string | null
     branch: string | null
+    history: string | null
   }
 
   export type StaffRequestCountAggregateOutputType = {
@@ -14386,6 +14462,7 @@ export namespace Prisma {
     reply?: true
     company?: true
     branch?: true
+    history?: true
   }
 
   export type StaffRequestMaxAggregateInputType = {
@@ -14405,6 +14482,7 @@ export namespace Prisma {
     reply?: true
     company?: true
     branch?: true
+    history?: true
   }
 
   export type StaffRequestCountAggregateInputType = {
@@ -14517,7 +14595,7 @@ export namespace Prisma {
     reply: string | null
     company: string
     branch: string
-    history: JsonValue | null
+    history: string | null
     _count: StaffRequestCountAggregateOutputType | null
     _min: StaffRequestMinAggregateOutputType | null
     _max: StaffRequestMaxAggregateOutputType | null
@@ -14601,7 +14679,7 @@ export namespace Prisma {
       reply: string | null
       company: string
       branch: string
-      history: Prisma.JsonValue | null
+      history: string | null
     }, ExtArgs["result"]["staffRequest"]>
     composites: {}
   }
@@ -14987,7 +15065,7 @@ export namespace Prisma {
     readonly reply: FieldRef<"StaffRequest", 'String'>
     readonly company: FieldRef<"StaffRequest", 'String'>
     readonly branch: FieldRef<"StaffRequest", 'String'>
-    readonly history: FieldRef<"StaffRequest", 'Json'>
+    readonly history: FieldRef<"StaffRequest", 'String'>
   }
     
 
@@ -15356,6 +15434,8 @@ export namespace Prisma {
     licenseExpiry: string | null
     notes: string | null
     createdBy: string | null
+    assignmentHistory: string | null
+    documents: string | null
   }
 
   export type VehicleMaxAggregateOutputType = {
@@ -15383,6 +15463,8 @@ export namespace Prisma {
     licenseExpiry: string | null
     notes: string | null
     createdBy: string | null
+    assignmentHistory: string | null
+    documents: string | null
   }
 
   export type VehicleCountAggregateOutputType = {
@@ -15451,6 +15533,8 @@ export namespace Prisma {
     licenseExpiry?: true
     notes?: true
     createdBy?: true
+    assignmentHistory?: true
+    documents?: true
   }
 
   export type VehicleMaxAggregateInputType = {
@@ -15478,6 +15562,8 @@ export namespace Prisma {
     licenseExpiry?: true
     notes?: true
     createdBy?: true
+    assignmentHistory?: true
+    documents?: true
   }
 
   export type VehicleCountAggregateInputType = {
@@ -15621,8 +15707,8 @@ export namespace Prisma {
     licenseExpiry: string
     notes: string | null
     createdBy: string
-    assignmentHistory: JsonValue | null
-    documents: JsonValue | null
+    assignmentHistory: string | null
+    documents: string | null
     _count: VehicleCountAggregateOutputType | null
     _avg: VehicleAvgAggregateOutputType | null
     _sum: VehicleSumAggregateOutputType | null
@@ -15734,8 +15820,8 @@ export namespace Prisma {
       licenseExpiry: string
       notes: string | null
       createdBy: string
-      assignmentHistory: Prisma.JsonValue | null
-      documents: Prisma.JsonValue | null
+      assignmentHistory: string | null
+      documents: string | null
     }, ExtArgs["result"]["vehicle"]>
     composites: {}
   }
@@ -16129,8 +16215,8 @@ export namespace Prisma {
     readonly licenseExpiry: FieldRef<"Vehicle", 'String'>
     readonly notes: FieldRef<"Vehicle", 'String'>
     readonly createdBy: FieldRef<"Vehicle", 'String'>
-    readonly assignmentHistory: FieldRef<"Vehicle", 'Json'>
-    readonly documents: FieldRef<"Vehicle", 'Json'>
+    readonly assignmentHistory: FieldRef<"Vehicle", 'String'>
+    readonly documents: FieldRef<"Vehicle", 'String'>
   }
     
 
@@ -16478,6 +16564,7 @@ export namespace Prisma {
     branch: string | null
     createdAt: string | null
     createdBy: string | null
+    documents: string | null
   }
 
   export type SupplierMaxAggregateOutputType = {
@@ -16496,6 +16583,7 @@ export namespace Prisma {
     branch: string | null
     createdAt: string | null
     createdBy: string | null
+    documents: string | null
   }
 
   export type SupplierCountAggregateOutputType = {
@@ -16535,6 +16623,7 @@ export namespace Prisma {
     branch?: true
     createdAt?: true
     createdBy?: true
+    documents?: true
   }
 
   export type SupplierMaxAggregateInputType = {
@@ -16553,6 +16642,7 @@ export namespace Prisma {
     branch?: true
     createdAt?: true
     createdBy?: true
+    documents?: true
   }
 
   export type SupplierCountAggregateInputType = {
@@ -16663,7 +16753,7 @@ export namespace Prisma {
     branch: string
     createdAt: string
     createdBy: string
-    documents: JsonValue | null
+    documents: string | null
     _count: SupplierCountAggregateOutputType | null
     _min: SupplierMinAggregateOutputType | null
     _max: SupplierMaxAggregateOutputType | null
@@ -16744,7 +16834,7 @@ export namespace Prisma {
       branch: string
       createdAt: string
       createdBy: string
-      documents: Prisma.JsonValue | null
+      documents: string | null
     }, ExtArgs["result"]["supplier"]>
     composites: {}
   }
@@ -17129,7 +17219,7 @@ export namespace Prisma {
     readonly branch: FieldRef<"Supplier", 'String'>
     readonly createdAt: FieldRef<"Supplier", 'String'>
     readonly createdBy: FieldRef<"Supplier", 'String'>
-    readonly documents: FieldRef<"Supplier", 'Json'>
+    readonly documents: FieldRef<"Supplier", 'String'>
   }
     
 
@@ -17555,6 +17645,7 @@ export namespace Prisma {
     applicantSignIp: string | null
     applicantSignDevice: string | null
     termsAndConditions: string | null
+    agreementHistory: string | null
     agreementAccepted: boolean | null
     emiratesId: string | null
     maritalStatus: string | null
@@ -17641,6 +17732,7 @@ export namespace Prisma {
     applicantSignIp: string | null
     applicantSignDevice: string | null
     termsAndConditions: string | null
+    agreementHistory: string | null
     agreementAccepted: boolean | null
     emiratesId: string | null
     maritalStatus: string | null
@@ -17832,6 +17924,7 @@ export namespace Prisma {
     applicantSignIp?: true
     applicantSignDevice?: true
     termsAndConditions?: true
+    agreementHistory?: true
     agreementAccepted?: true
     emiratesId?: true
     maritalStatus?: true
@@ -17918,6 +18011,7 @@ export namespace Prisma {
     applicantSignIp?: true
     applicantSignDevice?: true
     termsAndConditions?: true
+    agreementHistory?: true
     agreementAccepted?: true
     emiratesId?: true
     maritalStatus?: true
@@ -18178,7 +18272,7 @@ export namespace Prisma {
     applicantSignIp: string | null
     applicantSignDevice: string | null
     termsAndConditions: string | null
-    agreementHistory: JsonValue | null
+    agreementHistory: string | null
     agreementAccepted: boolean | null
     emiratesId: string | null
     maritalStatus: string | null
@@ -18465,7 +18559,7 @@ export namespace Prisma {
       applicantSignIp: string | null
       applicantSignDevice: string | null
       termsAndConditions: string | null
-      agreementHistory: Prisma.JsonValue | null
+      agreementHistory: string | null
       agreementAccepted: boolean | null
       emiratesId: string | null
       maritalStatus: string | null
@@ -18918,7 +19012,7 @@ export namespace Prisma {
     readonly applicantSignIp: FieldRef<"Placement", 'String'>
     readonly applicantSignDevice: FieldRef<"Placement", 'String'>
     readonly termsAndConditions: FieldRef<"Placement", 'String'>
-    readonly agreementHistory: FieldRef<"Placement", 'Json'>
+    readonly agreementHistory: FieldRef<"Placement", 'String'>
     readonly agreementAccepted: FieldRef<"Placement", 'Boolean'>
     readonly emiratesId: FieldRef<"Placement", 'String'>
     readonly maritalStatus: FieldRef<"Placement", 'String'>
@@ -21214,6 +21308,8 @@ export namespace Prisma {
     basicSalary: number | null
     allowances: number | null
     deductions: number | null
+    allowanceDetails: string | null
+    deductionDetails: string | null
     advanceDeduction: number | null
     loanDeduction: number | null
     overtimeHours: number | null
@@ -21236,6 +21332,8 @@ export namespace Prisma {
     basicSalary: number | null
     allowances: number | null
     deductions: number | null
+    allowanceDetails: string | null
+    deductionDetails: string | null
     advanceDeduction: number | null
     loanDeduction: number | null
     overtimeHours: number | null
@@ -21310,6 +21408,8 @@ export namespace Prisma {
     basicSalary?: true
     allowances?: true
     deductions?: true
+    allowanceDetails?: true
+    deductionDetails?: true
     advanceDeduction?: true
     loanDeduction?: true
     overtimeHours?: true
@@ -21332,6 +21432,8 @@ export namespace Prisma {
     basicSalary?: true
     allowances?: true
     deductions?: true
+    allowanceDetails?: true
+    deductionDetails?: true
     advanceDeduction?: true
     loanDeduction?: true
     overtimeHours?: true
@@ -21465,8 +21567,8 @@ export namespace Prisma {
     basicSalary: number
     allowances: number
     deductions: number
-    allowanceDetails: JsonValue | null
-    deductionDetails: JsonValue | null
+    allowanceDetails: string | null
+    deductionDetails: string | null
     advanceDeduction: number
     loanDeduction: number
     overtimeHours: number
@@ -21563,8 +21665,8 @@ export namespace Prisma {
       basicSalary: number
       allowances: number
       deductions: number
-      allowanceDetails: Prisma.JsonValue | null
-      deductionDetails: Prisma.JsonValue | null
+      allowanceDetails: string | null
+      deductionDetails: string | null
       advanceDeduction: number
       loanDeduction: number
       overtimeHours: number
@@ -21953,8 +22055,8 @@ export namespace Prisma {
     readonly basicSalary: FieldRef<"PayrollRecord", 'Float'>
     readonly allowances: FieldRef<"PayrollRecord", 'Float'>
     readonly deductions: FieldRef<"PayrollRecord", 'Float'>
-    readonly allowanceDetails: FieldRef<"PayrollRecord", 'Json'>
-    readonly deductionDetails: FieldRef<"PayrollRecord", 'Json'>
+    readonly allowanceDetails: FieldRef<"PayrollRecord", 'String'>
+    readonly deductionDetails: FieldRef<"PayrollRecord", 'String'>
     readonly advanceDeduction: FieldRef<"PayrollRecord", 'Float'>
     readonly loanDeduction: FieldRef<"PayrollRecord", 'Float'>
     readonly overtimeHours: FieldRef<"PayrollRecord", 'Float'>
@@ -22312,6 +22414,7 @@ export namespace Prisma {
     staffName: string | null
     month: string | null
     year: number | null
+    records: string | null
     company: string | null
     branch: string | null
   }
@@ -22322,6 +22425,7 @@ export namespace Prisma {
     staffName: string | null
     month: string | null
     year: number | null
+    records: string | null
     company: string | null
     branch: string | null
   }
@@ -22353,6 +22457,7 @@ export namespace Prisma {
     staffName?: true
     month?: true
     year?: true
+    records?: true
     company?: true
     branch?: true
   }
@@ -22363,6 +22468,7 @@ export namespace Prisma {
     staffName?: true
     month?: true
     year?: true
+    records?: true
     company?: true
     branch?: true
   }
@@ -22471,7 +22577,7 @@ export namespace Prisma {
     staffName: string
     month: string
     year: number
-    records: JsonValue
+    records: string
     company: string
     branch: string
     _count: StaffAttendanceCountAggregateOutputType | null
@@ -22530,7 +22636,7 @@ export namespace Prisma {
       staffName: string
       month: string
       year: number
-      records: Prisma.JsonValue
+      records: string
       company: string
       branch: string
     }, ExtArgs["result"]["staffAttendance"]>
@@ -22907,7 +23013,7 @@ export namespace Prisma {
     readonly staffName: FieldRef<"StaffAttendance", 'String'>
     readonly month: FieldRef<"StaffAttendance", 'String'>
     readonly year: FieldRef<"StaffAttendance", 'Int'>
-    readonly records: FieldRef<"StaffAttendance", 'Json'>
+    readonly records: FieldRef<"StaffAttendance", 'String'>
     readonly company: FieldRef<"StaffAttendance", 'String'>
     readonly branch: FieldRef<"StaffAttendance", 'String'>
   }
@@ -30157,6 +30263,8 @@ export namespace Prisma {
     bannerImage: string | null
     icon: string | null
     footerContent: string | null
+    brandColors: string | null
+    versionHistory: string | null
     type: string | null
     isEnabled: boolean | null
     createdAt: string | null
@@ -30172,6 +30280,8 @@ export namespace Prisma {
     bannerImage: string | null
     icon: string | null
     footerContent: string | null
+    brandColors: string | null
+    versionHistory: string | null
     type: string | null
     isEnabled: boolean | null
     createdAt: string | null
@@ -30206,6 +30316,8 @@ export namespace Prisma {
     bannerImage?: true
     icon?: true
     footerContent?: true
+    brandColors?: true
+    versionHistory?: true
     type?: true
     isEnabled?: true
     createdAt?: true
@@ -30221,6 +30333,8 @@ export namespace Prisma {
     bannerImage?: true
     icon?: true
     footerContent?: true
+    brandColors?: true
+    versionHistory?: true
     type?: true
     isEnabled?: true
     createdAt?: true
@@ -30326,8 +30440,8 @@ export namespace Prisma {
     bannerImage: string | null
     icon: string | null
     footerContent: string | null
-    brandColors: JsonValue | null
-    versionHistory: JsonValue | null
+    brandColors: string | null
+    versionHistory: string | null
     type: string | null
     isEnabled: boolean
     createdAt: string
@@ -30401,8 +30515,8 @@ export namespace Prisma {
       bannerImage: string | null
       icon: string | null
       footerContent: string | null
-      brandColors: Prisma.JsonValue | null
-      versionHistory: Prisma.JsonValue | null
+      brandColors: string | null
+      versionHistory: string | null
       type: string | null
       isEnabled: boolean
       createdAt: string
@@ -30784,8 +30898,8 @@ export namespace Prisma {
     readonly bannerImage: FieldRef<"EmailTemplate", 'String'>
     readonly icon: FieldRef<"EmailTemplate", 'String'>
     readonly footerContent: FieldRef<"EmailTemplate", 'String'>
-    readonly brandColors: FieldRef<"EmailTemplate", 'Json'>
-    readonly versionHistory: FieldRef<"EmailTemplate", 'Json'>
+    readonly brandColors: FieldRef<"EmailTemplate", 'String'>
+    readonly versionHistory: FieldRef<"EmailTemplate", 'String'>
     readonly type: FieldRef<"EmailTemplate", 'String'>
     readonly isEnabled: FieldRef<"EmailTemplate", 'Boolean'>
     readonly createdAt: FieldRef<"EmailTemplate", 'String'>
@@ -35134,7 +35248,9 @@ export namespace Prisma {
     building: 'building',
     floor: 'floor',
     location: 'location',
-    attachments: 'attachments'
+    attachments: 'attachments',
+    conductPersonPosition: 'conductPersonPosition',
+    conductPersonMobile: 'conductPersonMobile'
   };
 
   export type InterviewScalarFieldEnum = (typeof InterviewScalarFieldEnum)[keyof typeof InterviewScalarFieldEnum]
@@ -35622,38 +35738,6 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-  export const NullableJsonNullValueInput: {
-    DbNull: typeof DbNull,
-    JsonNull: typeof JsonNull
-  };
-
-  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
-
-
-  export const JsonNullValueInput: {
-    JsonNull: typeof JsonNull
-  };
-
-  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
-  export const JsonNullValueFilter: {
-    DbNull: typeof DbNull,
-    JsonNull: typeof JsonNull,
-    AnyNull: typeof AnyNull
-  };
-
-  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
-
-
-  export const QueryMode: {
-    default: 'default',
-    insensitive: 'insensitive'
-  };
-
-  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
-
-
   export const NullsOrder: {
     first: 'first',
     last: 'last'
@@ -35675,6 +35759,7 @@ export namespace Prisma {
     status: 'status',
     lastLogin: 'lastLogin',
     photo: 'photo',
+    permissions: 'permissions',
     theme: 'theme'
   };
 
@@ -35702,7 +35787,10 @@ export namespace Prisma {
     createdAt: 'createdAt',
     createdBy: 'createdBy',
     notes: 'notes',
+    enabledModules: 'enabledModules',
     googleMapLink: 'googleMapLink',
+    documents: 'documents',
+    jobDemands: 'jobDemands',
     tradeLicenseNumber: 'tradeLicenseNumber',
     licenseIssueDate: 'licenseIssueDate',
     licenseExpiryDate: 'licenseExpiryDate',
@@ -35710,7 +35798,8 @@ export namespace Prisma {
     ownerName: 'ownerName',
     emirateLocation: 'emirateLocation',
     trnNumber: 'trnNumber',
-    databaseStatus: 'databaseStatus'
+    databaseStatus: 'databaseStatus',
+    themeConfig: 'themeConfig'
   };
 
   export type CompanyOrderByRelevanceFieldEnum = (typeof CompanyOrderByRelevanceFieldEnum)[keyof typeof CompanyOrderByRelevanceFieldEnum]
@@ -35763,6 +35852,7 @@ export namespace Prisma {
     id: 'id',
     name: 'name',
     description: 'description',
+    permissions: 'permissions',
     company: 'company'
   };
 
@@ -35791,8 +35881,10 @@ export namespace Prisma {
     branch: 'branch',
     createdBy: 'createdBy',
     createdAt: 'createdAt',
+    documents: 'documents',
     shiftId: 'shiftId',
-    salaryType: 'salaryType'
+    salaryType: 'salaryType',
+    permissions: 'permissions'
   };
 
   export type StaffOrderByRelevanceFieldEnum = (typeof StaffOrderByRelevanceFieldEnum)[keyof typeof StaffOrderByRelevanceFieldEnum]
@@ -35810,6 +35902,7 @@ export namespace Prisma {
     nationality: 'nationality',
     nationalityFlag: 'nationalityFlag',
     currentCountry: 'currentCountry',
+    applyingPositions: 'applyingPositions',
     applyCountry: 'applyCountry',
     visaType: 'visaType',
     visaExpiry: 'visaExpiry',
@@ -35821,6 +35914,8 @@ export namespace Prisma {
     branch: 'branch',
     createdBy: 'createdBy',
     createdAt: 'createdAt',
+    documents: 'documents',
+    statusHistory: 'statusHistory',
     clientName: 'clientName',
     clientPhoto: 'clientPhoto',
     clientMobile: 'clientMobile',
@@ -35863,7 +35958,8 @@ export namespace Prisma {
     applicantId: 'applicantId',
     applicantName: 'applicantName',
     targetDocument: 'targetDocument',
-    incompleteReason: 'incompleteReason'
+    incompleteReason: 'incompleteReason',
+    history: 'history'
   };
 
   export type TaskOrderByRelevanceFieldEnum = (typeof TaskOrderByRelevanceFieldEnum)[keyof typeof TaskOrderByRelevanceFieldEnum]
@@ -35903,7 +35999,10 @@ export namespace Prisma {
     venue: 'venue',
     building: 'building',
     floor: 'floor',
-    location: 'location'
+    location: 'location',
+    attachments: 'attachments',
+    conductPersonPosition: 'conductPersonPosition',
+    conductPersonMobile: 'conductPersonMobile'
   };
 
   export type InterviewOrderByRelevanceFieldEnum = (typeof InterviewOrderByRelevanceFieldEnum)[keyof typeof InterviewOrderByRelevanceFieldEnum]
@@ -35943,7 +36042,8 @@ export namespace Prisma {
     reason: 'reason',
     reply: 'reply',
     company: 'company',
-    branch: 'branch'
+    branch: 'branch',
+    history: 'history'
   };
 
   export type StaffRequestOrderByRelevanceFieldEnum = (typeof StaffRequestOrderByRelevanceFieldEnum)[keyof typeof StaffRequestOrderByRelevanceFieldEnum]
@@ -35971,7 +36071,9 @@ export namespace Prisma {
     registrationExpiry: 'registrationExpiry',
     licenseExpiry: 'licenseExpiry',
     notes: 'notes',
-    createdBy: 'createdBy'
+    createdBy: 'createdBy',
+    assignmentHistory: 'assignmentHistory',
+    documents: 'documents'
   };
 
   export type VehicleOrderByRelevanceFieldEnum = (typeof VehicleOrderByRelevanceFieldEnum)[keyof typeof VehicleOrderByRelevanceFieldEnum]
@@ -35992,7 +36094,8 @@ export namespace Prisma {
     company: 'company',
     branch: 'branch',
     createdAt: 'createdAt',
-    createdBy: 'createdBy'
+    createdBy: 'createdBy',
+    documents: 'documents'
   };
 
   export type SupplierOrderByRelevanceFieldEnum = (typeof SupplierOrderByRelevanceFieldEnum)[keyof typeof SupplierOrderByRelevanceFieldEnum]
@@ -36068,6 +36171,7 @@ export namespace Prisma {
     applicantSignIp: 'applicantSignIp',
     applicantSignDevice: 'applicantSignDevice',
     termsAndConditions: 'termsAndConditions',
+    agreementHistory: 'agreementHistory',
     emiratesId: 'emiratesId',
     maritalStatus: 'maritalStatus',
     education: 'education',
@@ -36120,6 +36224,8 @@ export namespace Prisma {
     staffName: 'staffName',
     position: 'position',
     month: 'month',
+    allowanceDetails: 'allowanceDetails',
+    deductionDetails: 'deductionDetails',
     status: 'status',
     company: 'company',
     branch: 'branch',
@@ -36134,6 +36240,7 @@ export namespace Prisma {
     staffId: 'staffId',
     staffName: 'staffName',
     month: 'month',
+    records: 'records',
     company: 'company',
     branch: 'branch'
   };
@@ -36277,6 +36384,8 @@ export namespace Prisma {
     bannerImage: 'bannerImage',
     icon: 'icon',
     footerContent: 'footerContent',
+    brandColors: 'brandColors',
+    versionHistory: 'versionHistory',
     type: 'type',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -36353,20 +36462,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Json'
-   */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-  /**
-   * Reference to a field of type 'QueryMode'
-   */
-  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -36413,7 +36508,7 @@ export namespace Prisma {
     status?: StringFilter<"User"> | string
     lastLogin?: StringFilter<"User"> | string
     photo?: StringNullableFilter<"User"> | string | null
-    permissions?: JsonNullableFilter<"User">
+    permissions?: StringNullableFilter<"User"> | string | null
     theme?: StringFilter<"User"> | string
   }
 
@@ -36451,7 +36546,7 @@ export namespace Prisma {
     status?: StringFilter<"User"> | string
     lastLogin?: StringFilter<"User"> | string
     photo?: StringNullableFilter<"User"> | string | null
-    permissions?: JsonNullableFilter<"User">
+    permissions?: StringNullableFilter<"User"> | string | null
     theme?: StringFilter<"User"> | string
   }, "id" | "email">
 
@@ -36491,7 +36586,7 @@ export namespace Prisma {
     status?: StringWithAggregatesFilter<"User"> | string
     lastLogin?: StringWithAggregatesFilter<"User"> | string
     photo?: StringNullableWithAggregatesFilter<"User"> | string | null
-    permissions?: JsonNullableWithAggregatesFilter<"User">
+    permissions?: StringNullableWithAggregatesFilter<"User"> | string | null
     theme?: StringWithAggregatesFilter<"User"> | string
   }
 
@@ -36522,10 +36617,10 @@ export namespace Prisma {
     createdAt?: StringFilter<"Company"> | string
     createdBy?: StringFilter<"Company"> | string
     notes?: StringNullableFilter<"Company"> | string | null
-    enabledModules?: JsonNullableFilter<"Company">
+    enabledModules?: StringNullableFilter<"Company"> | string | null
     googleMapLink?: StringNullableFilter<"Company"> | string | null
-    documents?: JsonNullableFilter<"Company">
-    jobDemands?: JsonNullableFilter<"Company">
+    documents?: StringNullableFilter<"Company"> | string | null
+    jobDemands?: StringNullableFilter<"Company"> | string | null
     tradeLicenseNumber?: StringNullableFilter<"Company"> | string | null
     licenseIssueDate?: StringNullableFilter<"Company"> | string | null
     licenseExpiryDate?: StringNullableFilter<"Company"> | string | null
@@ -36535,7 +36630,7 @@ export namespace Prisma {
     trnNumber?: StringNullableFilter<"Company"> | string | null
     separateDatabase?: BoolFilter<"Company"> | boolean
     databaseStatus?: StringFilter<"Company"> | string
-    themeConfig?: JsonNullableFilter<"Company">
+    themeConfig?: StringNullableFilter<"Company"> | string | null
   }
 
   export type CompanyOrderByWithRelationInput = {
@@ -36606,10 +36701,10 @@ export namespace Prisma {
     createdAt?: StringFilter<"Company"> | string
     createdBy?: StringFilter<"Company"> | string
     notes?: StringNullableFilter<"Company"> | string | null
-    enabledModules?: JsonNullableFilter<"Company">
+    enabledModules?: StringNullableFilter<"Company"> | string | null
     googleMapLink?: StringNullableFilter<"Company"> | string | null
-    documents?: JsonNullableFilter<"Company">
-    jobDemands?: JsonNullableFilter<"Company">
+    documents?: StringNullableFilter<"Company"> | string | null
+    jobDemands?: StringNullableFilter<"Company"> | string | null
     tradeLicenseNumber?: StringNullableFilter<"Company"> | string | null
     licenseIssueDate?: StringNullableFilter<"Company"> | string | null
     licenseExpiryDate?: StringNullableFilter<"Company"> | string | null
@@ -36619,7 +36714,7 @@ export namespace Prisma {
     trnNumber?: StringNullableFilter<"Company"> | string | null
     separateDatabase?: BoolFilter<"Company"> | boolean
     databaseStatus?: StringFilter<"Company"> | string
-    themeConfig?: JsonNullableFilter<"Company">
+    themeConfig?: StringNullableFilter<"Company"> | string | null
   }, "id">
 
   export type CompanyOrderByWithAggregationInput = {
@@ -36694,10 +36789,10 @@ export namespace Prisma {
     createdAt?: StringWithAggregatesFilter<"Company"> | string
     createdBy?: StringWithAggregatesFilter<"Company"> | string
     notes?: StringNullableWithAggregatesFilter<"Company"> | string | null
-    enabledModules?: JsonNullableWithAggregatesFilter<"Company">
+    enabledModules?: StringNullableWithAggregatesFilter<"Company"> | string | null
     googleMapLink?: StringNullableWithAggregatesFilter<"Company"> | string | null
-    documents?: JsonNullableWithAggregatesFilter<"Company">
-    jobDemands?: JsonNullableWithAggregatesFilter<"Company">
+    documents?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    jobDemands?: StringNullableWithAggregatesFilter<"Company"> | string | null
     tradeLicenseNumber?: StringNullableWithAggregatesFilter<"Company"> | string | null
     licenseIssueDate?: StringNullableWithAggregatesFilter<"Company"> | string | null
     licenseExpiryDate?: StringNullableWithAggregatesFilter<"Company"> | string | null
@@ -36707,7 +36802,7 @@ export namespace Prisma {
     trnNumber?: StringNullableWithAggregatesFilter<"Company"> | string | null
     separateDatabase?: BoolWithAggregatesFilter<"Company"> | boolean
     databaseStatus?: StringWithAggregatesFilter<"Company"> | string
-    themeConfig?: JsonNullableWithAggregatesFilter<"Company">
+    themeConfig?: StringNullableWithAggregatesFilter<"Company"> | string | null
   }
 
   export type InternalCompanyWhereInput = {
@@ -36957,7 +37052,7 @@ export namespace Prisma {
     id?: StringFilter<"Role"> | string
     name?: StringFilter<"Role"> | string
     description?: StringFilter<"Role"> | string
-    permissions?: JsonFilter<"Role">
+    permissions?: StringFilter<"Role"> | string
     isCustom?: BoolFilter<"Role"> | boolean
     company?: StringNullableFilter<"Role"> | string | null
   }
@@ -36979,7 +37074,7 @@ export namespace Prisma {
     NOT?: RoleWhereInput | RoleWhereInput[]
     name?: StringFilter<"Role"> | string
     description?: StringFilter<"Role"> | string
-    permissions?: JsonFilter<"Role">
+    permissions?: StringFilter<"Role"> | string
     isCustom?: BoolFilter<"Role"> | boolean
     company?: StringNullableFilter<"Role"> | string | null
   }, "id">
@@ -37003,7 +37098,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Role"> | string
     name?: StringWithAggregatesFilter<"Role"> | string
     description?: StringWithAggregatesFilter<"Role"> | string
-    permissions?: JsonWithAggregatesFilter<"Role">
+    permissions?: StringWithAggregatesFilter<"Role"> | string
     isCustom?: BoolWithAggregatesFilter<"Role"> | boolean
     company?: StringNullableWithAggregatesFilter<"Role"> | string | null
   }
@@ -37033,14 +37128,14 @@ export namespace Prisma {
     branch?: StringFilter<"Staff"> | string
     createdBy?: StringFilter<"Staff"> | string
     createdAt?: StringFilter<"Staff"> | string
-    documents?: JsonNullableFilter<"Staff">
+    documents?: StringNullableFilter<"Staff"> | string | null
     basicSalary?: FloatNullableFilter<"Staff"> | number | null
     housingAllowance?: FloatNullableFilter<"Staff"> | number | null
     transportAllowance?: FloatNullableFilter<"Staff"> | number | null
     overtimeRate?: FloatNullableFilter<"Staff"> | number | null
     shiftId?: StringNullableFilter<"Staff"> | string | null
     salaryType?: StringNullableFilter<"Staff"> | string | null
-    permissions?: JsonNullableFilter<"Staff">
+    permissions?: StringNullableFilter<"Staff"> | string | null
   }
 
   export type StaffOrderByWithRelationInput = {
@@ -37101,14 +37196,14 @@ export namespace Prisma {
     branch?: StringFilter<"Staff"> | string
     createdBy?: StringFilter<"Staff"> | string
     createdAt?: StringFilter<"Staff"> | string
-    documents?: JsonNullableFilter<"Staff">
+    documents?: StringNullableFilter<"Staff"> | string | null
     basicSalary?: FloatNullableFilter<"Staff"> | number | null
     housingAllowance?: FloatNullableFilter<"Staff"> | number | null
     transportAllowance?: FloatNullableFilter<"Staff"> | number | null
     overtimeRate?: FloatNullableFilter<"Staff"> | number | null
     shiftId?: StringNullableFilter<"Staff"> | string | null
     salaryType?: StringNullableFilter<"Staff"> | string | null
-    permissions?: JsonNullableFilter<"Staff">
+    permissions?: StringNullableFilter<"Staff"> | string | null
   }, "id">
 
   export type StaffOrderByWithAggregationInput = {
@@ -37173,14 +37268,14 @@ export namespace Prisma {
     branch?: StringWithAggregatesFilter<"Staff"> | string
     createdBy?: StringWithAggregatesFilter<"Staff"> | string
     createdAt?: StringWithAggregatesFilter<"Staff"> | string
-    documents?: JsonNullableWithAggregatesFilter<"Staff">
+    documents?: StringNullableWithAggregatesFilter<"Staff"> | string | null
     basicSalary?: FloatNullableWithAggregatesFilter<"Staff"> | number | null
     housingAllowance?: FloatNullableWithAggregatesFilter<"Staff"> | number | null
     transportAllowance?: FloatNullableWithAggregatesFilter<"Staff"> | number | null
     overtimeRate?: FloatNullableWithAggregatesFilter<"Staff"> | number | null
     shiftId?: StringNullableWithAggregatesFilter<"Staff"> | string | null
     salaryType?: StringNullableWithAggregatesFilter<"Staff"> | string | null
-    permissions?: JsonNullableWithAggregatesFilter<"Staff">
+    permissions?: StringNullableWithAggregatesFilter<"Staff"> | string | null
   }
 
   export type ApplicantWhereInput = {
@@ -37198,7 +37293,7 @@ export namespace Prisma {
     nationality?: StringFilter<"Applicant"> | string
     nationalityFlag?: StringFilter<"Applicant"> | string
     currentCountry?: StringFilter<"Applicant"> | string
-    applyingPositions?: JsonFilter<"Applicant">
+    applyingPositions?: StringFilter<"Applicant"> | string
     salaryExpectation?: FloatFilter<"Applicant"> | number
     applyCountry?: StringFilter<"Applicant"> | string
     visaType?: StringFilter<"Applicant"> | string
@@ -37211,8 +37306,8 @@ export namespace Prisma {
     branch?: StringFilter<"Applicant"> | string
     createdBy?: StringFilter<"Applicant"> | string
     createdAt?: StringFilter<"Applicant"> | string
-    documents?: JsonNullableFilter<"Applicant">
-    statusHistory?: JsonNullableFilter<"Applicant">
+    documents?: StringNullableFilter<"Applicant"> | string | null
+    statusHistory?: StringNullableFilter<"Applicant"> | string | null
     clientName?: StringNullableFilter<"Applicant"> | string | null
     clientPhoto?: StringNullableFilter<"Applicant"> | string | null
     clientMobile?: StringNullableFilter<"Applicant"> | string | null
@@ -37295,7 +37390,7 @@ export namespace Prisma {
     nationality?: StringFilter<"Applicant"> | string
     nationalityFlag?: StringFilter<"Applicant"> | string
     currentCountry?: StringFilter<"Applicant"> | string
-    applyingPositions?: JsonFilter<"Applicant">
+    applyingPositions?: StringFilter<"Applicant"> | string
     salaryExpectation?: FloatFilter<"Applicant"> | number
     applyCountry?: StringFilter<"Applicant"> | string
     visaType?: StringFilter<"Applicant"> | string
@@ -37307,8 +37402,8 @@ export namespace Prisma {
     branch?: StringFilter<"Applicant"> | string
     createdBy?: StringFilter<"Applicant"> | string
     createdAt?: StringFilter<"Applicant"> | string
-    documents?: JsonNullableFilter<"Applicant">
-    statusHistory?: JsonNullableFilter<"Applicant">
+    documents?: StringNullableFilter<"Applicant"> | string | null
+    statusHistory?: StringNullableFilter<"Applicant"> | string | null
     clientName?: StringNullableFilter<"Applicant"> | string | null
     clientPhoto?: StringNullableFilter<"Applicant"> | string | null
     clientMobile?: StringNullableFilter<"Applicant"> | string | null
@@ -37394,7 +37489,7 @@ export namespace Prisma {
     nationality?: StringWithAggregatesFilter<"Applicant"> | string
     nationalityFlag?: StringWithAggregatesFilter<"Applicant"> | string
     currentCountry?: StringWithAggregatesFilter<"Applicant"> | string
-    applyingPositions?: JsonWithAggregatesFilter<"Applicant">
+    applyingPositions?: StringWithAggregatesFilter<"Applicant"> | string
     salaryExpectation?: FloatWithAggregatesFilter<"Applicant"> | number
     applyCountry?: StringWithAggregatesFilter<"Applicant"> | string
     visaType?: StringWithAggregatesFilter<"Applicant"> | string
@@ -37407,8 +37502,8 @@ export namespace Prisma {
     branch?: StringWithAggregatesFilter<"Applicant"> | string
     createdBy?: StringWithAggregatesFilter<"Applicant"> | string
     createdAt?: StringWithAggregatesFilter<"Applicant"> | string
-    documents?: JsonNullableWithAggregatesFilter<"Applicant">
-    statusHistory?: JsonNullableWithAggregatesFilter<"Applicant">
+    documents?: StringNullableWithAggregatesFilter<"Applicant"> | string | null
+    statusHistory?: StringNullableWithAggregatesFilter<"Applicant"> | string | null
     clientName?: StringNullableWithAggregatesFilter<"Applicant"> | string | null
     clientPhoto?: StringNullableWithAggregatesFilter<"Applicant"> | string | null
     clientMobile?: StringNullableWithAggregatesFilter<"Applicant"> | string | null
@@ -37453,7 +37548,7 @@ export namespace Prisma {
     applicantName?: StringNullableFilter<"Task"> | string | null
     targetDocument?: StringNullableFilter<"Task"> | string | null
     incompleteReason?: StringNullableFilter<"Task"> | string | null
-    history?: JsonNullableFilter<"Task">
+    history?: StringNullableFilter<"Task"> | string | null
   }
 
   export type TaskOrderByWithRelationInput = {
@@ -37507,7 +37602,7 @@ export namespace Prisma {
     applicantName?: StringNullableFilter<"Task"> | string | null
     targetDocument?: StringNullableFilter<"Task"> | string | null
     incompleteReason?: StringNullableFilter<"Task"> | string | null
-    history?: JsonNullableFilter<"Task">
+    history?: StringNullableFilter<"Task"> | string | null
   }, "id">
 
   export type TaskOrderByWithAggregationInput = {
@@ -37563,7 +37658,7 @@ export namespace Prisma {
     applicantName?: StringNullableWithAggregatesFilter<"Task"> | string | null
     targetDocument?: StringNullableWithAggregatesFilter<"Task"> | string | null
     incompleteReason?: StringNullableWithAggregatesFilter<"Task"> | string | null
-    history?: JsonNullableWithAggregatesFilter<"Task">
+    history?: StringNullableWithAggregatesFilter<"Task"> | string | null
   }
 
   export type InterviewWhereInput = {
@@ -37604,7 +37699,9 @@ export namespace Prisma {
     building?: StringNullableFilter<"Interview"> | string | null
     floor?: StringNullableFilter<"Interview"> | string | null
     location?: StringNullableFilter<"Interview"> | string | null
-    attachments?: JsonNullableFilter<"Interview">
+    attachments?: StringNullableFilter<"Interview"> | string | null
+    conductPersonPosition?: StringNullableFilter<"Interview"> | string | null
+    conductPersonMobile?: StringNullableFilter<"Interview"> | string | null
   }
 
   export type InterviewOrderByWithRelationInput = {
@@ -37643,6 +37740,8 @@ export namespace Prisma {
     floor?: SortOrderInput | SortOrder
     location?: SortOrderInput | SortOrder
     attachments?: SortOrderInput | SortOrder
+    conductPersonPosition?: SortOrderInput | SortOrder
+    conductPersonMobile?: SortOrderInput | SortOrder
     _relevance?: InterviewOrderByRelevanceInput
   }
 
@@ -37684,7 +37783,9 @@ export namespace Prisma {
     building?: StringNullableFilter<"Interview"> | string | null
     floor?: StringNullableFilter<"Interview"> | string | null
     location?: StringNullableFilter<"Interview"> | string | null
-    attachments?: JsonNullableFilter<"Interview">
+    attachments?: StringNullableFilter<"Interview"> | string | null
+    conductPersonPosition?: StringNullableFilter<"Interview"> | string | null
+    conductPersonMobile?: StringNullableFilter<"Interview"> | string | null
   }, "id">
 
   export type InterviewOrderByWithAggregationInput = {
@@ -37723,6 +37824,8 @@ export namespace Prisma {
     floor?: SortOrderInput | SortOrder
     location?: SortOrderInput | SortOrder
     attachments?: SortOrderInput | SortOrder
+    conductPersonPosition?: SortOrderInput | SortOrder
+    conductPersonMobile?: SortOrderInput | SortOrder
     _count?: InterviewCountOrderByAggregateInput
     _max?: InterviewMaxOrderByAggregateInput
     _min?: InterviewMinOrderByAggregateInput
@@ -37766,7 +37869,9 @@ export namespace Prisma {
     building?: StringNullableWithAggregatesFilter<"Interview"> | string | null
     floor?: StringNullableWithAggregatesFilter<"Interview"> | string | null
     location?: StringNullableWithAggregatesFilter<"Interview"> | string | null
-    attachments?: JsonNullableWithAggregatesFilter<"Interview">
+    attachments?: StringNullableWithAggregatesFilter<"Interview"> | string | null
+    conductPersonPosition?: StringNullableWithAggregatesFilter<"Interview"> | string | null
+    conductPersonMobile?: StringNullableWithAggregatesFilter<"Interview"> | string | null
   }
 
   export type LeaveRequestWhereInput = {
@@ -37884,7 +37989,7 @@ export namespace Prisma {
     reply?: StringNullableFilter<"StaffRequest"> | string | null
     company?: StringFilter<"StaffRequest"> | string
     branch?: StringFilter<"StaffRequest"> | string
-    history?: JsonNullableFilter<"StaffRequest">
+    history?: StringNullableFilter<"StaffRequest"> | string | null
   }
 
   export type StaffRequestOrderByWithRelationInput = {
@@ -37928,7 +38033,7 @@ export namespace Prisma {
     reply?: StringNullableFilter<"StaffRequest"> | string | null
     company?: StringFilter<"StaffRequest"> | string
     branch?: StringFilter<"StaffRequest"> | string
-    history?: JsonNullableFilter<"StaffRequest">
+    history?: StringNullableFilter<"StaffRequest"> | string | null
   }, "id">
 
   export type StaffRequestOrderByWithAggregationInput = {
@@ -37974,7 +38079,7 @@ export namespace Prisma {
     reply?: StringNullableWithAggregatesFilter<"StaffRequest"> | string | null
     company?: StringWithAggregatesFilter<"StaffRequest"> | string
     branch?: StringWithAggregatesFilter<"StaffRequest"> | string
-    history?: JsonNullableWithAggregatesFilter<"StaffRequest">
+    history?: StringNullableWithAggregatesFilter<"StaffRequest"> | string | null
   }
 
   export type VehicleWhereInput = {
@@ -38005,8 +38110,8 @@ export namespace Prisma {
     licenseExpiry?: StringFilter<"Vehicle"> | string
     notes?: StringNullableFilter<"Vehicle"> | string | null
     createdBy?: StringFilter<"Vehicle"> | string
-    assignmentHistory?: JsonNullableFilter<"Vehicle">
-    documents?: JsonNullableFilter<"Vehicle">
+    assignmentHistory?: StringNullableFilter<"Vehicle"> | string | null
+    documents?: StringNullableFilter<"Vehicle"> | string | null
   }
 
   export type VehicleOrderByWithRelationInput = {
@@ -38067,8 +38172,8 @@ export namespace Prisma {
     licenseExpiry?: StringFilter<"Vehicle"> | string
     notes?: StringNullableFilter<"Vehicle"> | string | null
     createdBy?: StringFilter<"Vehicle"> | string
-    assignmentHistory?: JsonNullableFilter<"Vehicle">
-    documents?: JsonNullableFilter<"Vehicle">
+    assignmentHistory?: StringNullableFilter<"Vehicle"> | string | null
+    documents?: StringNullableFilter<"Vehicle"> | string | null
   }, "id">
 
   export type VehicleOrderByWithAggregationInput = {
@@ -38133,8 +38238,8 @@ export namespace Prisma {
     licenseExpiry?: StringWithAggregatesFilter<"Vehicle"> | string
     notes?: StringNullableWithAggregatesFilter<"Vehicle"> | string | null
     createdBy?: StringWithAggregatesFilter<"Vehicle"> | string
-    assignmentHistory?: JsonNullableWithAggregatesFilter<"Vehicle">
-    documents?: JsonNullableWithAggregatesFilter<"Vehicle">
+    assignmentHistory?: StringNullableWithAggregatesFilter<"Vehicle"> | string | null
+    documents?: StringNullableWithAggregatesFilter<"Vehicle"> | string | null
   }
 
   export type SupplierWhereInput = {
@@ -38156,7 +38261,7 @@ export namespace Prisma {
     branch?: StringFilter<"Supplier"> | string
     createdAt?: StringFilter<"Supplier"> | string
     createdBy?: StringFilter<"Supplier"> | string
-    documents?: JsonNullableFilter<"Supplier">
+    documents?: StringNullableFilter<"Supplier"> | string | null
   }
 
   export type SupplierOrderByWithRelationInput = {
@@ -38198,7 +38303,7 @@ export namespace Prisma {
     branch?: StringFilter<"Supplier"> | string
     createdAt?: StringFilter<"Supplier"> | string
     createdBy?: StringFilter<"Supplier"> | string
-    documents?: JsonNullableFilter<"Supplier">
+    documents?: StringNullableFilter<"Supplier"> | string | null
   }, "id">
 
   export type SupplierOrderByWithAggregationInput = {
@@ -38242,7 +38347,7 @@ export namespace Prisma {
     branch?: StringWithAggregatesFilter<"Supplier"> | string
     createdAt?: StringWithAggregatesFilter<"Supplier"> | string
     createdBy?: StringWithAggregatesFilter<"Supplier"> | string
-    documents?: JsonNullableWithAggregatesFilter<"Supplier">
+    documents?: StringNullableWithAggregatesFilter<"Supplier"> | string | null
   }
 
   export type PlacementWhereInput = {
@@ -38324,7 +38429,7 @@ export namespace Prisma {
     applicantSignIp?: StringNullableFilter<"Placement"> | string | null
     applicantSignDevice?: StringNullableFilter<"Placement"> | string | null
     termsAndConditions?: StringNullableFilter<"Placement"> | string | null
-    agreementHistory?: JsonNullableFilter<"Placement">
+    agreementHistory?: StringNullableFilter<"Placement"> | string | null
     agreementAccepted?: BoolNullableFilter<"Placement"> | boolean | null
     emiratesId?: StringNullableFilter<"Placement"> | string | null
     maritalStatus?: StringNullableFilter<"Placement"> | string | null
@@ -38502,7 +38607,7 @@ export namespace Prisma {
     applicantSignIp?: StringNullableFilter<"Placement"> | string | null
     applicantSignDevice?: StringNullableFilter<"Placement"> | string | null
     termsAndConditions?: StringNullableFilter<"Placement"> | string | null
-    agreementHistory?: JsonNullableFilter<"Placement">
+    agreementHistory?: StringNullableFilter<"Placement"> | string | null
     agreementAccepted?: BoolNullableFilter<"Placement"> | boolean | null
     emiratesId?: StringNullableFilter<"Placement"> | string | null
     maritalStatus?: StringNullableFilter<"Placement"> | string | null
@@ -38684,7 +38789,7 @@ export namespace Prisma {
     applicantSignIp?: StringNullableWithAggregatesFilter<"Placement"> | string | null
     applicantSignDevice?: StringNullableWithAggregatesFilter<"Placement"> | string | null
     termsAndConditions?: StringNullableWithAggregatesFilter<"Placement"> | string | null
-    agreementHistory?: JsonNullableWithAggregatesFilter<"Placement">
+    agreementHistory?: StringNullableWithAggregatesFilter<"Placement"> | string | null
     agreementAccepted?: BoolNullableWithAggregatesFilter<"Placement"> | boolean | null
     emiratesId?: StringNullableWithAggregatesFilter<"Placement"> | string | null
     maritalStatus?: StringNullableWithAggregatesFilter<"Placement"> | string | null
@@ -38884,8 +38989,8 @@ export namespace Prisma {
     basicSalary?: FloatFilter<"PayrollRecord"> | number
     allowances?: FloatFilter<"PayrollRecord"> | number
     deductions?: FloatFilter<"PayrollRecord"> | number
-    allowanceDetails?: JsonNullableFilter<"PayrollRecord">
-    deductionDetails?: JsonNullableFilter<"PayrollRecord">
+    allowanceDetails?: StringNullableFilter<"PayrollRecord"> | string | null
+    deductionDetails?: StringNullableFilter<"PayrollRecord"> | string | null
     advanceDeduction?: FloatFilter<"PayrollRecord"> | number
     loanDeduction?: FloatFilter<"PayrollRecord"> | number
     overtimeHours?: FloatFilter<"PayrollRecord"> | number
@@ -38936,8 +39041,8 @@ export namespace Prisma {
     basicSalary?: FloatFilter<"PayrollRecord"> | number
     allowances?: FloatFilter<"PayrollRecord"> | number
     deductions?: FloatFilter<"PayrollRecord"> | number
-    allowanceDetails?: JsonNullableFilter<"PayrollRecord">
-    deductionDetails?: JsonNullableFilter<"PayrollRecord">
+    allowanceDetails?: StringNullableFilter<"PayrollRecord"> | string | null
+    deductionDetails?: StringNullableFilter<"PayrollRecord"> | string | null
     advanceDeduction?: FloatFilter<"PayrollRecord"> | number
     loanDeduction?: FloatFilter<"PayrollRecord"> | number
     overtimeHours?: FloatFilter<"PayrollRecord"> | number
@@ -38992,8 +39097,8 @@ export namespace Prisma {
     basicSalary?: FloatWithAggregatesFilter<"PayrollRecord"> | number
     allowances?: FloatWithAggregatesFilter<"PayrollRecord"> | number
     deductions?: FloatWithAggregatesFilter<"PayrollRecord"> | number
-    allowanceDetails?: JsonNullableWithAggregatesFilter<"PayrollRecord">
-    deductionDetails?: JsonNullableWithAggregatesFilter<"PayrollRecord">
+    allowanceDetails?: StringNullableWithAggregatesFilter<"PayrollRecord"> | string | null
+    deductionDetails?: StringNullableWithAggregatesFilter<"PayrollRecord"> | string | null
     advanceDeduction?: FloatWithAggregatesFilter<"PayrollRecord"> | number
     loanDeduction?: FloatWithAggregatesFilter<"PayrollRecord"> | number
     overtimeHours?: FloatWithAggregatesFilter<"PayrollRecord"> | number
@@ -39015,7 +39120,7 @@ export namespace Prisma {
     staffName?: StringFilter<"StaffAttendance"> | string
     month?: StringFilter<"StaffAttendance"> | string
     year?: IntFilter<"StaffAttendance"> | number
-    records?: JsonFilter<"StaffAttendance">
+    records?: StringFilter<"StaffAttendance"> | string
     company?: StringFilter<"StaffAttendance"> | string
     branch?: StringFilter<"StaffAttendance"> | string
   }
@@ -39041,7 +39146,7 @@ export namespace Prisma {
     staffName?: StringFilter<"StaffAttendance"> | string
     month?: StringFilter<"StaffAttendance"> | string
     year?: IntFilter<"StaffAttendance"> | number
-    records?: JsonFilter<"StaffAttendance">
+    records?: StringFilter<"StaffAttendance"> | string
     company?: StringFilter<"StaffAttendance"> | string
     branch?: StringFilter<"StaffAttendance"> | string
   }, "id">
@@ -39071,7 +39176,7 @@ export namespace Prisma {
     staffName?: StringWithAggregatesFilter<"StaffAttendance"> | string
     month?: StringWithAggregatesFilter<"StaffAttendance"> | string
     year?: IntWithAggregatesFilter<"StaffAttendance"> | number
-    records?: JsonWithAggregatesFilter<"StaffAttendance">
+    records?: StringWithAggregatesFilter<"StaffAttendance"> | string
     company?: StringWithAggregatesFilter<"StaffAttendance"> | string
     branch?: StringWithAggregatesFilter<"StaffAttendance"> | string
   }
@@ -39750,8 +39855,8 @@ export namespace Prisma {
     bannerImage?: StringNullableFilter<"EmailTemplate"> | string | null
     icon?: StringNullableFilter<"EmailTemplate"> | string | null
     footerContent?: StringNullableFilter<"EmailTemplate"> | string | null
-    brandColors?: JsonNullableFilter<"EmailTemplate">
-    versionHistory?: JsonNullableFilter<"EmailTemplate">
+    brandColors?: StringNullableFilter<"EmailTemplate"> | string | null
+    versionHistory?: StringNullableFilter<"EmailTemplate"> | string | null
     type?: StringNullableFilter<"EmailTemplate"> | string | null
     isEnabled?: BoolFilter<"EmailTemplate"> | boolean
     createdAt?: StringFilter<"EmailTemplate"> | string
@@ -39788,8 +39893,8 @@ export namespace Prisma {
     bannerImage?: StringNullableFilter<"EmailTemplate"> | string | null
     icon?: StringNullableFilter<"EmailTemplate"> | string | null
     footerContent?: StringNullableFilter<"EmailTemplate"> | string | null
-    brandColors?: JsonNullableFilter<"EmailTemplate">
-    versionHistory?: JsonNullableFilter<"EmailTemplate">
+    brandColors?: StringNullableFilter<"EmailTemplate"> | string | null
+    versionHistory?: StringNullableFilter<"EmailTemplate"> | string | null
     type?: StringNullableFilter<"EmailTemplate"> | string | null
     isEnabled?: BoolFilter<"EmailTemplate"> | boolean
     createdAt?: StringFilter<"EmailTemplate"> | string
@@ -39828,8 +39933,8 @@ export namespace Prisma {
     bannerImage?: StringNullableWithAggregatesFilter<"EmailTemplate"> | string | null
     icon?: StringNullableWithAggregatesFilter<"EmailTemplate"> | string | null
     footerContent?: StringNullableWithAggregatesFilter<"EmailTemplate"> | string | null
-    brandColors?: JsonNullableWithAggregatesFilter<"EmailTemplate">
-    versionHistory?: JsonNullableWithAggregatesFilter<"EmailTemplate">
+    brandColors?: StringNullableWithAggregatesFilter<"EmailTemplate"> | string | null
+    versionHistory?: StringNullableWithAggregatesFilter<"EmailTemplate"> | string | null
     type?: StringNullableWithAggregatesFilter<"EmailTemplate"> | string | null
     isEnabled?: BoolWithAggregatesFilter<"EmailTemplate"> | boolean
     createdAt?: StringWithAggregatesFilter<"EmailTemplate"> | string
@@ -40130,7 +40235,7 @@ export namespace Prisma {
     status: string
     lastLogin: string
     photo?: string | null
-    permissions?: NullableJsonNullValueInput | InputJsonValue
+    permissions?: string | null
     theme?: string
   }
 
@@ -40147,7 +40252,7 @@ export namespace Prisma {
     status: string
     lastLogin: string
     photo?: string | null
-    permissions?: NullableJsonNullValueInput | InputJsonValue
+    permissions?: string | null
     theme?: string
   }
 
@@ -40164,7 +40269,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     lastLogin?: StringFieldUpdateOperationsInput | string
     photo?: NullableStringFieldUpdateOperationsInput | string | null
-    permissions?: NullableJsonNullValueInput | InputJsonValue
+    permissions?: NullableStringFieldUpdateOperationsInput | string | null
     theme?: StringFieldUpdateOperationsInput | string
   }
 
@@ -40181,7 +40286,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     lastLogin?: StringFieldUpdateOperationsInput | string
     photo?: NullableStringFieldUpdateOperationsInput | string | null
-    permissions?: NullableJsonNullValueInput | InputJsonValue
+    permissions?: NullableStringFieldUpdateOperationsInput | string | null
     theme?: StringFieldUpdateOperationsInput | string
   }
 
@@ -40198,7 +40303,7 @@ export namespace Prisma {
     status: string
     lastLogin: string
     photo?: string | null
-    permissions?: NullableJsonNullValueInput | InputJsonValue
+    permissions?: string | null
     theme?: string
   }
 
@@ -40215,7 +40320,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     lastLogin?: StringFieldUpdateOperationsInput | string
     photo?: NullableStringFieldUpdateOperationsInput | string | null
-    permissions?: NullableJsonNullValueInput | InputJsonValue
+    permissions?: NullableStringFieldUpdateOperationsInput | string | null
     theme?: StringFieldUpdateOperationsInput | string
   }
 
@@ -40232,7 +40337,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     lastLogin?: StringFieldUpdateOperationsInput | string
     photo?: NullableStringFieldUpdateOperationsInput | string | null
-    permissions?: NullableJsonNullValueInput | InputJsonValue
+    permissions?: NullableStringFieldUpdateOperationsInput | string | null
     theme?: StringFieldUpdateOperationsInput | string
   }
 
@@ -40260,10 +40365,10 @@ export namespace Prisma {
     createdAt: string
     createdBy: string
     notes?: string | null
-    enabledModules?: NullableJsonNullValueInput | InputJsonValue
+    enabledModules?: string | null
     googleMapLink?: string | null
-    documents?: NullableJsonNullValueInput | InputJsonValue
-    jobDemands?: NullableJsonNullValueInput | InputJsonValue
+    documents?: string | null
+    jobDemands?: string | null
     tradeLicenseNumber?: string | null
     licenseIssueDate?: string | null
     licenseExpiryDate?: string | null
@@ -40273,7 +40378,7 @@ export namespace Prisma {
     trnNumber?: string | null
     separateDatabase?: boolean
     databaseStatus?: string
-    themeConfig?: NullableJsonNullValueInput | InputJsonValue
+    themeConfig?: string | null
   }
 
   export type CompanyUncheckedCreateInput = {
@@ -40300,10 +40405,10 @@ export namespace Prisma {
     createdAt: string
     createdBy: string
     notes?: string | null
-    enabledModules?: NullableJsonNullValueInput | InputJsonValue
+    enabledModules?: string | null
     googleMapLink?: string | null
-    documents?: NullableJsonNullValueInput | InputJsonValue
-    jobDemands?: NullableJsonNullValueInput | InputJsonValue
+    documents?: string | null
+    jobDemands?: string | null
     tradeLicenseNumber?: string | null
     licenseIssueDate?: string | null
     licenseExpiryDate?: string | null
@@ -40313,7 +40418,7 @@ export namespace Prisma {
     trnNumber?: string | null
     separateDatabase?: boolean
     databaseStatus?: string
-    themeConfig?: NullableJsonNullValueInput | InputJsonValue
+    themeConfig?: string | null
   }
 
   export type CompanyUpdateInput = {
@@ -40340,10 +40445,10 @@ export namespace Prisma {
     createdAt?: StringFieldUpdateOperationsInput | string
     createdBy?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
-    enabledModules?: NullableJsonNullValueInput | InputJsonValue
+    enabledModules?: NullableStringFieldUpdateOperationsInput | string | null
     googleMapLink?: NullableStringFieldUpdateOperationsInput | string | null
-    documents?: NullableJsonNullValueInput | InputJsonValue
-    jobDemands?: NullableJsonNullValueInput | InputJsonValue
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
+    jobDemands?: NullableStringFieldUpdateOperationsInput | string | null
     tradeLicenseNumber?: NullableStringFieldUpdateOperationsInput | string | null
     licenseIssueDate?: NullableStringFieldUpdateOperationsInput | string | null
     licenseExpiryDate?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40353,7 +40458,7 @@ export namespace Prisma {
     trnNumber?: NullableStringFieldUpdateOperationsInput | string | null
     separateDatabase?: BoolFieldUpdateOperationsInput | boolean
     databaseStatus?: StringFieldUpdateOperationsInput | string
-    themeConfig?: NullableJsonNullValueInput | InputJsonValue
+    themeConfig?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CompanyUncheckedUpdateInput = {
@@ -40380,10 +40485,10 @@ export namespace Prisma {
     createdAt?: StringFieldUpdateOperationsInput | string
     createdBy?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
-    enabledModules?: NullableJsonNullValueInput | InputJsonValue
+    enabledModules?: NullableStringFieldUpdateOperationsInput | string | null
     googleMapLink?: NullableStringFieldUpdateOperationsInput | string | null
-    documents?: NullableJsonNullValueInput | InputJsonValue
-    jobDemands?: NullableJsonNullValueInput | InputJsonValue
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
+    jobDemands?: NullableStringFieldUpdateOperationsInput | string | null
     tradeLicenseNumber?: NullableStringFieldUpdateOperationsInput | string | null
     licenseIssueDate?: NullableStringFieldUpdateOperationsInput | string | null
     licenseExpiryDate?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40393,7 +40498,7 @@ export namespace Prisma {
     trnNumber?: NullableStringFieldUpdateOperationsInput | string | null
     separateDatabase?: BoolFieldUpdateOperationsInput | boolean
     databaseStatus?: StringFieldUpdateOperationsInput | string
-    themeConfig?: NullableJsonNullValueInput | InputJsonValue
+    themeConfig?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CompanyCreateManyInput = {
@@ -40420,10 +40525,10 @@ export namespace Prisma {
     createdAt: string
     createdBy: string
     notes?: string | null
-    enabledModules?: NullableJsonNullValueInput | InputJsonValue
+    enabledModules?: string | null
     googleMapLink?: string | null
-    documents?: NullableJsonNullValueInput | InputJsonValue
-    jobDemands?: NullableJsonNullValueInput | InputJsonValue
+    documents?: string | null
+    jobDemands?: string | null
     tradeLicenseNumber?: string | null
     licenseIssueDate?: string | null
     licenseExpiryDate?: string | null
@@ -40433,7 +40538,7 @@ export namespace Prisma {
     trnNumber?: string | null
     separateDatabase?: boolean
     databaseStatus?: string
-    themeConfig?: NullableJsonNullValueInput | InputJsonValue
+    themeConfig?: string | null
   }
 
   export type CompanyUpdateManyMutationInput = {
@@ -40460,10 +40565,10 @@ export namespace Prisma {
     createdAt?: StringFieldUpdateOperationsInput | string
     createdBy?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
-    enabledModules?: NullableJsonNullValueInput | InputJsonValue
+    enabledModules?: NullableStringFieldUpdateOperationsInput | string | null
     googleMapLink?: NullableStringFieldUpdateOperationsInput | string | null
-    documents?: NullableJsonNullValueInput | InputJsonValue
-    jobDemands?: NullableJsonNullValueInput | InputJsonValue
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
+    jobDemands?: NullableStringFieldUpdateOperationsInput | string | null
     tradeLicenseNumber?: NullableStringFieldUpdateOperationsInput | string | null
     licenseIssueDate?: NullableStringFieldUpdateOperationsInput | string | null
     licenseExpiryDate?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40473,7 +40578,7 @@ export namespace Prisma {
     trnNumber?: NullableStringFieldUpdateOperationsInput | string | null
     separateDatabase?: BoolFieldUpdateOperationsInput | boolean
     databaseStatus?: StringFieldUpdateOperationsInput | string
-    themeConfig?: NullableJsonNullValueInput | InputJsonValue
+    themeConfig?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CompanyUncheckedUpdateManyInput = {
@@ -40500,10 +40605,10 @@ export namespace Prisma {
     createdAt?: StringFieldUpdateOperationsInput | string
     createdBy?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
-    enabledModules?: NullableJsonNullValueInput | InputJsonValue
+    enabledModules?: NullableStringFieldUpdateOperationsInput | string | null
     googleMapLink?: NullableStringFieldUpdateOperationsInput | string | null
-    documents?: NullableJsonNullValueInput | InputJsonValue
-    jobDemands?: NullableJsonNullValueInput | InputJsonValue
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
+    jobDemands?: NullableStringFieldUpdateOperationsInput | string | null
     tradeLicenseNumber?: NullableStringFieldUpdateOperationsInput | string | null
     licenseIssueDate?: NullableStringFieldUpdateOperationsInput | string | null
     licenseExpiryDate?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40513,7 +40618,7 @@ export namespace Prisma {
     trnNumber?: NullableStringFieldUpdateOperationsInput | string | null
     separateDatabase?: BoolFieldUpdateOperationsInput | boolean
     databaseStatus?: StringFieldUpdateOperationsInput | string
-    themeConfig?: NullableJsonNullValueInput | InputJsonValue
+    themeConfig?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type InternalCompanyCreateInput = {
@@ -40814,7 +40919,7 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
-    permissions: JsonNullValueInput | InputJsonValue
+    permissions: string
     isCustom?: boolean
     company?: string | null
   }
@@ -40823,7 +40928,7 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
-    permissions: JsonNullValueInput | InputJsonValue
+    permissions: string
     isCustom?: boolean
     company?: string | null
   }
@@ -40832,7 +40937,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    permissions?: JsonNullValueInput | InputJsonValue
+    permissions?: StringFieldUpdateOperationsInput | string
     isCustom?: BoolFieldUpdateOperationsInput | boolean
     company?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -40841,7 +40946,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    permissions?: JsonNullValueInput | InputJsonValue
+    permissions?: StringFieldUpdateOperationsInput | string
     isCustom?: BoolFieldUpdateOperationsInput | boolean
     company?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -40850,7 +40955,7 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
-    permissions: JsonNullValueInput | InputJsonValue
+    permissions: string
     isCustom?: boolean
     company?: string | null
   }
@@ -40859,7 +40964,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    permissions?: JsonNullValueInput | InputJsonValue
+    permissions?: StringFieldUpdateOperationsInput | string
     isCustom?: BoolFieldUpdateOperationsInput | boolean
     company?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -40868,7 +40973,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    permissions?: JsonNullValueInput | InputJsonValue
+    permissions?: StringFieldUpdateOperationsInput | string
     isCustom?: BoolFieldUpdateOperationsInput | boolean
     company?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -40895,14 +41000,14 @@ export namespace Prisma {
     branch: string
     createdBy: string
     createdAt: string
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    documents?: string | null
     basicSalary?: number | null
     housingAllowance?: number | null
     transportAllowance?: number | null
     overtimeRate?: number | null
     shiftId?: string | null
     salaryType?: string | null
-    permissions?: NullableJsonNullValueInput | InputJsonValue
+    permissions?: string | null
   }
 
   export type StaffUncheckedCreateInput = {
@@ -40927,14 +41032,14 @@ export namespace Prisma {
     branch: string
     createdBy: string
     createdAt: string
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    documents?: string | null
     basicSalary?: number | null
     housingAllowance?: number | null
     transportAllowance?: number | null
     overtimeRate?: number | null
     shiftId?: string | null
     salaryType?: string | null
-    permissions?: NullableJsonNullValueInput | InputJsonValue
+    permissions?: string | null
   }
 
   export type StaffUpdateInput = {
@@ -40959,14 +41064,14 @@ export namespace Prisma {
     branch?: StringFieldUpdateOperationsInput | string
     createdBy?: StringFieldUpdateOperationsInput | string
     createdAt?: StringFieldUpdateOperationsInput | string
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
     basicSalary?: NullableFloatFieldUpdateOperationsInput | number | null
     housingAllowance?: NullableFloatFieldUpdateOperationsInput | number | null
     transportAllowance?: NullableFloatFieldUpdateOperationsInput | number | null
     overtimeRate?: NullableFloatFieldUpdateOperationsInput | number | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     salaryType?: NullableStringFieldUpdateOperationsInput | string | null
-    permissions?: NullableJsonNullValueInput | InputJsonValue
+    permissions?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StaffUncheckedUpdateInput = {
@@ -40991,14 +41096,14 @@ export namespace Prisma {
     branch?: StringFieldUpdateOperationsInput | string
     createdBy?: StringFieldUpdateOperationsInput | string
     createdAt?: StringFieldUpdateOperationsInput | string
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
     basicSalary?: NullableFloatFieldUpdateOperationsInput | number | null
     housingAllowance?: NullableFloatFieldUpdateOperationsInput | number | null
     transportAllowance?: NullableFloatFieldUpdateOperationsInput | number | null
     overtimeRate?: NullableFloatFieldUpdateOperationsInput | number | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     salaryType?: NullableStringFieldUpdateOperationsInput | string | null
-    permissions?: NullableJsonNullValueInput | InputJsonValue
+    permissions?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StaffCreateManyInput = {
@@ -41023,14 +41128,14 @@ export namespace Prisma {
     branch: string
     createdBy: string
     createdAt: string
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    documents?: string | null
     basicSalary?: number | null
     housingAllowance?: number | null
     transportAllowance?: number | null
     overtimeRate?: number | null
     shiftId?: string | null
     salaryType?: string | null
-    permissions?: NullableJsonNullValueInput | InputJsonValue
+    permissions?: string | null
   }
 
   export type StaffUpdateManyMutationInput = {
@@ -41055,14 +41160,14 @@ export namespace Prisma {
     branch?: StringFieldUpdateOperationsInput | string
     createdBy?: StringFieldUpdateOperationsInput | string
     createdAt?: StringFieldUpdateOperationsInput | string
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
     basicSalary?: NullableFloatFieldUpdateOperationsInput | number | null
     housingAllowance?: NullableFloatFieldUpdateOperationsInput | number | null
     transportAllowance?: NullableFloatFieldUpdateOperationsInput | number | null
     overtimeRate?: NullableFloatFieldUpdateOperationsInput | number | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     salaryType?: NullableStringFieldUpdateOperationsInput | string | null
-    permissions?: NullableJsonNullValueInput | InputJsonValue
+    permissions?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StaffUncheckedUpdateManyInput = {
@@ -41087,14 +41192,14 @@ export namespace Prisma {
     branch?: StringFieldUpdateOperationsInput | string
     createdBy?: StringFieldUpdateOperationsInput | string
     createdAt?: StringFieldUpdateOperationsInput | string
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
     basicSalary?: NullableFloatFieldUpdateOperationsInput | number | null
     housingAllowance?: NullableFloatFieldUpdateOperationsInput | number | null
     transportAllowance?: NullableFloatFieldUpdateOperationsInput | number | null
     overtimeRate?: NullableFloatFieldUpdateOperationsInput | number | null
     shiftId?: NullableStringFieldUpdateOperationsInput | string | null
     salaryType?: NullableStringFieldUpdateOperationsInput | string | null
-    permissions?: NullableJsonNullValueInput | InputJsonValue
+    permissions?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ApplicantCreateInput = {
@@ -41109,7 +41214,7 @@ export namespace Prisma {
     nationality: string
     nationalityFlag: string
     currentCountry: string
-    applyingPositions: JsonNullValueInput | InputJsonValue
+    applyingPositions: string
     salaryExpectation: number
     applyCountry: string
     visaType: string
@@ -41122,8 +41227,8 @@ export namespace Prisma {
     branch: string
     createdBy: string
     createdAt: string
-    documents?: NullableJsonNullValueInput | InputJsonValue
-    statusHistory?: NullableJsonNullValueInput | InputJsonValue
+    documents?: string | null
+    statusHistory?: string | null
     clientName?: string | null
     clientPhoto?: string | null
     clientMobile?: string | null
@@ -41155,7 +41260,7 @@ export namespace Prisma {
     nationality: string
     nationalityFlag: string
     currentCountry: string
-    applyingPositions: JsonNullValueInput | InputJsonValue
+    applyingPositions: string
     salaryExpectation: number
     applyCountry: string
     visaType: string
@@ -41168,8 +41273,8 @@ export namespace Prisma {
     branch: string
     createdBy: string
     createdAt: string
-    documents?: NullableJsonNullValueInput | InputJsonValue
-    statusHistory?: NullableJsonNullValueInput | InputJsonValue
+    documents?: string | null
+    statusHistory?: string | null
     clientName?: string | null
     clientPhoto?: string | null
     clientMobile?: string | null
@@ -41201,7 +41306,7 @@ export namespace Prisma {
     nationality?: StringFieldUpdateOperationsInput | string
     nationalityFlag?: StringFieldUpdateOperationsInput | string
     currentCountry?: StringFieldUpdateOperationsInput | string
-    applyingPositions?: JsonNullValueInput | InputJsonValue
+    applyingPositions?: StringFieldUpdateOperationsInput | string
     salaryExpectation?: FloatFieldUpdateOperationsInput | number
     applyCountry?: StringFieldUpdateOperationsInput | string
     visaType?: StringFieldUpdateOperationsInput | string
@@ -41214,8 +41319,8 @@ export namespace Prisma {
     branch?: StringFieldUpdateOperationsInput | string
     createdBy?: StringFieldUpdateOperationsInput | string
     createdAt?: StringFieldUpdateOperationsInput | string
-    documents?: NullableJsonNullValueInput | InputJsonValue
-    statusHistory?: NullableJsonNullValueInput | InputJsonValue
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
+    statusHistory?: NullableStringFieldUpdateOperationsInput | string | null
     clientName?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhoto?: NullableStringFieldUpdateOperationsInput | string | null
     clientMobile?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41247,7 +41352,7 @@ export namespace Prisma {
     nationality?: StringFieldUpdateOperationsInput | string
     nationalityFlag?: StringFieldUpdateOperationsInput | string
     currentCountry?: StringFieldUpdateOperationsInput | string
-    applyingPositions?: JsonNullValueInput | InputJsonValue
+    applyingPositions?: StringFieldUpdateOperationsInput | string
     salaryExpectation?: FloatFieldUpdateOperationsInput | number
     applyCountry?: StringFieldUpdateOperationsInput | string
     visaType?: StringFieldUpdateOperationsInput | string
@@ -41260,8 +41365,8 @@ export namespace Prisma {
     branch?: StringFieldUpdateOperationsInput | string
     createdBy?: StringFieldUpdateOperationsInput | string
     createdAt?: StringFieldUpdateOperationsInput | string
-    documents?: NullableJsonNullValueInput | InputJsonValue
-    statusHistory?: NullableJsonNullValueInput | InputJsonValue
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
+    statusHistory?: NullableStringFieldUpdateOperationsInput | string | null
     clientName?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhoto?: NullableStringFieldUpdateOperationsInput | string | null
     clientMobile?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41293,7 +41398,7 @@ export namespace Prisma {
     nationality: string
     nationalityFlag: string
     currentCountry: string
-    applyingPositions: JsonNullValueInput | InputJsonValue
+    applyingPositions: string
     salaryExpectation: number
     applyCountry: string
     visaType: string
@@ -41306,8 +41411,8 @@ export namespace Prisma {
     branch: string
     createdBy: string
     createdAt: string
-    documents?: NullableJsonNullValueInput | InputJsonValue
-    statusHistory?: NullableJsonNullValueInput | InputJsonValue
+    documents?: string | null
+    statusHistory?: string | null
     clientName?: string | null
     clientPhoto?: string | null
     clientMobile?: string | null
@@ -41339,7 +41444,7 @@ export namespace Prisma {
     nationality?: StringFieldUpdateOperationsInput | string
     nationalityFlag?: StringFieldUpdateOperationsInput | string
     currentCountry?: StringFieldUpdateOperationsInput | string
-    applyingPositions?: JsonNullValueInput | InputJsonValue
+    applyingPositions?: StringFieldUpdateOperationsInput | string
     salaryExpectation?: FloatFieldUpdateOperationsInput | number
     applyCountry?: StringFieldUpdateOperationsInput | string
     visaType?: StringFieldUpdateOperationsInput | string
@@ -41352,8 +41457,8 @@ export namespace Prisma {
     branch?: StringFieldUpdateOperationsInput | string
     createdBy?: StringFieldUpdateOperationsInput | string
     createdAt?: StringFieldUpdateOperationsInput | string
-    documents?: NullableJsonNullValueInput | InputJsonValue
-    statusHistory?: NullableJsonNullValueInput | InputJsonValue
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
+    statusHistory?: NullableStringFieldUpdateOperationsInput | string | null
     clientName?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhoto?: NullableStringFieldUpdateOperationsInput | string | null
     clientMobile?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41385,7 +41490,7 @@ export namespace Prisma {
     nationality?: StringFieldUpdateOperationsInput | string
     nationalityFlag?: StringFieldUpdateOperationsInput | string
     currentCountry?: StringFieldUpdateOperationsInput | string
-    applyingPositions?: JsonNullValueInput | InputJsonValue
+    applyingPositions?: StringFieldUpdateOperationsInput | string
     salaryExpectation?: FloatFieldUpdateOperationsInput | number
     applyCountry?: StringFieldUpdateOperationsInput | string
     visaType?: StringFieldUpdateOperationsInput | string
@@ -41398,8 +41503,8 @@ export namespace Prisma {
     branch?: StringFieldUpdateOperationsInput | string
     createdBy?: StringFieldUpdateOperationsInput | string
     createdAt?: StringFieldUpdateOperationsInput | string
-    documents?: NullableJsonNullValueInput | InputJsonValue
-    statusHistory?: NullableJsonNullValueInput | InputJsonValue
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
+    statusHistory?: NullableStringFieldUpdateOperationsInput | string | null
     clientName?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhoto?: NullableStringFieldUpdateOperationsInput | string | null
     clientMobile?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41441,7 +41546,7 @@ export namespace Prisma {
     applicantName?: string | null
     targetDocument?: string | null
     incompleteReason?: string | null
-    history?: NullableJsonNullValueInput | InputJsonValue
+    history?: string | null
   }
 
   export type TaskUncheckedCreateInput = {
@@ -41466,7 +41571,7 @@ export namespace Prisma {
     applicantName?: string | null
     targetDocument?: string | null
     incompleteReason?: string | null
-    history?: NullableJsonNullValueInput | InputJsonValue
+    history?: string | null
   }
 
   export type TaskUpdateInput = {
@@ -41491,7 +41596,7 @@ export namespace Prisma {
     applicantName?: NullableStringFieldUpdateOperationsInput | string | null
     targetDocument?: NullableStringFieldUpdateOperationsInput | string | null
     incompleteReason?: NullableStringFieldUpdateOperationsInput | string | null
-    history?: NullableJsonNullValueInput | InputJsonValue
+    history?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TaskUncheckedUpdateInput = {
@@ -41516,7 +41621,7 @@ export namespace Prisma {
     applicantName?: NullableStringFieldUpdateOperationsInput | string | null
     targetDocument?: NullableStringFieldUpdateOperationsInput | string | null
     incompleteReason?: NullableStringFieldUpdateOperationsInput | string | null
-    history?: NullableJsonNullValueInput | InputJsonValue
+    history?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TaskCreateManyInput = {
@@ -41541,7 +41646,7 @@ export namespace Prisma {
     applicantName?: string | null
     targetDocument?: string | null
     incompleteReason?: string | null
-    history?: NullableJsonNullValueInput | InputJsonValue
+    history?: string | null
   }
 
   export type TaskUpdateManyMutationInput = {
@@ -41566,7 +41671,7 @@ export namespace Prisma {
     applicantName?: NullableStringFieldUpdateOperationsInput | string | null
     targetDocument?: NullableStringFieldUpdateOperationsInput | string | null
     incompleteReason?: NullableStringFieldUpdateOperationsInput | string | null
-    history?: NullableJsonNullValueInput | InputJsonValue
+    history?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TaskUncheckedUpdateManyInput = {
@@ -41591,7 +41696,7 @@ export namespace Prisma {
     applicantName?: NullableStringFieldUpdateOperationsInput | string | null
     targetDocument?: NullableStringFieldUpdateOperationsInput | string | null
     incompleteReason?: NullableStringFieldUpdateOperationsInput | string | null
-    history?: NullableJsonNullValueInput | InputJsonValue
+    history?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type InterviewCreateInput = {
@@ -41629,7 +41734,9 @@ export namespace Prisma {
     building?: string | null
     floor?: string | null
     location?: string | null
-    attachments?: NullableJsonNullValueInput | InputJsonValue
+    attachments?: string | null
+    conductPersonPosition?: string | null
+    conductPersonMobile?: string | null
   }
 
   export type InterviewUncheckedCreateInput = {
@@ -41667,7 +41774,9 @@ export namespace Prisma {
     building?: string | null
     floor?: string | null
     location?: string | null
-    attachments?: NullableJsonNullValueInput | InputJsonValue
+    attachments?: string | null
+    conductPersonPosition?: string | null
+    conductPersonMobile?: string | null
   }
 
   export type InterviewUpdateInput = {
@@ -41705,7 +41814,9 @@ export namespace Prisma {
     building?: NullableStringFieldUpdateOperationsInput | string | null
     floor?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
-    attachments?: NullableJsonNullValueInput | InputJsonValue
+    attachments?: NullableStringFieldUpdateOperationsInput | string | null
+    conductPersonPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    conductPersonMobile?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type InterviewUncheckedUpdateInput = {
@@ -41743,7 +41854,9 @@ export namespace Prisma {
     building?: NullableStringFieldUpdateOperationsInput | string | null
     floor?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
-    attachments?: NullableJsonNullValueInput | InputJsonValue
+    attachments?: NullableStringFieldUpdateOperationsInput | string | null
+    conductPersonPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    conductPersonMobile?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type InterviewCreateManyInput = {
@@ -41781,7 +41894,9 @@ export namespace Prisma {
     building?: string | null
     floor?: string | null
     location?: string | null
-    attachments?: NullableJsonNullValueInput | InputJsonValue
+    attachments?: string | null
+    conductPersonPosition?: string | null
+    conductPersonMobile?: string | null
   }
 
   export type InterviewUpdateManyMutationInput = {
@@ -41819,7 +41934,9 @@ export namespace Prisma {
     building?: NullableStringFieldUpdateOperationsInput | string | null
     floor?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
-    attachments?: NullableJsonNullValueInput | InputJsonValue
+    attachments?: NullableStringFieldUpdateOperationsInput | string | null
+    conductPersonPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    conductPersonMobile?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type InterviewUncheckedUpdateManyInput = {
@@ -41857,7 +41974,9 @@ export namespace Prisma {
     building?: NullableStringFieldUpdateOperationsInput | string | null
     floor?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
-    attachments?: NullableJsonNullValueInput | InputJsonValue
+    attachments?: NullableStringFieldUpdateOperationsInput | string | null
+    conductPersonPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    conductPersonMobile?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type LeaveRequestCreateInput = {
@@ -41989,7 +42108,7 @@ export namespace Prisma {
     reply?: string | null
     company: string
     branch: string
-    history?: NullableJsonNullValueInput | InputJsonValue
+    history?: string | null
   }
 
   export type StaffRequestUncheckedCreateInput = {
@@ -42009,7 +42128,7 @@ export namespace Prisma {
     reply?: string | null
     company: string
     branch: string
-    history?: NullableJsonNullValueInput | InputJsonValue
+    history?: string | null
   }
 
   export type StaffRequestUpdateInput = {
@@ -42029,7 +42148,7 @@ export namespace Prisma {
     reply?: NullableStringFieldUpdateOperationsInput | string | null
     company?: StringFieldUpdateOperationsInput | string
     branch?: StringFieldUpdateOperationsInput | string
-    history?: NullableJsonNullValueInput | InputJsonValue
+    history?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StaffRequestUncheckedUpdateInput = {
@@ -42049,7 +42168,7 @@ export namespace Prisma {
     reply?: NullableStringFieldUpdateOperationsInput | string | null
     company?: StringFieldUpdateOperationsInput | string
     branch?: StringFieldUpdateOperationsInput | string
-    history?: NullableJsonNullValueInput | InputJsonValue
+    history?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StaffRequestCreateManyInput = {
@@ -42069,7 +42188,7 @@ export namespace Prisma {
     reply?: string | null
     company: string
     branch: string
-    history?: NullableJsonNullValueInput | InputJsonValue
+    history?: string | null
   }
 
   export type StaffRequestUpdateManyMutationInput = {
@@ -42089,7 +42208,7 @@ export namespace Prisma {
     reply?: NullableStringFieldUpdateOperationsInput | string | null
     company?: StringFieldUpdateOperationsInput | string
     branch?: StringFieldUpdateOperationsInput | string
-    history?: NullableJsonNullValueInput | InputJsonValue
+    history?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StaffRequestUncheckedUpdateManyInput = {
@@ -42109,7 +42228,7 @@ export namespace Prisma {
     reply?: NullableStringFieldUpdateOperationsInput | string | null
     company?: StringFieldUpdateOperationsInput | string
     branch?: StringFieldUpdateOperationsInput | string
-    history?: NullableJsonNullValueInput | InputJsonValue
+    history?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type VehicleCreateInput = {
@@ -42137,8 +42256,8 @@ export namespace Prisma {
     licenseExpiry?: string
     notes?: string | null
     createdBy?: string
-    assignmentHistory?: NullableJsonNullValueInput | InputJsonValue
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    assignmentHistory?: string | null
+    documents?: string | null
   }
 
   export type VehicleUncheckedCreateInput = {
@@ -42166,8 +42285,8 @@ export namespace Prisma {
     licenseExpiry?: string
     notes?: string | null
     createdBy?: string
-    assignmentHistory?: NullableJsonNullValueInput | InputJsonValue
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    assignmentHistory?: string | null
+    documents?: string | null
   }
 
   export type VehicleUpdateInput = {
@@ -42195,8 +42314,8 @@ export namespace Prisma {
     licenseExpiry?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: StringFieldUpdateOperationsInput | string
-    assignmentHistory?: NullableJsonNullValueInput | InputJsonValue
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    assignmentHistory?: NullableStringFieldUpdateOperationsInput | string | null
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type VehicleUncheckedUpdateInput = {
@@ -42224,8 +42343,8 @@ export namespace Prisma {
     licenseExpiry?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: StringFieldUpdateOperationsInput | string
-    assignmentHistory?: NullableJsonNullValueInput | InputJsonValue
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    assignmentHistory?: NullableStringFieldUpdateOperationsInput | string | null
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type VehicleCreateManyInput = {
@@ -42253,8 +42372,8 @@ export namespace Prisma {
     licenseExpiry?: string
     notes?: string | null
     createdBy?: string
-    assignmentHistory?: NullableJsonNullValueInput | InputJsonValue
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    assignmentHistory?: string | null
+    documents?: string | null
   }
 
   export type VehicleUpdateManyMutationInput = {
@@ -42282,8 +42401,8 @@ export namespace Prisma {
     licenseExpiry?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: StringFieldUpdateOperationsInput | string
-    assignmentHistory?: NullableJsonNullValueInput | InputJsonValue
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    assignmentHistory?: NullableStringFieldUpdateOperationsInput | string | null
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type VehicleUncheckedUpdateManyInput = {
@@ -42311,8 +42430,8 @@ export namespace Prisma {
     licenseExpiry?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: StringFieldUpdateOperationsInput | string
-    assignmentHistory?: NullableJsonNullValueInput | InputJsonValue
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    assignmentHistory?: NullableStringFieldUpdateOperationsInput | string | null
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SupplierCreateInput = {
@@ -42331,7 +42450,7 @@ export namespace Prisma {
     branch?: string
     createdAt?: string
     createdBy?: string
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    documents?: string | null
   }
 
   export type SupplierUncheckedCreateInput = {
@@ -42350,7 +42469,7 @@ export namespace Prisma {
     branch?: string
     createdAt?: string
     createdBy?: string
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    documents?: string | null
   }
 
   export type SupplierUpdateInput = {
@@ -42369,7 +42488,7 @@ export namespace Prisma {
     branch?: StringFieldUpdateOperationsInput | string
     createdAt?: StringFieldUpdateOperationsInput | string
     createdBy?: StringFieldUpdateOperationsInput | string
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SupplierUncheckedUpdateInput = {
@@ -42388,7 +42507,7 @@ export namespace Prisma {
     branch?: StringFieldUpdateOperationsInput | string
     createdAt?: StringFieldUpdateOperationsInput | string
     createdBy?: StringFieldUpdateOperationsInput | string
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SupplierCreateManyInput = {
@@ -42407,7 +42526,7 @@ export namespace Prisma {
     branch?: string
     createdAt?: string
     createdBy?: string
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    documents?: string | null
   }
 
   export type SupplierUpdateManyMutationInput = {
@@ -42426,7 +42545,7 @@ export namespace Prisma {
     branch?: StringFieldUpdateOperationsInput | string
     createdAt?: StringFieldUpdateOperationsInput | string
     createdBy?: StringFieldUpdateOperationsInput | string
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SupplierUncheckedUpdateManyInput = {
@@ -42445,7 +42564,7 @@ export namespace Prisma {
     branch?: StringFieldUpdateOperationsInput | string
     createdAt?: StringFieldUpdateOperationsInput | string
     createdBy?: StringFieldUpdateOperationsInput | string
-    documents?: NullableJsonNullValueInput | InputJsonValue
+    documents?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PlacementCreateInput = {
@@ -42524,7 +42643,7 @@ export namespace Prisma {
     applicantSignIp?: string | null
     applicantSignDevice?: string | null
     termsAndConditions?: string | null
-    agreementHistory?: NullableJsonNullValueInput | InputJsonValue
+    agreementHistory?: string | null
     agreementAccepted?: boolean | null
     emiratesId?: string | null
     maritalStatus?: string | null
@@ -42611,7 +42730,7 @@ export namespace Prisma {
     applicantSignIp?: string | null
     applicantSignDevice?: string | null
     termsAndConditions?: string | null
-    agreementHistory?: NullableJsonNullValueInput | InputJsonValue
+    agreementHistory?: string | null
     agreementAccepted?: boolean | null
     emiratesId?: string | null
     maritalStatus?: string | null
@@ -42698,7 +42817,7 @@ export namespace Prisma {
     applicantSignIp?: NullableStringFieldUpdateOperationsInput | string | null
     applicantSignDevice?: NullableStringFieldUpdateOperationsInput | string | null
     termsAndConditions?: NullableStringFieldUpdateOperationsInput | string | null
-    agreementHistory?: NullableJsonNullValueInput | InputJsonValue
+    agreementHistory?: NullableStringFieldUpdateOperationsInput | string | null
     agreementAccepted?: NullableBoolFieldUpdateOperationsInput | boolean | null
     emiratesId?: NullableStringFieldUpdateOperationsInput | string | null
     maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42785,7 +42904,7 @@ export namespace Prisma {
     applicantSignIp?: NullableStringFieldUpdateOperationsInput | string | null
     applicantSignDevice?: NullableStringFieldUpdateOperationsInput | string | null
     termsAndConditions?: NullableStringFieldUpdateOperationsInput | string | null
-    agreementHistory?: NullableJsonNullValueInput | InputJsonValue
+    agreementHistory?: NullableStringFieldUpdateOperationsInput | string | null
     agreementAccepted?: NullableBoolFieldUpdateOperationsInput | boolean | null
     emiratesId?: NullableStringFieldUpdateOperationsInput | string | null
     maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42872,7 +42991,7 @@ export namespace Prisma {
     applicantSignIp?: string | null
     applicantSignDevice?: string | null
     termsAndConditions?: string | null
-    agreementHistory?: NullableJsonNullValueInput | InputJsonValue
+    agreementHistory?: string | null
     agreementAccepted?: boolean | null
     emiratesId?: string | null
     maritalStatus?: string | null
@@ -42959,7 +43078,7 @@ export namespace Prisma {
     applicantSignIp?: NullableStringFieldUpdateOperationsInput | string | null
     applicantSignDevice?: NullableStringFieldUpdateOperationsInput | string | null
     termsAndConditions?: NullableStringFieldUpdateOperationsInput | string | null
-    agreementHistory?: NullableJsonNullValueInput | InputJsonValue
+    agreementHistory?: NullableStringFieldUpdateOperationsInput | string | null
     agreementAccepted?: NullableBoolFieldUpdateOperationsInput | boolean | null
     emiratesId?: NullableStringFieldUpdateOperationsInput | string | null
     maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43046,7 +43165,7 @@ export namespace Prisma {
     applicantSignIp?: NullableStringFieldUpdateOperationsInput | string | null
     applicantSignDevice?: NullableStringFieldUpdateOperationsInput | string | null
     termsAndConditions?: NullableStringFieldUpdateOperationsInput | string | null
-    agreementHistory?: NullableJsonNullValueInput | InputJsonValue
+    agreementHistory?: NullableStringFieldUpdateOperationsInput | string | null
     agreementAccepted?: NullableBoolFieldUpdateOperationsInput | boolean | null
     emiratesId?: NullableStringFieldUpdateOperationsInput | string | null
     maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43277,8 +43396,8 @@ export namespace Prisma {
     basicSalary: number
     allowances: number
     deductions: number
-    allowanceDetails?: NullableJsonNullValueInput | InputJsonValue
-    deductionDetails?: NullableJsonNullValueInput | InputJsonValue
+    allowanceDetails?: string | null
+    deductionDetails?: string | null
     advanceDeduction?: number
     loanDeduction?: number
     overtimeHours?: number
@@ -43301,8 +43420,8 @@ export namespace Prisma {
     basicSalary: number
     allowances: number
     deductions: number
-    allowanceDetails?: NullableJsonNullValueInput | InputJsonValue
-    deductionDetails?: NullableJsonNullValueInput | InputJsonValue
+    allowanceDetails?: string | null
+    deductionDetails?: string | null
     advanceDeduction?: number
     loanDeduction?: number
     overtimeHours?: number
@@ -43325,8 +43444,8 @@ export namespace Prisma {
     basicSalary?: FloatFieldUpdateOperationsInput | number
     allowances?: FloatFieldUpdateOperationsInput | number
     deductions?: FloatFieldUpdateOperationsInput | number
-    allowanceDetails?: NullableJsonNullValueInput | InputJsonValue
-    deductionDetails?: NullableJsonNullValueInput | InputJsonValue
+    allowanceDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    deductionDetails?: NullableStringFieldUpdateOperationsInput | string | null
     advanceDeduction?: FloatFieldUpdateOperationsInput | number
     loanDeduction?: FloatFieldUpdateOperationsInput | number
     overtimeHours?: FloatFieldUpdateOperationsInput | number
@@ -43349,8 +43468,8 @@ export namespace Prisma {
     basicSalary?: FloatFieldUpdateOperationsInput | number
     allowances?: FloatFieldUpdateOperationsInput | number
     deductions?: FloatFieldUpdateOperationsInput | number
-    allowanceDetails?: NullableJsonNullValueInput | InputJsonValue
-    deductionDetails?: NullableJsonNullValueInput | InputJsonValue
+    allowanceDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    deductionDetails?: NullableStringFieldUpdateOperationsInput | string | null
     advanceDeduction?: FloatFieldUpdateOperationsInput | number
     loanDeduction?: FloatFieldUpdateOperationsInput | number
     overtimeHours?: FloatFieldUpdateOperationsInput | number
@@ -43373,8 +43492,8 @@ export namespace Prisma {
     basicSalary: number
     allowances: number
     deductions: number
-    allowanceDetails?: NullableJsonNullValueInput | InputJsonValue
-    deductionDetails?: NullableJsonNullValueInput | InputJsonValue
+    allowanceDetails?: string | null
+    deductionDetails?: string | null
     advanceDeduction?: number
     loanDeduction?: number
     overtimeHours?: number
@@ -43397,8 +43516,8 @@ export namespace Prisma {
     basicSalary?: FloatFieldUpdateOperationsInput | number
     allowances?: FloatFieldUpdateOperationsInput | number
     deductions?: FloatFieldUpdateOperationsInput | number
-    allowanceDetails?: NullableJsonNullValueInput | InputJsonValue
-    deductionDetails?: NullableJsonNullValueInput | InputJsonValue
+    allowanceDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    deductionDetails?: NullableStringFieldUpdateOperationsInput | string | null
     advanceDeduction?: FloatFieldUpdateOperationsInput | number
     loanDeduction?: FloatFieldUpdateOperationsInput | number
     overtimeHours?: FloatFieldUpdateOperationsInput | number
@@ -43421,8 +43540,8 @@ export namespace Prisma {
     basicSalary?: FloatFieldUpdateOperationsInput | number
     allowances?: FloatFieldUpdateOperationsInput | number
     deductions?: FloatFieldUpdateOperationsInput | number
-    allowanceDetails?: NullableJsonNullValueInput | InputJsonValue
-    deductionDetails?: NullableJsonNullValueInput | InputJsonValue
+    allowanceDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    deductionDetails?: NullableStringFieldUpdateOperationsInput | string | null
     advanceDeduction?: FloatFieldUpdateOperationsInput | number
     loanDeduction?: FloatFieldUpdateOperationsInput | number
     overtimeHours?: FloatFieldUpdateOperationsInput | number
@@ -43441,7 +43560,7 @@ export namespace Prisma {
     staffName: string
     month: string
     year: number
-    records: JsonNullValueInput | InputJsonValue
+    records: string
     company: string
     branch: string
   }
@@ -43452,7 +43571,7 @@ export namespace Prisma {
     staffName: string
     month: string
     year: number
-    records: JsonNullValueInput | InputJsonValue
+    records: string
     company: string
     branch: string
   }
@@ -43463,7 +43582,7 @@ export namespace Prisma {
     staffName?: StringFieldUpdateOperationsInput | string
     month?: StringFieldUpdateOperationsInput | string
     year?: IntFieldUpdateOperationsInput | number
-    records?: JsonNullValueInput | InputJsonValue
+    records?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     branch?: StringFieldUpdateOperationsInput | string
   }
@@ -43474,7 +43593,7 @@ export namespace Prisma {
     staffName?: StringFieldUpdateOperationsInput | string
     month?: StringFieldUpdateOperationsInput | string
     year?: IntFieldUpdateOperationsInput | number
-    records?: JsonNullValueInput | InputJsonValue
+    records?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     branch?: StringFieldUpdateOperationsInput | string
   }
@@ -43485,7 +43604,7 @@ export namespace Prisma {
     staffName: string
     month: string
     year: number
-    records: JsonNullValueInput | InputJsonValue
+    records: string
     company: string
     branch: string
   }
@@ -43496,7 +43615,7 @@ export namespace Prisma {
     staffName?: StringFieldUpdateOperationsInput | string
     month?: StringFieldUpdateOperationsInput | string
     year?: IntFieldUpdateOperationsInput | number
-    records?: JsonNullValueInput | InputJsonValue
+    records?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     branch?: StringFieldUpdateOperationsInput | string
   }
@@ -43507,7 +43626,7 @@ export namespace Prisma {
     staffName?: StringFieldUpdateOperationsInput | string
     month?: StringFieldUpdateOperationsInput | string
     year?: IntFieldUpdateOperationsInput | number
-    records?: JsonNullValueInput | InputJsonValue
+    records?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     branch?: StringFieldUpdateOperationsInput | string
   }
@@ -44312,8 +44431,8 @@ export namespace Prisma {
     bannerImage?: string | null
     icon?: string | null
     footerContent?: string | null
-    brandColors?: NullableJsonNullValueInput | InputJsonValue
-    versionHistory?: NullableJsonNullValueInput | InputJsonValue
+    brandColors?: string | null
+    versionHistory?: string | null
     type?: string | null
     isEnabled?: boolean
     createdAt: string
@@ -44329,8 +44448,8 @@ export namespace Prisma {
     bannerImage?: string | null
     icon?: string | null
     footerContent?: string | null
-    brandColors?: NullableJsonNullValueInput | InputJsonValue
-    versionHistory?: NullableJsonNullValueInput | InputJsonValue
+    brandColors?: string | null
+    versionHistory?: string | null
     type?: string | null
     isEnabled?: boolean
     createdAt: string
@@ -44346,8 +44465,8 @@ export namespace Prisma {
     bannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     footerContent?: NullableStringFieldUpdateOperationsInput | string | null
-    brandColors?: NullableJsonNullValueInput | InputJsonValue
-    versionHistory?: NullableJsonNullValueInput | InputJsonValue
+    brandColors?: NullableStringFieldUpdateOperationsInput | string | null
+    versionHistory?: NullableStringFieldUpdateOperationsInput | string | null
     type?: NullableStringFieldUpdateOperationsInput | string | null
     isEnabled?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: StringFieldUpdateOperationsInput | string
@@ -44363,8 +44482,8 @@ export namespace Prisma {
     bannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     footerContent?: NullableStringFieldUpdateOperationsInput | string | null
-    brandColors?: NullableJsonNullValueInput | InputJsonValue
-    versionHistory?: NullableJsonNullValueInput | InputJsonValue
+    brandColors?: NullableStringFieldUpdateOperationsInput | string | null
+    versionHistory?: NullableStringFieldUpdateOperationsInput | string | null
     type?: NullableStringFieldUpdateOperationsInput | string | null
     isEnabled?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: StringFieldUpdateOperationsInput | string
@@ -44380,8 +44499,8 @@ export namespace Prisma {
     bannerImage?: string | null
     icon?: string | null
     footerContent?: string | null
-    brandColors?: NullableJsonNullValueInput | InputJsonValue
-    versionHistory?: NullableJsonNullValueInput | InputJsonValue
+    brandColors?: string | null
+    versionHistory?: string | null
     type?: string | null
     isEnabled?: boolean
     createdAt: string
@@ -44397,8 +44516,8 @@ export namespace Prisma {
     bannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     footerContent?: NullableStringFieldUpdateOperationsInput | string | null
-    brandColors?: NullableJsonNullValueInput | InputJsonValue
-    versionHistory?: NullableJsonNullValueInput | InputJsonValue
+    brandColors?: NullableStringFieldUpdateOperationsInput | string | null
+    versionHistory?: NullableStringFieldUpdateOperationsInput | string | null
     type?: NullableStringFieldUpdateOperationsInput | string | null
     isEnabled?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: StringFieldUpdateOperationsInput | string
@@ -44414,8 +44533,8 @@ export namespace Prisma {
     bannerImage?: NullableStringFieldUpdateOperationsInput | string | null
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     footerContent?: NullableStringFieldUpdateOperationsInput | string | null
-    brandColors?: NullableJsonNullValueInput | InputJsonValue
-    versionHistory?: NullableJsonNullValueInput | InputJsonValue
+    brandColors?: NullableStringFieldUpdateOperationsInput | string | null
+    versionHistory?: NullableStringFieldUpdateOperationsInput | string | null
     type?: NullableStringFieldUpdateOperationsInput | string | null
     isEnabled?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: StringFieldUpdateOperationsInput | string
@@ -44766,29 +44885,6 @@ export namespace Prisma {
     search?: string
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
-  export type JsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue
-    lte?: InputJsonValue
-    gt?: InputJsonValue
-    gte?: InputJsonValue
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type SortOrderInput = {
     sort: SortOrder
@@ -44831,6 +44927,7 @@ export namespace Prisma {
     status?: SortOrder
     lastLogin?: SortOrder
     photo?: SortOrder
+    permissions?: SortOrder
     theme?: SortOrder
   }
 
@@ -44847,6 +44944,7 @@ export namespace Prisma {
     status?: SortOrder
     lastLogin?: SortOrder
     photo?: SortOrder
+    permissions?: SortOrder
     theme?: SortOrder
   }
 
@@ -44884,32 +44982,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue
-    lte?: InputJsonValue
-    gt?: InputJsonValue
-    gte?: InputJsonValue
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -45004,7 +45076,10 @@ export namespace Prisma {
     createdAt?: SortOrder
     createdBy?: SortOrder
     notes?: SortOrder
+    enabledModules?: SortOrder
     googleMapLink?: SortOrder
+    documents?: SortOrder
+    jobDemands?: SortOrder
     tradeLicenseNumber?: SortOrder
     licenseIssueDate?: SortOrder
     licenseExpiryDate?: SortOrder
@@ -45014,6 +45089,7 @@ export namespace Prisma {
     trnNumber?: SortOrder
     separateDatabase?: SortOrder
     databaseStatus?: SortOrder
+    themeConfig?: SortOrder
   }
 
   export type CompanyMinOrderByAggregateInput = {
@@ -45040,7 +45116,10 @@ export namespace Prisma {
     createdAt?: SortOrder
     createdBy?: SortOrder
     notes?: SortOrder
+    enabledModules?: SortOrder
     googleMapLink?: SortOrder
+    documents?: SortOrder
+    jobDemands?: SortOrder
     tradeLicenseNumber?: SortOrder
     licenseIssueDate?: SortOrder
     licenseExpiryDate?: SortOrder
@@ -45050,6 +45129,7 @@ export namespace Prisma {
     trnNumber?: SortOrder
     separateDatabase?: SortOrder
     databaseStatus?: SortOrder
+    themeConfig?: SortOrder
   }
 
   export type CompanySumOrderByAggregateInput = {
@@ -45241,29 +45321,6 @@ export namespace Prisma {
   export type BranchSumOrderByAggregateInput = {
     staff?: SortOrder
   }
-  export type JsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue
-    lte?: InputJsonValue
-    gt?: InputJsonValue
-    gte?: InputJsonValue
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type RoleOrderByRelevanceInput = {
     fields: RoleOrderByRelevanceFieldEnum | RoleOrderByRelevanceFieldEnum[]
@@ -45284,6 +45341,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     description?: SortOrder
+    permissions?: SortOrder
     isCustom?: SortOrder
     company?: SortOrder
   }
@@ -45292,34 +45350,9 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     description?: SortOrder
+    permissions?: SortOrder
     isCustom?: SortOrder
     company?: SortOrder
-  }
-  export type JsonWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue
-    lte?: InputJsonValue
-    gt?: InputJsonValue
-    gte?: InputJsonValue
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedJsonFilter<$PrismaModel>
-    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type FloatNullableFilter<$PrismaModel = never> = {
@@ -45400,12 +45433,14 @@ export namespace Prisma {
     branch?: SortOrder
     createdBy?: SortOrder
     createdAt?: SortOrder
+    documents?: SortOrder
     basicSalary?: SortOrder
     housingAllowance?: SortOrder
     transportAllowance?: SortOrder
     overtimeRate?: SortOrder
     shiftId?: SortOrder
     salaryType?: SortOrder
+    permissions?: SortOrder
   }
 
   export type StaffMinOrderByAggregateInput = {
@@ -45430,12 +45465,14 @@ export namespace Prisma {
     branch?: SortOrder
     createdBy?: SortOrder
     createdAt?: SortOrder
+    documents?: SortOrder
     basicSalary?: SortOrder
     housingAllowance?: SortOrder
     transportAllowance?: SortOrder
     overtimeRate?: SortOrder
     shiftId?: SortOrder
     salaryType?: SortOrder
+    permissions?: SortOrder
   }
 
   export type StaffSumOrderByAggregateInput = {
@@ -45545,6 +45582,7 @@ export namespace Prisma {
     nationality?: SortOrder
     nationalityFlag?: SortOrder
     currentCountry?: SortOrder
+    applyingPositions?: SortOrder
     salaryExpectation?: SortOrder
     applyCountry?: SortOrder
     visaType?: SortOrder
@@ -45557,6 +45595,8 @@ export namespace Prisma {
     branch?: SortOrder
     createdBy?: SortOrder
     createdAt?: SortOrder
+    documents?: SortOrder
+    statusHistory?: SortOrder
     clientName?: SortOrder
     clientPhoto?: SortOrder
     clientMobile?: SortOrder
@@ -45588,6 +45628,7 @@ export namespace Prisma {
     nationality?: SortOrder
     nationalityFlag?: SortOrder
     currentCountry?: SortOrder
+    applyingPositions?: SortOrder
     salaryExpectation?: SortOrder
     applyCountry?: SortOrder
     visaType?: SortOrder
@@ -45600,6 +45641,8 @@ export namespace Prisma {
     branch?: SortOrder
     createdBy?: SortOrder
     createdAt?: SortOrder
+    documents?: SortOrder
+    statusHistory?: SortOrder
     clientName?: SortOrder
     clientPhoto?: SortOrder
     clientMobile?: SortOrder
@@ -45700,6 +45743,7 @@ export namespace Prisma {
     applicantName?: SortOrder
     targetDocument?: SortOrder
     incompleteReason?: SortOrder
+    history?: SortOrder
   }
 
   export type TaskMinOrderByAggregateInput = {
@@ -45724,6 +45768,7 @@ export namespace Prisma {
     applicantName?: SortOrder
     targetDocument?: SortOrder
     incompleteReason?: SortOrder
+    history?: SortOrder
   }
 
   export type InterviewOrderByRelevanceInput = {
@@ -45768,6 +45813,8 @@ export namespace Prisma {
     floor?: SortOrder
     location?: SortOrder
     attachments?: SortOrder
+    conductPersonPosition?: SortOrder
+    conductPersonMobile?: SortOrder
   }
 
   export type InterviewMaxOrderByAggregateInput = {
@@ -45805,6 +45852,9 @@ export namespace Prisma {
     building?: SortOrder
     floor?: SortOrder
     location?: SortOrder
+    attachments?: SortOrder
+    conductPersonPosition?: SortOrder
+    conductPersonMobile?: SortOrder
   }
 
   export type InterviewMinOrderByAggregateInput = {
@@ -45842,6 +45892,9 @@ export namespace Prisma {
     building?: SortOrder
     floor?: SortOrder
     location?: SortOrder
+    attachments?: SortOrder
+    conductPersonPosition?: SortOrder
+    conductPersonMobile?: SortOrder
   }
 
   export type LeaveRequestOrderByRelevanceInput = {
@@ -45949,6 +46002,7 @@ export namespace Prisma {
     reply?: SortOrder
     company?: SortOrder
     branch?: SortOrder
+    history?: SortOrder
   }
 
   export type StaffRequestMinOrderByAggregateInput = {
@@ -45968,6 +46022,7 @@ export namespace Prisma {
     reply?: SortOrder
     company?: SortOrder
     branch?: SortOrder
+    history?: SortOrder
   }
 
   export type VehicleOrderByRelevanceInput = {
@@ -46035,6 +46090,8 @@ export namespace Prisma {
     licenseExpiry?: SortOrder
     notes?: SortOrder
     createdBy?: SortOrder
+    assignmentHistory?: SortOrder
+    documents?: SortOrder
   }
 
   export type VehicleMinOrderByAggregateInput = {
@@ -46062,6 +46119,8 @@ export namespace Prisma {
     licenseExpiry?: SortOrder
     notes?: SortOrder
     createdBy?: SortOrder
+    assignmentHistory?: SortOrder
+    documents?: SortOrder
   }
 
   export type VehicleSumOrderByAggregateInput = {
@@ -46110,6 +46169,7 @@ export namespace Prisma {
     branch?: SortOrder
     createdAt?: SortOrder
     createdBy?: SortOrder
+    documents?: SortOrder
   }
 
   export type SupplierMinOrderByAggregateInput = {
@@ -46128,6 +46188,7 @@ export namespace Prisma {
     branch?: SortOrder
     createdAt?: SortOrder
     createdBy?: SortOrder
+    documents?: SortOrder
   }
 
   export type DateTimeNullableFilter<$PrismaModel = never> = {
@@ -46318,6 +46379,7 @@ export namespace Prisma {
     applicantSignIp?: SortOrder
     applicantSignDevice?: SortOrder
     termsAndConditions?: SortOrder
+    agreementHistory?: SortOrder
     agreementAccepted?: SortOrder
     emiratesId?: SortOrder
     maritalStatus?: SortOrder
@@ -46404,6 +46466,7 @@ export namespace Prisma {
     applicantSignIp?: SortOrder
     applicantSignDevice?: SortOrder
     termsAndConditions?: SortOrder
+    agreementHistory?: SortOrder
     agreementAccepted?: SortOrder
     emiratesId?: SortOrder
     maritalStatus?: SortOrder
@@ -46591,6 +46654,8 @@ export namespace Prisma {
     basicSalary?: SortOrder
     allowances?: SortOrder
     deductions?: SortOrder
+    allowanceDetails?: SortOrder
+    deductionDetails?: SortOrder
     advanceDeduction?: SortOrder
     loanDeduction?: SortOrder
     overtimeHours?: SortOrder
@@ -46613,6 +46678,8 @@ export namespace Prisma {
     basicSalary?: SortOrder
     allowances?: SortOrder
     deductions?: SortOrder
+    allowanceDetails?: SortOrder
+    deductionDetails?: SortOrder
     advanceDeduction?: SortOrder
     loanDeduction?: SortOrder
     overtimeHours?: SortOrder
@@ -46665,6 +46732,7 @@ export namespace Prisma {
     staffName?: SortOrder
     month?: SortOrder
     year?: SortOrder
+    records?: SortOrder
     company?: SortOrder
     branch?: SortOrder
   }
@@ -46675,6 +46743,7 @@ export namespace Prisma {
     staffName?: SortOrder
     month?: SortOrder
     year?: SortOrder
+    records?: SortOrder
     company?: SortOrder
     branch?: SortOrder
   }
@@ -47147,6 +47216,8 @@ export namespace Prisma {
     bannerImage?: SortOrder
     icon?: SortOrder
     footerContent?: SortOrder
+    brandColors?: SortOrder
+    versionHistory?: SortOrder
     type?: SortOrder
     isEnabled?: SortOrder
     createdAt?: SortOrder
@@ -47162,6 +47233,8 @@ export namespace Prisma {
     bannerImage?: SortOrder
     icon?: SortOrder
     footerContent?: SortOrder
+    brandColors?: SortOrder
+    versionHistory?: SortOrder
     type?: SortOrder
     isEnabled?: SortOrder
     createdAt?: SortOrder
@@ -47478,29 +47551,6 @@ export namespace Prisma {
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
-  export type NestedJsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue
-    lte?: InputJsonValue
-    gt?: InputJsonValue
-    gte?: InputJsonValue
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type NestedBoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
@@ -47540,29 +47590,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
-  }
-  export type NestedJsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue
-    lte?: InputJsonValue
-    gt?: InputJsonValue
-    gte?: InputJsonValue
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedFloatNullableFilter<$PrismaModel = never> = {

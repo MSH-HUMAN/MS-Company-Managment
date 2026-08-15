@@ -367,7 +367,9 @@ exports.Prisma.InterviewScalarFieldEnum = {
   building: 'building',
   floor: 'floor',
   location: 'location',
-  attachments: 'attachments'
+  attachments: 'attachments',
+  conductPersonPosition: 'conductPersonPosition',
+  conductPersonMobile: 'conductPersonMobile'
 };
 
 exports.Prisma.LeaveRequestScalarFieldEnum = {
@@ -786,26 +788,6 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
-exports.Prisma.NullableJsonNullValueInput = {
-  DbNull: Prisma.DbNull,
-  JsonNull: Prisma.JsonNull
-};
-
-exports.Prisma.JsonNullValueInput = {
-  JsonNull: Prisma.JsonNull
-};
-
-exports.Prisma.JsonNullValueFilter = {
-  DbNull: Prisma.DbNull,
-  JsonNull: Prisma.JsonNull,
-  AnyNull: Prisma.AnyNull
-};
-
-exports.Prisma.QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
-};
-
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
@@ -824,6 +806,7 @@ exports.Prisma.UserOrderByRelevanceFieldEnum = {
   status: 'status',
   lastLogin: 'lastLogin',
   photo: 'photo',
+  permissions: 'permissions',
   theme: 'theme'
 };
 
@@ -848,7 +831,10 @@ exports.Prisma.CompanyOrderByRelevanceFieldEnum = {
   createdAt: 'createdAt',
   createdBy: 'createdBy',
   notes: 'notes',
+  enabledModules: 'enabledModules',
   googleMapLink: 'googleMapLink',
+  documents: 'documents',
+  jobDemands: 'jobDemands',
   tradeLicenseNumber: 'tradeLicenseNumber',
   licenseIssueDate: 'licenseIssueDate',
   licenseExpiryDate: 'licenseExpiryDate',
@@ -856,7 +842,8 @@ exports.Prisma.CompanyOrderByRelevanceFieldEnum = {
   ownerName: 'ownerName',
   emirateLocation: 'emirateLocation',
   trnNumber: 'trnNumber',
-  databaseStatus: 'databaseStatus'
+  databaseStatus: 'databaseStatus',
+  themeConfig: 'themeConfig'
 };
 
 exports.Prisma.InternalCompanyOrderByRelevanceFieldEnum = {
@@ -900,6 +887,7 @@ exports.Prisma.RoleOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
+  permissions: 'permissions',
   company: 'company'
 };
 
@@ -925,8 +913,10 @@ exports.Prisma.StaffOrderByRelevanceFieldEnum = {
   branch: 'branch',
   createdBy: 'createdBy',
   createdAt: 'createdAt',
+  documents: 'documents',
   shiftId: 'shiftId',
-  salaryType: 'salaryType'
+  salaryType: 'salaryType',
+  permissions: 'permissions'
 };
 
 exports.Prisma.ApplicantOrderByRelevanceFieldEnum = {
@@ -941,6 +931,7 @@ exports.Prisma.ApplicantOrderByRelevanceFieldEnum = {
   nationality: 'nationality',
   nationalityFlag: 'nationalityFlag',
   currentCountry: 'currentCountry',
+  applyingPositions: 'applyingPositions',
   applyCountry: 'applyCountry',
   visaType: 'visaType',
   visaExpiry: 'visaExpiry',
@@ -952,6 +943,8 @@ exports.Prisma.ApplicantOrderByRelevanceFieldEnum = {
   branch: 'branch',
   createdBy: 'createdBy',
   createdAt: 'createdAt',
+  documents: 'documents',
+  statusHistory: 'statusHistory',
   clientName: 'clientName',
   clientPhoto: 'clientPhoto',
   clientMobile: 'clientMobile',
@@ -991,7 +984,8 @@ exports.Prisma.TaskOrderByRelevanceFieldEnum = {
   applicantId: 'applicantId',
   applicantName: 'applicantName',
   targetDocument: 'targetDocument',
-  incompleteReason: 'incompleteReason'
+  incompleteReason: 'incompleteReason',
+  history: 'history'
 };
 
 exports.Prisma.InterviewOrderByRelevanceFieldEnum = {
@@ -1028,7 +1022,10 @@ exports.Prisma.InterviewOrderByRelevanceFieldEnum = {
   venue: 'venue',
   building: 'building',
   floor: 'floor',
-  location: 'location'
+  location: 'location',
+  attachments: 'attachments',
+  conductPersonPosition: 'conductPersonPosition',
+  conductPersonMobile: 'conductPersonMobile'
 };
 
 exports.Prisma.LeaveRequestOrderByRelevanceFieldEnum = {
@@ -1062,7 +1059,8 @@ exports.Prisma.StaffRequestOrderByRelevanceFieldEnum = {
   reason: 'reason',
   reply: 'reply',
   company: 'company',
-  branch: 'branch'
+  branch: 'branch',
+  history: 'history'
 };
 
 exports.Prisma.VehicleOrderByRelevanceFieldEnum = {
@@ -1087,7 +1085,9 @@ exports.Prisma.VehicleOrderByRelevanceFieldEnum = {
   registrationExpiry: 'registrationExpiry',
   licenseExpiry: 'licenseExpiry',
   notes: 'notes',
-  createdBy: 'createdBy'
+  createdBy: 'createdBy',
+  assignmentHistory: 'assignmentHistory',
+  documents: 'documents'
 };
 
 exports.Prisma.SupplierOrderByRelevanceFieldEnum = {
@@ -1105,7 +1105,8 @@ exports.Prisma.SupplierOrderByRelevanceFieldEnum = {
   company: 'company',
   branch: 'branch',
   createdAt: 'createdAt',
-  createdBy: 'createdBy'
+  createdBy: 'createdBy',
+  documents: 'documents'
 };
 
 exports.Prisma.PlacementOrderByRelevanceFieldEnum = {
@@ -1178,6 +1179,7 @@ exports.Prisma.PlacementOrderByRelevanceFieldEnum = {
   applicantSignIp: 'applicantSignIp',
   applicantSignDevice: 'applicantSignDevice',
   termsAndConditions: 'termsAndConditions',
+  agreementHistory: 'agreementHistory',
   emiratesId: 'emiratesId',
   maritalStatus: 'maritalStatus',
   education: 'education',
@@ -1221,6 +1223,8 @@ exports.Prisma.PayrollRecordOrderByRelevanceFieldEnum = {
   staffName: 'staffName',
   position: 'position',
   month: 'month',
+  allowanceDetails: 'allowanceDetails',
+  deductionDetails: 'deductionDetails',
   status: 'status',
   company: 'company',
   branch: 'branch',
@@ -1232,6 +1236,7 @@ exports.Prisma.StaffAttendanceOrderByRelevanceFieldEnum = {
   staffId: 'staffId',
   staffName: 'staffName',
   month: 'month',
+  records: 'records',
   company: 'company',
   branch: 'branch'
 };
@@ -1351,6 +1356,8 @@ exports.Prisma.EmailTemplateOrderByRelevanceFieldEnum = {
   bannerImage: 'bannerImage',
   icon: 'icon',
   footerContent: 'footerContent',
+  brandColors: 'brandColors',
+  versionHistory: 'versionHistory',
   type: 'type',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
