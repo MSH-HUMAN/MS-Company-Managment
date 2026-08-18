@@ -72,9 +72,18 @@ export async function POST(request: Request) {
         reply: null,
         company: user.company,
         branch: user.branch,
-        history: [{ date: new Date().toISOString().replace("T", " ").slice(0, 19), action: "Created", user: user.name }]
+       history: JSON.stringify([{
+  date: new Date().toISOString().replace("T", " ").slice(0, 19),
+  action: "Created",
+  user: user.email || "Unknown"
+       }])
       }
-    });
+    }); 
+  
+  
+
+      
+    
 
     // Send email alert to HR/Management about the new request
     try {

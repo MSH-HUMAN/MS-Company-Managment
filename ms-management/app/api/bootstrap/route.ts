@@ -153,11 +153,14 @@ export async function GET(request: Request) {
                     basicSalary: basic,
                     allowances: totalAllowances,
                     deductions: 0,
-                    allowanceDetails: [
-                      { name: "Housing Allowance", amount: housing },
-                      { name: "Transport Allowance", amount: transport }
-                    ],
-                    deductionDetails: [],
+                    allowanceDetails: JSON.stringify([
+                   { name: "Housing Allowance", amount: housing },
+                   { name: "Transport Allowance", amount: transport }
+                    ]),
+                    
+                    
+  
+                    deductionDetails: JSON.stringify([]),
                     advanceDeduction: 0,
                     loanDeduction: 0,
                     overtimeHours: 0,

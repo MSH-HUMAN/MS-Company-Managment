@@ -39,7 +39,7 @@ export async function POST(request: Request) {
         icon: data.icon || null,
         footerContent: data.footerContent || null,
         brandColors: data.brandColors || {},
-        versionHistory: [],
+        versionHistory: JSON.stringify([]),
         type: data.type || "Email",
         isEnabled: data.isEnabled ?? true,
         createdAt: new Date().toISOString(),

@@ -114,7 +114,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
           await prisma.staffAttendance.update({
             where: { id: existingAttendance.id },
             data: {
-              records: updatedRecordsList
+            records: JSON.stringify(updatedRecordsList)
             }
           });
         } else {
@@ -124,7 +124,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
               staffName: targetStaff.name,
               month,
               year,
-              records: updatedRecordsList,
+              records: JSON.stringify(updatedRecordsList),
               company: targetStaff.company,
               branch: targetStaff.branch
             }

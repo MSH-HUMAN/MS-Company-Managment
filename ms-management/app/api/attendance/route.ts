@@ -118,7 +118,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Invalid request: Today's record is required." }, { status: 400 });
       }
 
-      const existingRecords = existingDoc ? (existingDoc.records as any[]) : [];
+      const existingRecords = existingDoc ? (existingDoc.records as unknown as any[]) : [];
       const existingToday = existingRecords.find(r => r.date === todayStr);
 
       let logAction = "Created";
@@ -195,7 +195,7 @@ export async function POST(request: Request) {
         record = await prisma.staffAttendance.update({
           where: { id: existingDoc.id },
           data: {
-            records: updatedRecords
+         records: JSON.stringify(updatedRecords)   
           }
         });
       } else {
@@ -205,7 +205,7 @@ export async function POST(request: Request) {
             staffName: targetStaff.name,
             month: data.month,
             year: Number(data.year),
-            records: updatedRecords,
+            records: JSON.stringify(updatedRecords),
             company: targetStaff.company,
             branch: targetStaff.branch
           }

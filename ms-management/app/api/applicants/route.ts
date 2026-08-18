@@ -343,7 +343,7 @@ export async function POST(request: Request) {
     }
 
     // Sanitize applicant documents for response payload to keep HTTP response under 2KB for sub-second saves
-    let docs = applicant.documents;
+    let docs: any = applicant.documents;
     if (typeof docs === "string") {
       try { docs = JSON.parse(docs); } catch (e) {}
     }
