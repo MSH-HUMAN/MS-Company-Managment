@@ -1235,7 +1235,7 @@ export default function PlacementPage() {
                   <SelectTrigger className="bg-white border-slate-200 rounded-xl text-xs h-9 focus:border-blue-400">
                     <SelectValue placeholder="Choose applicant to register" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white rounded-xl text-xs">
+                  <SelectContent className="bg-white rounded-xl text-xs min-w-[500px]">
                     {applicants.map(a => (
                       <SelectItem key={a.id} value={a.id}>{a.fullName} - {a.id} ({a.nationality})</SelectItem>
                     ))}
