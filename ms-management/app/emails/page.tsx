@@ -720,7 +720,7 @@ export default function EmailsPage() {
         templateData: activeTemplate ? {
           ...templateData,
           to: to,
-          companyEmail: "info@safayar-msjobs.com",
+          companyEmail: "support@mshorizon.com",
 companyPhone: "058 553 8199",
 companyAddress: "Ajman, UAE",
         } : {

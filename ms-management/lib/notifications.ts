@@ -135,7 +135,7 @@ export async function sendEmail({
   // Look up sender company details in DB by name or email to keep email & whatsapp branded
   let resolvedCompanyName = "MS Horizon F.Z.E";
   let companyEmail = "support@mshorizon.net";
-  let companyPhone = "+971 58 553 8199";
+  let companyPhone = "+971585538199";
   let companyAddress = "C1 Building, Ajman Free Zone, UAE";
   let companyLogo = "";
   let companyPrimaryColor = "#10c0bd";
