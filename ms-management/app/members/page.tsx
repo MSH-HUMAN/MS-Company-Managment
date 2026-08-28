@@ -240,14 +240,16 @@ export default function MembersPage() {
                 <Card key={a.id} className="rounded-2xl border-slate-100 p-5 bg-white shadow-sm hover:shadow-md transition-all flex flex-col gap-3 relative">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3 min-w-0">
-                      <Avatar className="w-12 h-12 rounded-xl border border-slate-100">
-                        {a.photo ? (
-                          <img src={a.photo} alt="Avatar" className="object-cover rounded-xl w-12 h-12" />
-                        ) : null}
-                        <AvatarFallback className="rounded-xl font-extrabold text-sm bg-blue-50 text-blue-700">
-                          {a.fullName.split(" ").map((w: string)=>w[0]).join("").slice(0,2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+                      
+                    <Avatar className="w-12 h-12 rounded-xl border border-slate-100">
+  {a.photo ? (
+    <img src={a.photo} alt="Avatar" className="object-cover rounded-xl w-full h-full" />
+  ) : (
+    <AvatarFallback className="rounded-xl font-extrabold text-sm bg-blue-50">
+      {a.fullName.split(" ").map((w: string) => w[0]).join("").slice(0, 2)}
+    </AvatarFallback>
+  )}
+  </Avatar>
                       <div className="min-w-0">
                         <Link href={`/applicants/${a.id}`} className="text-sm font-bold text-slate-800 hover:text-blue-600 block truncate" title={a.fullName}>
                           {a.fullName}
