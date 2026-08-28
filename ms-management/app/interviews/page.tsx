@@ -763,8 +763,8 @@ ${int.notes ? `📝 *Additional Notes:*\n${int.notes}\n\n` : ""}If you have any 
 Thank you, and we look forward to meeting you.
 
 *${intCompanyLabel}*
-📞 +971 58 520 3005
-📧 mshorizonfze@gmail.com`;
+📞 +971 58 553 8199
+📧 support@mshorizon.com`;
                           const cleanNumber = int.whatsapp!.replace(/[^0-9]/g, "");
                           if (typeof window !== "undefined") {
                             window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(waMsg)}`, "_blank");
