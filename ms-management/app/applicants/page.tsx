@@ -269,7 +269,7 @@ export default function ApplicantsPage() {
                   type="applicant"
                   id={app.id}
                   name={app.fullName}
-                  subtitle={`${app.applyingPositions.join(", ")}`}
+                  subtitle={`${(app.applyingPositions ?? []).join(", ")}`}
                   status={app.status}
                   image={app.photo}
                   flag={app.nationalityFlag}
