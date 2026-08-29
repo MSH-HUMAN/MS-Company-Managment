@@ -264,7 +264,23 @@ export async function GET(request: Request) {
         documents: docs
       };
     });
+const sanitizedInterviews = (interviews || []).map((int: any) => {
+  let attachments = int.attachments;
 
+  if (typeof attachments === "string") {
+    try {
+      attachments = JSON.parse(attachments);
+    } catch (e) {
+      attachments = [];
+    }
+  }
+
+  if (!Array.isArray(attachments)) {
+    attachments = [];
+  }
+
+  return { ...int, attachments };
+});
     return NextResponse.json({
       companies,
       ownCompanies,
@@ -277,7 +293,7 @@ export async function GET(request: Request) {
       attendance,
       requests,
       payroll,
-      interviews,
+     interviews: sanitizedInterviews, 
       vehicles,
       suppliers,
       placements,
