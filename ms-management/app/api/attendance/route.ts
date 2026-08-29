@@ -23,7 +23,22 @@ export async function GET(request: Request) {
       ]
     });
 
-    return NextResponse.json(attendance);
+   const normalizedAttendance = attendance.map((item: any) => {
+  let records: any[] = [];
+
+  if (Array.isArray(item.records)) {
+    records = item.records;
+  } else if (typeof item.records === "string") {
+    try {
+      const parsed = JSON.parse(item.records);
+      records = Array.isArray(parsed) ? parsed : [];
+    } catch {}
+  }
+
+  return { ...item, records };
+});
+
+return NextResponse.json(normalizedAttendance); 
   } catch (error: any) {
     console.error("GET attendance error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
