@@ -126,57 +126,59 @@ export default function TrackingPage() {
   const baseApplicants = filterRecordsByPermission("tracking", applicants, currentUser, currentRole, hasPermission);
 
   // Apply filters
-  let filteredList = [...baseApplicants];
+  let filteredList = [...(baseApplicants || [])];
 
   if (companyFilter !== "all") {
-    filteredList = filteredList.filter(a => a.company === companyFilter);
+    filteredList = filteredList.filter(a => a?.company === companyFilter);
   }
   if (branchFilter !== "all") {
-    filteredList = filteredList.filter(a => a.branch === branchFilter);
+    filteredList = filteredList.filter(a => a?.branch === branchFilter);
   }
 
   if (nationalityFilter !== "all") {
-    filteredList = filteredList.filter(a => a.nationality === nationalityFilter);
+    filteredList = filteredList.filter(a => a?.nationality === nationalityFilter);
   }
   if (statusFilter !== "all") {
-    filteredList = filteredList.filter(a => a.status && a.status.trim().toLowerCase() === statusFilter.trim().toLowerCase());
+    filteredList = filteredList.filter(a => a?.status && a.status.trim().toLowerCase() === statusFilter.trim().toLowerCase());
   }
   if (startDate) {
-    filteredList = filteredList.filter(a => a.applicationDate >= startDate);
+    filteredList = filteredList.filter(a => (a?.applicationDate || "") >= startDate);
   }
   if (endDate) {
-    filteredList = filteredList.filter(a => a.applicationDate <= endDate);
+    filteredList = filteredList.filter(a => (a?.applicationDate || "") <= endDate);
   }
   if (search) {
     const q = search.toLowerCase();
     filteredList = filteredList.filter(a =>
-      a.fullName.toLowerCase().includes(q) ||
-      a.id.toLowerCase().includes(q) ||
-      (a.applyingPositions && a.applyingPositions.join(", ").toLowerCase().includes(q))
+      (a?.fullName || "").toLowerCase().includes(q) ||
+      (a?.id || "").toLowerCase().includes(q) ||
+      (a?.trackingCode || "").toLowerCase().includes(q) ||
+      (Array.isArray(a?.applyingPositions) ? a.applyingPositions.join(", ") : "").toLowerCase().includes(q)
     );
   }
 
   // 1. Position Filter
   if (positionFilter !== "all") {
-    filteredList = filteredList.filter(a => a.applyingPositions && Array.isArray(a.applyingPositions) && (a.applyingPositions as string[]).includes(positionFilter));
+    filteredList = filteredList.filter(a => Array.isArray(a?.applyingPositions) && (a.applyingPositions as string[]).includes(positionFilter));
   }
 
   // 2. Visa Status / Visa Type Filter
   if (visaStatusFilter !== "all") {
-    filteredList = filteredList.filter(a => a.visaType === visaStatusFilter);
+    filteredList = filteredList.filter(a => a?.visaType === visaStatusFilter);
   }
 
   // 3. Interview Date Filter
   if (interviewDateFilter) {
-    const matchingAppIds = interviews
-      .filter(i => i.dateTime && i.dateTime.slice(0, 10) === interviewDateFilter)
-      .map(i => i.applicantId);
-    filteredList = filteredList.filter(a => matchingAppIds.includes(a.id));
+    const matchingAppIds = (interviews || [])
+      .filter(i => i?.dateTime && i.dateTime.slice(0, 10) === interviewDateFilter)
+      .map(i => i?.applicantId)
+      .filter(Boolean);
+    filteredList = filteredList.filter(a => matchingAppIds.includes(a?.id));
   }
 
   // Derive unique values for filters
   const allPositions = Array.from(
-    new Set(baseApplicants.flatMap(a => Array.isArray(a.applyingPositions) ? a.applyingPositions : []))
+    new Set((baseApplicants || []).flatMap(a => Array.isArray(a?.applyingPositions) ? a.applyingPositions : []))
   ).sort();
 
   const allVisaTypes = Array.from(

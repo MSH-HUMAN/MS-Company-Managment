@@ -273,13 +273,13 @@ export default function AttendanceRecords() {
   // ── Build records map for the selected date ──
   const buildRecordsForDate = useCallback((d: string) => {
     const map: Record<string, any> = {};
-    staffAttendance.forEach(record => {
-      record.records.forEach((r: any) => {
-        if (r.date === d) map[record.staffId] = r;
+    (staffAttendance || []).forEach(record => {
+      (Array.isArray(record?.records) ? record.records : []).forEach((r: any) => {
+        if (r && r.date === d) map[record.staffId] = r;
       });
     });
     const init: Record<string, any> = {};
-    allowedStaff.forEach(s => {
+    (allowedStaff || []).forEach(s => {
       init[s.id] = map[s.id] || { ...DEFAULT_REC };
     });
     return init;
@@ -440,7 +440,8 @@ export default function AttendanceRecords() {
 
       let updatedRecordsList: AttendanceRecord[] = [newRecord];
       if (existing) {
-        const filtered = existing.records.filter((r: any) => r.date !== date);
+        const existingRecs = Array.isArray(existing.records) ? existing.records : [];
+        const filtered = existingRecs.filter((r: any) => r.date !== date);
         updatedRecordsList = [...filtered, newRecord];
         await saveAttendance({ ...existing, records: updatedRecordsList });
       } else {

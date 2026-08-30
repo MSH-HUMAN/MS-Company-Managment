@@ -84,17 +84,18 @@ export default function ApplicantsPage() {
 
   // 2. Apply filters
   let filtered = allowedApplicants.filter((item) => {
+    if (!item) return false;
     if (currentFilters.search) {
       const q = currentFilters.search.toLowerCase();
       const match = 
-        item.fullName.toLowerCase().includes(q) ||
-        item.email.toLowerCase().includes(q) ||
-        item.trackingCode.toLowerCase().includes(q);
+        (item.fullName || "").toLowerCase().includes(q) ||
+        (item.email || "").toLowerCase().includes(q) ||
+        (item.trackingCode || "").toLowerCase().includes(q);
       if (!match) return false;
     }
     if (currentFilters.mobileSearch) {
       const q = currentFilters.mobileSearch;
-      if (!item.mobile.includes(q)) return false;
+      if (!(item.mobile || "").includes(q)) return false;
     }
     if (currentFilters.status && currentFilters.status !== "all") {
       if (!item.status || item.status.trim().toLowerCase() !== currentFilters.status.trim().toLowerCase()) return false;
@@ -109,12 +110,12 @@ export default function ApplicantsPage() {
       if (item.nationality !== currentFilters.nationality) return false;
     }
     if (currentFilters.fromDate) {
-      const itemDate = new Date(item.applicationDate);
+      const itemDate = new Date(item.applicationDate || 0);
       const fromDate = new Date(currentFilters.fromDate);
       if (itemDate < fromDate) return false;
     }
     if (currentFilters.toDate) {
-      const itemDate = new Date(item.applicationDate);
+      const itemDate = new Date(item.applicationDate || 0);
       const toDate = new Date(currentFilters.toDate);
       if (itemDate > toDate) return false;
     }
@@ -125,16 +126,16 @@ export default function ApplicantsPage() {
   const sortBy = currentFilters.sortBy || "newest";
   filtered = [...filtered].sort((a, b) => {
     if (sortBy === "newest") {
-      return new Date(b.applicationDate).getTime() - new Date(a.applicationDate).getTime();
+      return new Date(b.applicationDate || 0).getTime() - new Date(a.applicationDate || 0).getTime();
     }
     if (sortBy === "oldest") {
-      return new Date(a.applicationDate).getTime() - new Date(b.applicationDate).getTime();
+      return new Date(a.applicationDate || 0).getTime() - new Date(b.applicationDate || 0).getTime();
     }
     if (sortBy === "name_asc") {
-      return a.fullName.localeCompare(b.fullName);
+      return (a.fullName || "").localeCompare(b.fullName || "");
     }
     if (sortBy === "name_desc") {
-      return b.fullName.localeCompare(a.fullName);
+      return (b.fullName || "").localeCompare(a.fullName || "");
     }
     return 0;
   });

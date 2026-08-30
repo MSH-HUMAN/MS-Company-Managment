@@ -202,111 +202,186 @@ export async function GET(request: Request) {
     const errorCount = Object.keys(_errors).length;
     const hasQueryErrors = errorCount > 0;
 
+    // Safe parser helpers
+    const safeJsonArray = (val: any) => {
+      if (!val) return [];
+      if (Array.isArray(val)) return val;
+      if (typeof val === "string") {
+        try {
+          const parsed = JSON.parse(val);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      }
+      return [];
+    };
+
+    const safeJsonObject = (val: any, fallback: any = null) => {
+      if (!val) return fallback;
+      if (typeof val === "object") return val;
+      if (typeof val === "string") {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return fallback;
+        }
+      }
+      return fallback;
+    };
+
     // Sanitize applicant and staff documents for bootstrap payload to keep payload under 50KB for fast < 1s loading
     const sanitizedApplicants = (applicants || []).map((app: any) => {
-      let docs = app.documents;
-      if (typeof docs === "string") {
-        try { docs = JSON.parse(docs); } catch (e) {}
-      }
-      if (Array.isArray(docs)) {
-        docs = docs.map((d: any) => {
-          if (!d) return d;
-          const urlStr = d.url || "";
-          if (urlStr.startsWith("data:") && urlStr.length > 500) {
-            return {
-              id: d.id,
-              name: d.name,
-              type: d.type,
-              size: d.size,
-              uploadedBy: d.uploadedBy,
-              uploadedDate: d.uploadedDate,
-              slotLabel: d.slotLabel,
-              documentType: d.documentType,
-              hasFile: true
-            };
-          }
-          return d;
-        });
-      }
+      let docs = safeJsonArray(app.documents);
+      docs = docs.map((d: any) => {
+        if (!d) return d;
+        const urlStr = d.url || "";
+        if (urlStr.startsWith("data:") && urlStr.length > 500) {
+          return {
+            id: d.id,
+            name: d.name,
+            type: d.type,
+            size: d.size,
+            uploadedBy: d.uploadedBy,
+            uploadedDate: d.uploadedDate,
+            slotLabel: d.slotLabel,
+            documentType: d.documentType,
+            hasFile: true
+          };
+        }
+        return d;
+      });
+
       return {
         ...app,
-        documents: docs
+        fullName: app.fullName || "",
+        email: app.email || "",
+        mobile: app.mobile || "",
+        whatsapp: app.whatsapp || "",
+        trackingCode: app.trackingCode || "",
+        status: app.status || "Registered",
+        nationality: app.nationality || "",
+        company: app.company || "",
+        branch: app.branch || "",
+        applicationDate: app.applicationDate || "",
+        applyingPositions: safeJsonArray(app.applyingPositions),
+        documents: docs,
+        statusHistory: safeJsonArray(app.statusHistory)
       };
     });
 
     const sanitizedStaff = (staff || []).map((s: any) => {
-      let docs = s.documents;
-      if (typeof docs === "string") {
-        try { docs = JSON.parse(docs); } catch (e) {}
-      }
-      if (Array.isArray(docs)) {
-        docs = docs.map((d: any) => {
-          if (!d) return d;
-          const urlStr = d.url || "";
-          if (urlStr.startsWith("data:") && urlStr.length > 500) {
-            return {
-              id: d.id,
-              name: d.name,
-              type: d.type,
-              size: d.size,
-              uploadedBy: d.uploadedBy,
-              uploadedDate: d.uploadedDate,
-              slotLabel: d.slotLabel,
-              documentType: d.documentType,
-              hasFile: true
-            };
-          }
-          return d;
-        });
-      }
+      let docs = safeJsonArray(s.documents);
+      docs = docs.map((d: any) => {
+        if (!d) return d;
+        const urlStr = d.url || "";
+        if (urlStr.startsWith("data:") && urlStr.length > 500) {
+          return {
+            id: d.id,
+            name: d.name,
+            type: d.type,
+            size: d.size,
+            uploadedBy: d.uploadedBy,
+            uploadedDate: d.uploadedDate,
+            slotLabel: d.slotLabel,
+            documentType: d.documentType,
+            hasFile: true
+          };
+        }
+        return d;
+      });
+
       return {
         ...s,
-        documents: docs
+        name: s.name || "",
+        email: s.email || "",
+        mobile: s.mobile || "",
+        whatsapp: s.whatsapp || "",
+        company: s.company || "",
+        branch: s.branch || "",
+        position: s.position || "",
+        documents: docs,
+        permissions: safeJsonArray(s.permissions)
       };
     });
-const sanitizedInterviews = (interviews || []).map((int: any) => {
-  let attachments = int.attachments;
 
-  if (typeof attachments === "string") {
-    try {
-      attachments = JSON.parse(attachments);
-    } catch (e) {
-      attachments = [];
-    }
-  }
+    const sanitizedCompanies = (companies || []).map((c: any) => ({
+      ...c,
+      name: c.name || "",
+      documents: safeJsonArray(c.documents),
+      enabledModules: safeJsonObject(c.enabledModules, {}),
+      jobDemands: safeJsonArray(c.jobDemands),
+      themeConfig: safeJsonObject(c.themeConfig, null)
+    }));
 
-  if (!Array.isArray(attachments)) {
-    attachments = [];
-  }
+    const sanitizedSuppliers = (suppliers || []).map((s: any) => ({
+      ...s,
+      name: s.name || "",
+      documents: safeJsonArray(s.documents)
+    }));
 
-  return { ...int, attachments };
-});
+    const sanitizedVehicles = (v: any) => ({
+      ...v,
+      documents: safeJsonArray(v.documents),
+      assignmentHistory: safeJsonArray(v.assignmentHistory)
+    });
+
+    const sanitizedAttendance = (attendance || []).map((a: any) => ({
+      ...a,
+      records: safeJsonArray(a.records)
+    }));
+
+    const sanitizedPlacements = (placements || []).map((p: any) => ({
+      ...p,
+      agreementHistory: safeJsonArray(p.agreementHistory)
+    }));
+
+    const sanitizedRoles = (roles || []).map((r: any) => ({
+      ...r,
+      permissions: safeJsonArray(r.permissions)
+    }));
+
+    const sanitizedTasks = (tasks || []).map((t: any) => ({
+      ...t,
+      history: safeJsonArray(t.history)
+    }));
+
+    const sanitizedRequests = (requests || []).map((r: any) => ({
+      ...r,
+      history: safeJsonArray(r.history)
+    }));
+
+    const sanitizedInterviews = (interviews || []).map((int: any) => ({
+      ...int,
+      attachments: safeJsonArray(int.attachments)
+    }));
+
     return NextResponse.json({
-      companies,
-      ownCompanies,
-      users,
-      branches,
-      roles,
+      companies: sanitizedCompanies,
+      ownCompanies: ownCompanies || [],
+      users: users || [],
+      branches: branches || [],
+      roles: sanitizedRoles,
       staff: sanitizedStaff,
       applicants: sanitizedApplicants,
-      tasks,
-      attendance,
-      requests,
-      payroll,
-     interviews: sanitizedInterviews, 
-      vehicles,
-      suppliers,
-      placements,
-      notifications,
-      logs,
-      archivedLogs,
-      settings,
-      shifts,
-      overtime,
-      corrections,
-      emails,
-      whatsapp,
-      leaves,
+      tasks: sanitizedTasks,
+      attendance: sanitizedAttendance,
+      requests: sanitizedRequests,
+      payroll: payroll || [],
+      interviews: sanitizedInterviews, 
+      vehicles: (vehicles || []).map(sanitizedVehicles),
+      suppliers: sanitizedSuppliers,
+      placements: sanitizedPlacements,
+      notifications: notifications || [],
+      logs: logs || [],
+      archivedLogs: archivedLogs || [],
+      settings: settings || null,
+      shifts: shifts || [],
+      overtime: overtime || [],
+      corrections: corrections || [],
+      emails: emails || [],
+      whatsapp: whatsapp || [],
+      leaves: leaves || [],
       _hasQueryErrors: hasQueryErrors,
       _errors: hasQueryErrors ? { ..._errors } : undefined,
     }, {

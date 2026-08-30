@@ -318,6 +318,33 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return res.json();
     };
 
+    const safeJsonArray = (val: any) => {
+      if (!val) return [];
+      if (Array.isArray(val)) return val;
+      if (typeof val === "string") {
+        try {
+          const parsed = JSON.parse(val);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      }
+      return [];
+    };
+
+    const safeJsonObject = (val: any, fallback: any = null) => {
+      if (!val) return fallback;
+      if (typeof val === "object") return val;
+      if (typeof val === "string") {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return fallback;
+        }
+      }
+      return fallback;
+    };
+
     const applyData = (payload: any) => {
       const {
         companies, ownCompanies, users, branches, roles, staff, applicants, tasks,
@@ -326,14 +353,85 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         corrections, emails, whatsapp, leaves
       } = payload;
 
+      const normalizedStaff = (staff || []).map((s: any) => ({
+        ...s,
+        name: s.name || "",
+        email: s.email || "",
+        mobile: s.mobile || "",
+        whatsapp: s.whatsapp || "",
+        company: s.company || "",
+        branch: s.branch || "",
+        position: s.position || "",
+        status: s.status || "Active",
+        documents: safeJsonArray(s.documents),
+        permissions: safeJsonArray(s.permissions)
+      }));
+
+      const normalizedApplicants = (applicants || []).map((a: any) => ({
+        ...a,
+        fullName: a.fullName || "",
+        email: a.email || "",
+        mobile: a.mobile || "",
+        whatsapp: a.whatsapp || "",
+        trackingCode: a.trackingCode || "",
+        status: a.status || "Registered",
+        nationality: a.nationality || "",
+        company: a.company || "",
+        branch: a.branch || "",
+        applicationDate: a.applicationDate || "",
+        applyingPositions: safeJsonArray(a.applyingPositions),
+        documents: safeJsonArray(a.documents),
+        statusHistory: safeJsonArray(a.statusHistory)
+      }));
+
+      const normalizedCompanies = (companies || []).map((c: any) => ({
+        ...c,
+        name: c.name || "",
+        documents: safeJsonArray(c.documents),
+        enabledModules: safeJsonObject(c.enabledModules, {}),
+        jobDemands: safeJsonArray(c.jobDemands),
+        themeConfig: safeJsonObject(c.themeConfig, null)
+      }));
+
+      const normalizedSuppliers = (suppliers || []).map((sup: any) => ({
+        ...sup,
+        name: sup.name || "",
+        documents: safeJsonArray(sup.documents)
+      }));
+
+      const normalizedVehicles = (vehicles || []).map((v: any) => ({
+        ...v,
+        brand: v.brand || "",
+        plateNumber: v.plateNumber || "",
+        documents: safeJsonArray(v.documents),
+        assignmentHistory: safeJsonArray(v.assignmentHistory)
+      }));
+
+      const normalizedAttendance = (attendance || []).map((att: any) => ({
+        ...att,
+        records: safeJsonArray(att.records)
+      }));
+
+      const normalizedPlacements = (placements || []).map((p: any) => ({
+        ...p,
+        applicantName: p.applicantName || "",
+        companyName: p.companyName || "",
+        agreementHistory: safeJsonArray(p.agreementHistory)
+      }));
+
+      const normalizedRoles = (roles || []).map((r: any) => ({
+        ...r,
+        permissions: safeJsonArray(r.permissions)
+      }));
+
       const mappedShifts = (shifts || []).map((s: any) => ({
         ...s,
         startTime: s.clockIn || "",
         endTime: s.clockOut || "",
-        assignedEmployees: (staff || []).filter((st: any) => st.shiftId === s.id).map((st: any) => st.name)
+        assignedEmployees: normalizedStaff.filter((st: any) => st.shiftId === s.id).map((st: any) => st.name)
       }));
 
-      const salarySetups = (staff || []).map((s: any) => ({
+      const salarySetups = normalizedStaff.map((s: any) => ({
         staffId: s.id,
         basic: s.basicSalary ?? 3000,
         housing: s.housingAllowance ?? 1000,
@@ -341,26 +439,32 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }));
 
       set({
-        companies: companies || [],
+        companies: normalizedCompanies,
         ownCompanies: ownCompanies || [],
         users: users || [],
         branches: branches || [],
-        roles: roles || [],
-        staff: staff || [],
-        applicants: applicants || [],
+        roles: normalizedRoles,
+        staff: normalizedStaff,
+        applicants: normalizedApplicants,
         tasks: (tasks || []).map((t: any) => ({
           ...t,
           deadline: t.deadline || t.dueDate || "",
           assignedDate: t.assignedDate || "",
-          history: Array.isArray(t.history) ? t.history : (t.history ? JSON.parse(JSON.stringify(t.history)) : []),
+          history: safeJsonArray(t.history)
         })),
-        staffAttendance: attendance || [],
-        staffRequests: requests || [],
+        staffAttendance: normalizedAttendance,
+        staffRequests: (requests || []).map((r: any) => ({
+          ...r,
+          history: safeJsonArray(r.history)
+        })),
         payroll: payroll || [],
-        interviews: interviews || [],
-        vehicles: vehicles || [],
-        suppliers: suppliers || [],
-        placements: placements || [],
+        interviews: (interviews || []).map((int: any) => ({
+          ...int,
+          attachments: safeJsonArray(int.attachments)
+        })),
+        vehicles: normalizedVehicles,
+        suppliers: normalizedSuppliers,
+        placements: normalizedPlacements,
         notifications: (notifications || []).map((n: any) => ({
           ...n,
           time: n.time || n.createdAt || new Date().toISOString()

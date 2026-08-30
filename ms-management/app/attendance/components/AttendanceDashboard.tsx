@@ -29,14 +29,14 @@ export default function AttendanceDashboard() {
   const stats = useMemo(() => {
     let present = 0, absent = 0, late = 0, leave = 0, overtimeCount = 0;
     
-    staffAttendance.forEach(record => {
-      record.records.forEach(r => {
-        if (r.date === today && allowedStaff.some(s => s.id === record.staffId)) {
+    (staffAttendance || []).forEach(record => {
+      (Array.isArray(record?.records) ? record.records : []).forEach(r => {
+        if (r && r.date === today && (allowedStaff || []).some(s => s.id === record.staffId)) {
           if (r.status === "Present" || r.status === "Work From Home") present++;
           if (r.status === "Absent") absent++;
           if (r.status === "Late") late++;
           if (r.status === "Leave" || r.status === "Half Day") leave++;
-          if (r.overtime > 0) overtimeCount++;
+          if (Number(r.overtime) > 0) overtimeCount++;
         }
       });
     });

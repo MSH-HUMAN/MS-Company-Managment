@@ -40,7 +40,7 @@ export default function AttendanceCalendar() {
   const monthlySummary = useMemo(() => {
     return allowedStaff.map(s => {
       const record = staffAttendance.find(a => a.staffId === s.id && a.month === selectedMonth && a.year === selectedYear);
-      const records = record?.records || [];
+      const records = Array.isArray(record?.records) ? record.records : [];
       const present = records.filter(r => r.status === "Present" || r.status === "Work From Home").length;
       const absent  = records.filter(r => r.status === "Absent").length;
       const late    = records.filter(r => r.status === "Late").length;

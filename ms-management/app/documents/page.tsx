@@ -112,29 +112,29 @@ export default function DocumentsPage() {
   const companyBranchStats = useMemo(() => {
     const stats: Record<string, { total: number; branches: Record<string, number> }> = {};
     
-    allowedApplicants.forEach(app => {
-      (app.documents || []).forEach(() => {
-        const comp = app.company || "General";
-        const br = app.branch || "General";
+    (allowedApplicants || []).forEach(app => {
+      (Array.isArray(app?.documents) ? app.documents : []).forEach(() => {
+        const comp = app?.company || "General";
+        const br = app?.branch || "General";
         if (!stats[comp]) stats[comp] = { total: 0, branches: {} };
         stats[comp].total += 1;
         stats[comp].branches[br] = (stats[comp].branches[br] || 0) + 1;
       });
     });
 
-    allowedStaff.forEach(s => {
-      (s.documents || []).forEach(() => {
-        const comp = s.company || "General";
-        const br = s.branch || "General";
+    (allowedStaff || []).forEach(s => {
+      (Array.isArray(s?.documents) ? s.documents : []).forEach(() => {
+        const comp = s?.company || "General";
+        const br = s?.branch || "General";
         if (!stats[comp]) stats[comp] = { total: 0, branches: {} };
         stats[comp].total += 1;
         stats[comp].branches[br] = (stats[comp].branches[br] || 0) + 1;
       });
     });
 
-    allowedSuppliers.forEach(sup => {
-      (sup.documents || []).forEach(() => {
-        const comp = currentUser.company || "General Suppliers";
+    (allowedSuppliers || []).forEach(sup => {
+      (Array.isArray(sup?.documents) ? sup.documents : []).forEach(() => {
+        const comp = currentUser?.company || "General Suppliers";
         const br = "Suppliers";
         if (!stats[comp]) stats[comp] = { total: 0, branches: {} };
         stats[comp].total += 1;
@@ -142,9 +142,9 @@ export default function DocumentsPage() {
       });
     });
 
-    allowedCompanies.forEach(comp => {
-      (comp.documents || []).forEach(() => {
-        const compName = comp.name || "General";
+    (allowedCompanies || []).forEach(comp => {
+      (Array.isArray(comp?.documents) ? comp.documents : []).forEach(() => {
+        const compName = comp?.name || "General";
         const br = "Main Office";
         if (!stats[compName]) stats[compName] = { total: 0, branches: {} };
         stats[compName].total += 1;
@@ -152,10 +152,10 @@ export default function DocumentsPage() {
       });
     });
 
-    allowedVehicles.forEach(v => {
-      (v.documents || []).forEach(() => {
-        const compName = v.company || "General";
-        const br = v.branch || "General";
+    (allowedVehicles || []).forEach(v => {
+      (Array.isArray(v?.documents) ? v.documents : []).forEach(() => {
+        const compName = v?.company || "General";
+        const br = v?.branch || "General";
         if (!stats[compName]) stats[compName] = { total: 0, branches: {} };
         stats[compName].total += 1;
         stats[compName].branches[br] = (stats[compName].branches[br] || 0) + 1;
@@ -169,71 +169,76 @@ export default function DocumentsPage() {
   const allDocs = useMemo(() => {
     let docs: any[] = [];
 
-    allowedApplicants.forEach((applicant) => {
-      (applicant.documents || []).forEach((doc) => {
+    (allowedApplicants || []).forEach((applicant) => {
+      (Array.isArray(applicant?.documents) ? applicant.documents : []).forEach((doc: any) => {
+        if (!doc) return;
         docs.push({
           ...doc,
           ownerType: "Applicant",
-          ownerName: applicant.fullName,
+          ownerName: applicant.fullName || "",
           ownerId: applicant.id,
-          ownerCompany: applicant.company,
-          ownerBranch: applicant.branch,
+          ownerCompany: applicant.company || "",
+          ownerBranch: applicant.branch || "",
           source: "Applicant"
         });
       });
     });
 
-    allowedStaff.forEach((member) => {
-      (member.documents || []).forEach((doc) => {
+    (allowedStaff || []).forEach((member) => {
+      (Array.isArray(member?.documents) ? member.documents : []).forEach((doc: any) => {
+        if (!doc) return;
         docs.push({
           ...doc,
           ownerType: "Staff",
-          ownerName: member.name,
+          ownerName: member.name || "",
           ownerId: member.id,
-          ownerCompany: member.company,
-          ownerBranch: member.branch,
+          ownerCompany: member.company || "",
+          ownerBranch: member.branch || "",
           source: "Staff"
         });
       });
     });
 
-    allowedSuppliers.forEach((supplier) => {
-      (supplier.documents || []).forEach((doc) => {
+    (allowedSuppliers || []).forEach((supplier) => {
+      (Array.isArray(supplier?.documents) ? supplier.documents : []).forEach((doc: any) => {
+        if (!doc) return;
         docs.push({
           ...doc,
           ownerType: "Supplier",
-          ownerName: supplier.name,
+          ownerName: supplier.name || "",
           ownerId: supplier.id,
-          ownerCompany: currentUser.company || "General",
+          ownerCompany: currentUser?.company || "General",
           ownerBranch: "Suppliers",
           source: "Supplier"
         });
       });
     });
 
-    allowedCompanies.forEach((company) => {
-      (company.documents || []).forEach((doc) => {
+    (allowedCompanies || []).forEach((company) => {
+      (Array.isArray(company?.documents) ? company.documents : []).forEach((doc: any) => {
+        if (!doc) return;
         docs.push({
           ...doc,
           ownerType: "Company",
-          ownerName: company.name,
+          ownerName: company.name || "",
           ownerId: company.id,
-          ownerCompany: company.name,
+          ownerCompany: company.name || "",
           ownerBranch: "Main Office",
           source: "Company"
         });
       });
     });
 
-    allowedVehicles.forEach((vehicle) => {
-      (vehicle.documents || []).forEach((doc) => {
+    (allowedVehicles || []).forEach((vehicle) => {
+      (Array.isArray(vehicle?.documents) ? vehicle.documents : []).forEach((doc: any) => {
+        if (!doc) return;
         docs.push({
           ...doc,
           ownerType: "Vehicle",
-          ownerName: `${vehicle.brand} (${vehicle.plateNumber})`,
+          ownerName: `${vehicle.brand || ""} (${vehicle.plateNumber || ""})`,
           ownerId: vehicle.id,
-          ownerCompany: vehicle.company,
-          ownerBranch: vehicle.branch,
+          ownerCompany: vehicle.company || "",
+          ownerBranch: vehicle.branch || "",
           source: "Vehicle"
         });
       });
@@ -242,7 +247,7 @@ export default function DocumentsPage() {
     // Tab Filter
     if (activeTab !== "all") {
       docs = docs.filter((doc) => {
-        const type = doc.ownerType.toLowerCase();
+        const type = (doc.ownerType || "").toLowerCase();
         if (activeTab === "companies") return type === "company";
         if (activeTab === "vehicles") return type === "vehicle";
         if (activeTab === "applicants") return type === "applicant";
@@ -256,10 +261,10 @@ export default function DocumentsPage() {
     if (currentFilter.search) {
       const q = currentFilter.search.toLowerCase();
       docs = docs.filter((doc) =>
-        doc.name.toLowerCase().includes(q) ||
-        doc.uploadedBy.toLowerCase().includes(q) ||
-        doc.ownerName.toLowerCase().includes(q) ||
-        doc.ownerCompany?.toLowerCase().includes(q)
+        (doc.name || "").toLowerCase().includes(q) ||
+        (doc.uploadedBy || "").toLowerCase().includes(q) ||
+        (doc.ownerName || "").toLowerCase().includes(q) ||
+        (doc.ownerCompany || "").toLowerCase().includes(q)
       );
     }
 
