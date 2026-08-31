@@ -110,7 +110,7 @@ export async function POST(request: Request) {
     });
 
     const logged = await prisma.sentEmail.findFirst({
-      where: { to: data.to, subject: data.subject },
+      where: { to: data.to, subject: finalSubject },
       orderBy: { sentAt: "desc" }
     });
 

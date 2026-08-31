@@ -88,6 +88,16 @@ function registerPartials() {
   }
 }
 
+function cleanEnvVar(val?: string): string {
+  if (!val) return "";
+  let s = val.trim();
+  // Remove wrapping quotes if present
+  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+    s = s.slice(1, -1).trim();
+  }
+  return s;
+}
+
 /**
  * Sends a real-time email with beautiful HTML formatting.
  * Falls back to simulated DB log if SMTP credentials are missing.
@@ -527,7 +537,10 @@ export async function sendEmail({
             port,
             secure: port === 465,
             auth: { user, pass },
-            tls: { rejectUnauthorized: false },
+            tls: {
+              ciphers: "SSLv3",
+              rejectUnauthorized: false,
+            },
           });
 
       const info = await transporter.sendMail({
