@@ -1060,7 +1060,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       body: JSON.stringify(int)
     });
     if (res.ok) {
-      const saved = await res.json();
+      const rawSaved = await res.json();
+      const saved = {
+        ...rawSaved,
+        attachments: safeJsonArray(rawSaved.attachments)
+      };
       set((state) => {
         let updatedApplicants = state.applicants;
         if (saved.applicantId) {
@@ -1097,7 +1101,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       body: JSON.stringify(int)
     });
     if (res.ok) {
-      const saved = await res.json();
+      const rawSaved = await res.json();
+      const saved = {
+        ...rawSaved,
+        attachments: safeJsonArray(rawSaved.attachments)
+      };
       set((state) => {
         let updatedApplicants = state.applicants;
         if (saved.applicantId) {
@@ -1113,22 +1121,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
                 if (saved.status === "Cancelled") {
                   targetStatus = "Pending";
-                  reason = `Interview cancelled.`;
+                  reason = `Interview cancelled (${saved.type})`;
                 } else if (saved.status === "Completed") {
-                  targetStatus = "Selected";
-                  reason = `Interview marked as completed successfully.`;
-                } else if (saved.status === "Rescheduled" || dateTimeChanged) {
+                  targetStatus = "Interview Attended";
+                  reason = `Interview completed (${saved.type}) with result: ${saved.interviewResult || "N/A"}`;
+                } else if (dateTimeChanged) {
                   targetStatus = "Interview Scheduled";
-                  reason = `Interview rescheduled to ${saved.dateTime.replace("T", " ")}`;
+                  reason = `Interview rescheduled to ${saved.dateTime.replace("T", " ")} (${saved.type})`;
                 }
 
-                if (targetStatus !== a.status) {
+                if (targetStatus !== a.status || reason) {
                   const newHistoryItem = {
                     oldStatus: a.status,
                     newStatus: targetStatus,
                     changedBy: state.currentUser.name || "System",
                     date: new Date().toISOString().replace('T', ' ').slice(0, 19),
-                    reason
+                    reason: reason || "Interview updated"
                   };
                   return {
                     ...a,
@@ -1146,6 +1154,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           applicants: updatedApplicants
         };
       });
+      get().initStore(true).catch(console.error);
     }
   },
   deleteInterview: async (id) => {

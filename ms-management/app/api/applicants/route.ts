@@ -279,7 +279,7 @@ export async function POST(request: Request) {
       console.error("Failed to create agency notification:", err);
     }
 
-    // Trigger real-time notifications asynchronously
+    // Trigger real-time notifications
     if (applicant.email && applicant.email.trim() !== "") {
       const companyName = applicant.company && applicant.company !== "Not Placed" ? applicant.company : "MS HORIZON";
       const generated = generateEmailContent("Registration" as any, {
@@ -292,39 +292,43 @@ export async function POST(request: Request) {
         extraDetails: applicant.trackingCode ? String(applicant.trackingCode) : undefined
       });
 
-      sendEmail({
-        to: applicant.email,
-        subject: generated.subject,
-        body: generated.body,
-        candidateName: applicant.fullName,
-        company: companyName,
-        branch: applicant.branch || undefined,
-        templateType: "Registration",
-        templateData: {
-          applicantId: applicant.id,
-          recipientName: applicant.fullName,
-          applicantFullName: applicant.fullName,
-          trackingCode: applicant.trackingCode || "",
-          trackingNumber: applicant.trackingCode || "",
-          nationality: applicant.nationality || "N/A",
-          passportNumber: applicant.passportNumber || "N/A",
-          passport: applicant.passportNumber || "N/A",
-          visaStatus: applicant.visaType || "N/A",
-          status: applicant.status || "Pending",
-          currentStatus: applicant.status || "Pending",
-          applicationDate: applicant.applicationDate || new Date().toISOString().split("T")[0],
-          applyingPositions: Array.isArray(applicant.applyingPositions)
-            ? (applicant.applyingPositions as string[]).join(", ")
-            : (applicant.applyingPositions ? String(applicant.applyingPositions) : ""),
-          position: Array.isArray(applicant.applyingPositions)
-            ? (applicant.applyingPositions as string[]).join(", ")
-            : (applicant.applyingPositions ? String(applicant.applyingPositions) : ""),
-          appliedPosition: Array.isArray(applicant.applyingPositions)
-            ? (applicant.applyingPositions as string[]).join(", ")
-            : (applicant.applyingPositions ? String(applicant.applyingPositions) : ""),
-          actionLink: `${process.env.NEXT_PUBLIC_SITE_URL || "https://mshorizonuae.com"}/track?code=${applicant.trackingCode || ""}`
-        }
-      }).catch(err => console.error("Background email sending error:", err));
+      try {
+        await sendEmail({
+          to: applicant.email,
+          subject: generated.subject,
+          body: generated.body,
+          candidateName: applicant.fullName,
+          company: companyName,
+          branch: applicant.branch || undefined,
+          templateType: "Registration",
+          templateData: {
+            applicantId: applicant.id,
+            recipientName: applicant.fullName,
+            applicantFullName: applicant.fullName,
+            trackingCode: applicant.trackingCode || "",
+            trackingNumber: applicant.trackingCode || "",
+            nationality: applicant.nationality || "N/A",
+            passportNumber: applicant.passportNumber || "N/A",
+            passport: applicant.passportNumber || "N/A",
+            visaStatus: applicant.visaType || "N/A",
+            status: applicant.status || "Pending",
+            currentStatus: applicant.status || "Pending",
+            applicationDate: applicant.applicationDate || new Date().toISOString().split("T")[0],
+            applyingPositions: Array.isArray(applicant.applyingPositions)
+              ? (applicant.applyingPositions as string[]).join(", ")
+              : (applicant.applyingPositions ? String(applicant.applyingPositions) : ""),
+            position: Array.isArray(applicant.applyingPositions)
+              ? (applicant.applyingPositions as string[]).join(", ")
+              : (applicant.applyingPositions ? String(applicant.applyingPositions) : ""),
+            appliedPosition: Array.isArray(applicant.applyingPositions)
+              ? (applicant.applyingPositions as string[]).join(", ")
+              : (applicant.applyingPositions ? String(applicant.applyingPositions) : ""),
+            actionLink: `${process.env.NEXT_PUBLIC_SITE_URL || "https://mshorizonuae.com"}/track?code=${applicant.trackingCode || ""}`
+          }
+        });
+      } catch (err) {
+        console.error("Applicant registration email error:", err);
+      }
     }
 
     if (applicant.whatsapp || applicant.mobile) {

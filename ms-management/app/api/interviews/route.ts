@@ -214,7 +214,14 @@ export async function POST(request: Request) {
       building: interview.building || "",
       floor: interview.floor || "",
       location: interview.location || "",
-      attachments: interview.attachments || []
+      attachments: typeof interview.attachments === "string" ? (() => {
+        try {
+          const parsed = JSON.parse(interview.attachments);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      })() : (Array.isArray(interview.attachments) ? interview.attachments : [])
     };
 
     // Construct highly-detailed plain-text notification body including all fields

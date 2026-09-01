@@ -173,8 +173,8 @@ export default function InterviewsPage() {
   if (f.interviewMode && f.interviewMode !== "all") {
     list = list.filter(i => i.mode === f.interviewMode);
   }
-  if (f.fromDate) list = list.filter(i => i.dateTime.slice(0,10) >= f.fromDate);
-  if (f.toDate) list = list.filter(i => i.dateTime.slice(0,10) <= f.toDate);
+  if (f.fromDate) list = list.filter(i => (i.dateTime || "").slice(0,10) >= f.fromDate);
+  if (f.toDate) list = list.filter(i => (i.dateTime || "").slice(0,10) <= f.toDate);
 
   const sortBy = f.sortBy || "newest";
   list = [...list].sort((a, b) => {
@@ -634,25 +634,39 @@ Thank you, and we look forward to meeting you.
                   </div>
 
                   {/* Attachments Section */}
-                  {int.attachments && int.attachments.length > 0 && (
-                    <div className="border-t border-slate-100 pt-2.5 space-y-1.5">
-                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Attachments ({int.attachments.length})</div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {int.attachments.map((doc: any) => (
-                          <a
-                            key={doc.id}
-                            href={doc.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-[9px] font-bold bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg px-2 py-1 text-slate-600 transition-colors"
-                          >
-                            <FileText className="w-2.5 h-2.5 text-slate-400" />
-                            <span className="truncate max-w-[85px]">{doc.name}</span>
-                          </a>
-                        ))}
+                  {(() => {
+                    let attachList: any[] = [];
+                    if (Array.isArray(int.attachments)) {
+                      attachList = int.attachments;
+                    } else if (typeof int.attachments === "string") {
+                      try {
+                        const parsed = JSON.parse(int.attachments);
+                        if (Array.isArray(parsed)) attachList = parsed;
+                      } catch {
+                        attachList = [];
+                      }
+                    }
+                    if (attachList.length === 0) return null;
+                    return (
+                      <div className="border-t border-slate-100 pt-2.5 space-y-1.5">
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Attachments ({attachList.length})</div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {attachList.map((doc: any) => (
+                            <a
+                              key={doc.id}
+                              href={doc.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-[9px] font-bold bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg px-2 py-1 text-slate-600 transition-colors"
+                            >
+                              <FileText className="w-2.5 h-2.5 text-slate-400" />
+                              <span className="truncate max-w-[85px]">{doc.name}</span>
+                            </a>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {(int.interviewResult || int.feedback || int.remarks || int.candidateResponse || int.scheduledBy) && (
                     <div className="border-t border-slate-100 pt-2.5 space-y-1.5 bg-slate-50/50 p-2.5 rounded-xl border border-dashed border-slate-200">
