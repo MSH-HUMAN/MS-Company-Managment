@@ -148,6 +148,13 @@ export async function POST(request: Request) {
       hashedPassword = bcrypt.hashSync(temporaryPassword, 10);
     }
 
+    const stringifyArray = (val: any) => {
+      if (!val) return "[]";
+      if (typeof val === "string") return val;
+      if (Array.isArray(val)) return JSON.stringify(val);
+      return JSON.stringify([]);
+    };
+
     const newStaff = await prisma.staff.create({
       data: {
         id: data.id || undefined,
@@ -171,14 +178,14 @@ export async function POST(request: Request) {
         branch: branch,
         createdBy: user.name,
         createdAt: data.createdAt || new Date().toISOString().slice(0, 10),
-        documents: data.documents || [],
+        documents: stringifyArray(data.documents),
         basicSalary: data.basicSalary !== undefined ? parseFloat(data.basicSalary) : 3000,
         housingAllowance: data.housingAllowance !== undefined ? parseFloat(data.housingAllowance) : 1000,
         transportAllowance: data.transportAllowance !== undefined ? parseFloat(data.transportAllowance) : 500,
         overtimeRate: data.overtimeRate !== undefined ? parseFloat(data.overtimeRate) : 15,
         shiftId: data.shiftId || "",
         salaryType: data.salaryType || "Monthly",
-        permissions: data.permissions || null
+        permissions: stringifyArray(data.permissions)
       }
     });
 

@@ -211,6 +211,12 @@ export async function POST(request: Request) {
       trackingCode = `TRK-${year}-${String(count + 1).padStart(3, "0")}`;
     }
 
+    const stringifyArray = (val: any) => {
+      if (typeof val === "string") return val;
+      if (Array.isArray(val)) return JSON.stringify(val);
+      return JSON.stringify([]);
+    };
+
     const applicant = await prisma.applicant.create({
       data: {
         id: data.id || undefined,
@@ -225,7 +231,7 @@ export async function POST(request: Request) {
         nationality: data.nationality || "",
         nationalityFlag: data.nationalityFlag || "",
         currentCountry: data.currentCountry || "",
-        applyingPositions: data.applyingPositions || [],
+        applyingPositions: stringifyArray(data.applyingPositions),
         salaryExpectation: Number(data.salaryExpectation) || 0,
         applyCountry: data.applyCountry || "",
         visaType: data.visaType || "",
@@ -238,8 +244,8 @@ export async function POST(request: Request) {
         branch: data.branch,
         createdBy: user ? user.name : (data.fullName || "Online Application"),
         createdAt: data.createdAt || new Date().toISOString().slice(0, 10),
-        documents: data.documents || [],
-        statusHistory: data.statusHistory || [],
+        documents: stringifyArray(data.documents),
+        statusHistory: stringifyArray(data.statusHistory),
         clientName: data.clientName || null,
         clientPhoto: data.clientPhoto || null,
         clientMobile: data.clientMobile || null,

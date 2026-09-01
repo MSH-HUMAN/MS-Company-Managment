@@ -148,6 +148,14 @@ export async function PUT(request: Request, { params }: RouteParams) {
       }
     }
 
+    const stringifyArrayOrUndefined = (val: any) => {
+      if (val === undefined) return undefined;
+      if (val === null) return null;
+      if (typeof val === "string") return val;
+      if (Array.isArray(val)) return JSON.stringify(val);
+      return JSON.stringify([]);
+    };
+
     const updated = await prisma.staff.update({
       where: { id },
       data: {
@@ -169,14 +177,14 @@ export async function PUT(request: Request, { params }: RouteParams) {
         gender: data.gender ?? undefined,
         company: data.company ?? undefined,
         branch: data.branch ?? undefined,
-        documents: data.documents !== undefined ? data.documents : undefined,
+        documents: stringifyArrayOrUndefined(data.documents),
         basicSalary: data.basicSalary !== undefined ? (data.basicSalary !== null ? parseFloat(data.basicSalary) : null) : undefined,
         housingAllowance: data.housingAllowance !== undefined ? (data.housingAllowance !== null ? parseFloat(data.housingAllowance) : null) : undefined,
         transportAllowance: data.transportAllowance !== undefined ? (data.transportAllowance !== null ? parseFloat(data.transportAllowance) : null) : undefined,
         overtimeRate: data.overtimeRate !== undefined ? (data.overtimeRate !== null ? parseFloat(data.overtimeRate) : null) : undefined,
         shiftId: data.shiftId !== undefined ? data.shiftId : undefined,
         salaryType: data.salaryType !== undefined ? data.salaryType : undefined,
-        permissions: data.permissions !== undefined ? data.permissions : undefined
+        permissions: stringifyArrayOrUndefined(data.permissions)
       }
     });
 

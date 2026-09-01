@@ -147,6 +147,13 @@ export async function PUT(request: Request, { params }: RouteParams) {
       }
     }
 
+    const stringifyArrayOrUndefined = (val: any) => {
+      if (val === undefined) return undefined;
+      if (typeof val === "string") return val;
+      if (Array.isArray(val)) return JSON.stringify(val);
+      return JSON.stringify([]);
+    };
+
     const updated = await prisma.applicant.update({
       where: { id },
       data: {
@@ -161,7 +168,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
         nationality: data.nationality ?? undefined,
         nationalityFlag: data.nationalityFlag ?? undefined,
         currentCountry: data.currentCountry ?? undefined,
-        applyingPositions: data.applyingPositions ?? undefined,
+        applyingPositions: stringifyArrayOrUndefined(data.applyingPositions),
         salaryExpectation: data.salaryExpectation !== undefined ? Number(data.salaryExpectation) : undefined,
         applyCountry: data.applyCountry ?? undefined,
         visaType: data.visaType ?? undefined,
@@ -172,8 +179,8 @@ export async function PUT(request: Request, { params }: RouteParams) {
         trackingCode: data.trackingCode ?? undefined,
         company: data.company ?? undefined,
         branch: data.branch ?? undefined,
-        documents: data.documents !== undefined ? data.documents : undefined,
-        statusHistory: data.statusHistory !== undefined ? data.statusHistory : undefined,
+        documents: stringifyArrayOrUndefined(data.documents),
+        statusHistory: stringifyArrayOrUndefined(data.statusHistory),
         clientName: data.clientName !== undefined ? data.clientName : undefined,
         clientPhoto: data.clientPhoto !== undefined ? data.clientPhoto : undefined,
         clientMobile: data.clientMobile !== undefined ? data.clientMobile : undefined,
