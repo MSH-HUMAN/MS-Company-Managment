@@ -1062,17 +1062,16 @@ export default function StaffDetailPage({ params }: { params: Promise<{ id: stri
               <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">Identity & Visa Documents</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Passport Number *</Label>
+                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Passport Number (Optional)</Label>
                   <Input 
                     value={formData.passportNumber} 
                     onChange={e => setFormData(prev => ({ ...prev, passportNumber: e.target.value }))} 
-                    placeholder="P1234567" 
-                    required 
+                    placeholder="P1234567 (Optional for Remote)" 
                     className="bg-white border-slate-200 rounded-xl text-xs h-10" 
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Emirates ID</Label>
+                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Emirates ID / National ID</Label>
                   <Input 
                     value={formData.emiratesId} 
                     onChange={e => setFormData(prev => ({ ...prev, emiratesId: e.target.value }))} 
@@ -1081,12 +1080,11 @@ export default function StaffDetailPage({ params }: { params: Promise<{ id: stri
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Passport Expiry *</Label>
+                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Passport Expiry (Optional)</Label>
                   <Input 
                     type="date" 
                     value={formData.passportExpiry} 
                     onChange={e => setFormData(prev => ({ ...prev, passportExpiry: e.target.value }))} 
-                    required 
                     className="bg-white border-slate-200 rounded-xl text-xs h-10" 
                   />
                 </div>

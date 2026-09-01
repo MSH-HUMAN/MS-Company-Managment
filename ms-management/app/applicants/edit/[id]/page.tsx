@@ -475,26 +475,25 @@ export default function EditApplicantPage({ params }: { params: Promise<{ id: st
               {/* Passport Number */}
               <div className="space-y-1">
                 <Label htmlFor="passportNumber" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                  Passport Number <span className="text-rose-500">*</span>
+                  Passport Number (Optional)
                 </Label>
                 <Input
                   id="passportNumber"
-                  placeholder="P1234567"
+                  placeholder="P1234567 (Optional for Remote)"
                   className="bg-white border-slate-200 rounded-xl text-xs h-10 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-                  {...register("passportNumber", { required: true })}
+                  {...register("passportNumber")}
                 />
-                {errors.passportNumber && <span className="text-[9px] text-rose-500 font-bold block">Passport number is required</span>}
               </div>
 
               {/* Visa Type */}
               <div className="space-y-1">
                 <Label htmlFor="visaType" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                  Visa Type <span className="text-rose-500">*</span>
+                  Visa Type (Optional)
                 </Label>
                 <select
                   id="visaType"
                   className="w-full bg-white border border-slate-200 rounded-xl text-xs h-10 px-3 focus:border-blue-400"
-                  {...register("visaType", { required: true })}
+                  {...register("visaType")}
                 >
                   <option value="Visit">Visit</option>
                   <option value="Cancel">Cancel</option>
@@ -520,15 +519,14 @@ export default function EditApplicantPage({ params }: { params: Promise<{ id: st
               {/* Passport Expiry Date */}
               <div className="space-y-1">
                 <Label htmlFor="passportExpiry" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                  Passport Expiry Date <span className="text-rose-500">*</span>
+                  Passport Expiry Date (Optional)
                 </Label>
                 <Input
                   id="passportExpiry"
                   type="date"
                   className="bg-white border-slate-200 rounded-xl text-xs h-10 focus:border-blue-400"
-                  {...register("passportExpiry", { required: true })}
+                  {...register("passportExpiry")}
                 />
-                {errors.passportExpiry && <span className="text-[9px] text-rose-500 font-bold block">Passport expiry date is required</span>}
               </div>
             </div>
           </Card>

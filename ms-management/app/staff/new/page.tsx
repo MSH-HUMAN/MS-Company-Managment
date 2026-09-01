@@ -225,7 +225,7 @@ export default function NewStaffPage() {
     } else if (activeStep === 2) {
       fieldsToValidate = ["position", "joiningDate", "company", "branch"];
     } else if (activeStep === 3) {
-      fieldsToValidate = ["passportNumber", "passportExpiry"];
+      fieldsToValidate = []; // Passport & Visa optional (e.g. for remote staff)
     } else if (activeStep === 4) {
       fieldsToValidate = ["basicSalary", "salaryType"];
     }
@@ -687,9 +687,11 @@ export default function NewStaffPage() {
                     className="w-full bg-white border border-slate-200 rounded-xl text-xs h-10 px-3 font-semibold text-slate-700 focus:border-blue-500 focus:outline-none"
                     {...register("shiftId")}
                   >
-                    <option value="">-- Standard Work Shift --</option>
+                    <option value="">-- Standard Work Shift (09:00 AM - 06:00 PM) --</option>
                     {shifts.map((s: any) => (
-                      <option key={s.id} value={s.id}>{s.name} ({s.startTime} - {s.endTime})</option>
+                      <option key={s.id} value={s.id}>
+                        {s.name} ({s.startTime || s.clockIn || "09:00 AM"} - {s.endTime || s.clockOut || "06:00 PM"})
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -708,7 +710,7 @@ export default function NewStaffPage() {
                   </div>
                   <div>
                     <h3 className="text-sm font-extrabold text-slate-800 uppercase tracking-wide">Identification & Visas</h3>
-                    <p className="text-[10px] text-slate-400">Passport, Emirates ID, Visa and License verification details</p>
+                    <p className="text-[10px] text-slate-400">Passport, Emirates ID, Visa and License verification details (Optional for remote staff)</p>
                   </div>
                 </div>
                 <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Step 3 of 6</span>
@@ -729,26 +731,24 @@ export default function NewStaffPage() {
 
                 {/* Passport Number */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="passportNumber" className="text-xs font-bold text-slate-700">Passport Number <span className="text-rose-500">*</span></Label>
+                  <Label htmlFor="passportNumber" className="text-xs font-bold text-slate-700">Passport Number (Optional)</Label>
                   <Input 
                     id="passportNumber" 
-                    placeholder="e.g. Z1234567" 
+                    placeholder="e.g. Z1234567 (Optional for Remote)" 
                     className="bg-white border-slate-200 rounded-xl text-xs h-10 focus:border-blue-500 font-mono" 
-                    {...register("passportNumber", { required: "Passport number is required" })} 
+                    {...register("passportNumber")} 
                   />
-                  {errors.passportNumber && <span className="text-[10px] text-rose-500 font-bold block">{errors.passportNumber.message}</span>}
                 </div>
 
                 {/* Passport Expiry Date */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="passportExpiry" className="text-xs font-bold text-slate-700">Passport Expiry Date <span className="text-rose-500">*</span></Label>
+                  <Label htmlFor="passportExpiry" className="text-xs font-bold text-slate-700">Passport Expiry Date (Optional)</Label>
                   <Input 
                     id="passportExpiry" 
                     type="date" 
                     className="bg-white border-slate-200 rounded-xl text-xs h-10 focus:border-blue-500" 
-                    {...register("passportExpiry", { required: "Passport expiry date is required" })} 
+                    {...register("passportExpiry")} 
                   />
-                  {errors.passportExpiry && <span className="text-[10px] text-rose-500 font-bold block">{errors.passportExpiry.message}</span>}
                 </div>
 
                 {/* Visa Number */}
