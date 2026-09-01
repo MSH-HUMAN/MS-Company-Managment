@@ -453,8 +453,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       const mappedShifts = (shifts || []).map((s: any) => ({
         ...s,
-        startTime: s.clockIn || "",
-        endTime: s.clockOut || "",
+        startTime: s.startTime || s.clockIn || "09:00",
+        endTime: s.endTime || s.clockOut || "18:00",
+        clockIn: s.clockIn || s.startTime || "09:00",
+        clockOut: s.clockOut || s.endTime || "18:00",
         assignedEmployees: normalizedStaff.filter((st: any) => st.shiftId === s.id).map((st: any) => st.name)
       }));
 

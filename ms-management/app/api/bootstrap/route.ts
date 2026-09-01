@@ -189,8 +189,28 @@ export async function GET(request: Request) {
       safeQuery("notifications", () => prisma.notification.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 100 }), []),
       hasReportsView ? safeQuery("logs", () => prisma.activityLog.findMany({ where: { ...tenantFilter, archived: false }, orderBy: { dateTime: "desc" }, take: 50 }), []) : [],
       hasReportsView ? safeQuery("archivedLogs", () => prisma.activityLog.findMany({ where: { ...tenantFilter, archived: true }, orderBy: { dateTime: "desc" }, take: 50 }), []) : [],
-      safeQuery("settings", () => prisma.siteSettings.findUnique({ where: { id: "SETTINGS" } }), null),
-      safeQuery("shifts", () => prisma.shift.findMany({ where: generalTenantFilter }), []),
+      safeQuery("shifts", async () => {
+        let list = await prisma.shift.findMany({ where: generalTenantFilter, orderBy: { name: "asc" } });
+        if (list.length === 0) {
+          try {
+            const company = user.company === "System" ? "MS Horizon F.Z.E" : (user.company || "MS Horizon F.Z.E");
+            const branch = user.branch === "All" ? "Main Branch" : (user.branch || "Main Branch");
+            const defaultShifts = [
+              { name: "Standard Morning Shift", clockIn: "09:00", clockOut: "18:00", gracePeriod: 15, breakDuration: 60, description: "Standard Morning Shift (9:00 AM - 6:00 PM)", company, branch, createdBy: "System", createdAt: new Date().toISOString().slice(0, 10) },
+              { name: "Early Morning Shift", clockIn: "08:00", clockOut: "17:00", gracePeriod: 15, breakDuration: 60, description: "Early Shift (8:00 AM - 5:00 PM)", company, branch, createdBy: "System", createdAt: new Date().toISOString().slice(0, 10) },
+              { name: "General Day Shift", clockIn: "09:00", clockOut: "19:00", gracePeriod: 15, breakDuration: 60, description: "General Day Shift (9:00 AM - 7:00 PM)", company, branch, createdBy: "System", createdAt: new Date().toISOString().slice(0, 10) },
+              { name: "Night Shift", clockIn: "20:00", clockOut: "05:00", gracePeriod: 15, breakDuration: 60, description: "Night Shift (8:00 PM - 5:00 AM)", company, branch, createdBy: "System", createdAt: new Date().toISOString().slice(0, 10) },
+            ];
+            for (const ds of defaultShifts) {
+              await prisma.shift.create({ data: ds });
+            }
+            list = await prisma.shift.findMany({ where: generalTenantFilter, orderBy: { name: "asc" } });
+          } catch (e) {
+            console.warn("Bootstrap shift seeding error:", e);
+          }
+        }
+        return list;
+      }, []),
       overtimeFilter ? safeQuery("overtime", () => prisma.overtimeRequest.findMany({ where: overtimeFilter }), []) : [],
       correctionsFilter ? safeQuery("corrections", () => prisma.attendanceCorrection.findMany({ where: correctionsFilter }), []) : [],
       emailsFilter ? safeQuery("emails", () => prisma.sentEmail.findMany({ where: emailsFilter, orderBy: { sentAt: "desc" }, take: 100 }), []) : [],
