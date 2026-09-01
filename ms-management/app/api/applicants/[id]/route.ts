@@ -406,7 +406,26 @@ export async function PUT(request: Request, { params }: RouteParams) {
       }
     }
 
-    return NextResponse.json(updated);
+    // Parse stringified JSON fields back to arrays for client consumption
+    let docs = updated.documents;
+    if (typeof docs === "string") {
+      try { docs = JSON.parse(docs); } catch (e) {}
+    }
+    let pos = updated.applyingPositions;
+    if (typeof pos === "string") {
+      try { pos = JSON.parse(pos); } catch (e) {}
+    }
+    let hist = updated.statusHistory;
+    if (typeof hist === "string") {
+      try { hist = JSON.parse(hist); } catch (e) {}
+    }
+
+    return NextResponse.json({
+      ...updated,
+      documents: Array.isArray(docs) ? docs : [],
+      applyingPositions: Array.isArray(pos) ? pos : (pos ? [pos] : []),
+      statusHistory: Array.isArray(hist) ? hist : []
+    });
   } catch (error: any) {
     console.error("PUT applicant error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

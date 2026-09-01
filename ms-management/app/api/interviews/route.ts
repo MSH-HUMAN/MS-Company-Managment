@@ -140,7 +140,7 @@ export async function POST(request: Request) {
         building: data.building || null,
         floor: data.floor || null,
         location: data.location || null,
-        attachments: data.attachments || []
+        attachments: typeof data.attachments === "string" ? data.attachments : JSON.stringify(data.attachments || [])
       }
     });
 
@@ -154,7 +154,7 @@ export async function POST(request: Request) {
           if (applicant.statusHistory) {
             currentHistory = typeof applicant.statusHistory === 'string'
               ? JSON.parse(applicant.statusHistory)
-              : (applicant.statusHistory as any[]);
+              : (Array.isArray(applicant.statusHistory) ? applicant.statusHistory : []);
           }
         } catch (e) {
           console.error("Parse status history error:", e);
@@ -172,7 +172,7 @@ export async function POST(request: Request) {
           where: { id: interview.applicantId },
           data: {
             status: "Interview Scheduled",
-            statusHistory: [newHistoryItem, ...currentHistory] as any
+            statusHistory: JSON.stringify([newHistoryItem, ...currentHistory])
           }
         });
       }

@@ -149,7 +149,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
             where: { id: updated.applicantId },
             data: {
               status: targetStatus,
-              statusHistory: [newHistoryItem, ...currentHistory] as any
+              statusHistory: JSON.stringify([newHistoryItem, ...currentHistory])
             }
           });
         }

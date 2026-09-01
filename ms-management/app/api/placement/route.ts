@@ -81,7 +81,7 @@ export async function POST(request: Request) {
         applicantSign: data.applicantSign || "",
         companySign: data.companySign || "",
         termsAndConditions: data.termsAndConditions || "",
-        agreementHistory: data.agreementHistory || [],
+        agreementHistory: Array.isArray(data.agreementHistory) ? JSON.stringify(data.agreementHistory) : (typeof data.agreementHistory === "string" ? data.agreementHistory : "[]"),
         passportNumber: data.passportNumber || "",
         mobileNumber: data.mobileNumber || "",
         registrationDate: data.registrationDate || "",
@@ -163,9 +163,11 @@ export async function POST(request: Request) {
           if (applicant.statusHistory) {
             currentHistory = typeof applicant.statusHistory === 'string'
               ? JSON.parse(applicant.statusHistory)
-              : (applicant.statusHistory as any[]);
+              : (Array.isArray(applicant.statusHistory) ? applicant.statusHistory : []);
           }
-        } catch (e) {}
+        } catch (e) {
+          console.error("Parse status history error:", e);
+        }
 
         const newHistoryItem = {
           oldStatus: applicant.status,
@@ -180,7 +182,7 @@ export async function POST(request: Request) {
           data: {
             status: "Placed",
             clientName: placement.companyName,
-            statusHistory: [newHistoryItem, ...currentHistory] as any
+            statusHistory: JSON.stringify([newHistoryItem, ...currentHistory])
           }
         });
       }

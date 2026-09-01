@@ -54,7 +54,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
         applicantSignIp: data.applicantSignIp ?? undefined,
         applicantSignDevice: data.applicantSignDevice ?? undefined,
         termsAndConditions: data.termsAndConditions ?? undefined,
-        agreementHistory: data.agreementHistory ?? undefined,
+        agreementHistory: data.agreementHistory !== undefined ? (Array.isArray(data.agreementHistory) ? JSON.stringify(data.agreementHistory) : (typeof data.agreementHistory === "string" ? data.agreementHistory : "[]")) : undefined,
         passportNumber: data.passportNumber ?? undefined,
         mobileNumber: data.mobileNumber ?? undefined,
         registrationDate: data.registrationDate ?? undefined,
@@ -148,7 +148,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
           data: {
             status: "Placed",
             clientName: updated.companyName,
-            statusHistory: [newHistoryItem, ...currentHistory] as any
+            statusHistory: JSON.stringify([newHistoryItem, ...currentHistory])
           }
         });
       }

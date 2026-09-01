@@ -189,6 +189,33 @@ const DEFAULT_SITE_SETTINGS: SiteSettings = {
   printFooter: "MS Horizon F.Z.E - Recruitment Consultancy Placement Agreement"
 };
 
+export const safeJsonArray = (val: any) => {
+  if (!val) return [];
+  if (Array.isArray(val)) return val;
+  if (typeof val === "string") {
+    try {
+      const parsed = JSON.parse(val);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+};
+
+export const safeJsonObject = (val: any, fallback: any = null) => {
+  if (!val) return fallback;
+  if (typeof val === "object") return val;
+  if (typeof val === "string") {
+    try {
+      return JSON.parse(val);
+    } catch {
+      return fallback;
+    }
+  }
+  return fallback;
+};
+
 export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
   currentUser: DEFAULT_USER,
@@ -641,7 +668,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       throw new Error(errData.error || "Failed to register applicant");
     }
     const saved = await res.json();
-    set((state) => ({ applicants: [saved, ...state.applicants] }));
+    const safeApp = {
+      ...saved,
+      documents: safeJsonArray(saved.documents),
+      applyingPositions: safeJsonArray(saved.applyingPositions),
+      statusHistory: safeJsonArray(saved.statusHistory)
+    };
+    set((state) => ({ applicants: [safeApp, ...state.applicants] }));
   },
   updateApplicant: async (app) => {
     const res = await fetch(`/api/applicants/${app.id}`, {
@@ -654,8 +687,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       throw new Error(errData.error || "Failed to update applicant");
     }
     const saved = await res.json();
+    const safeApp = {
+      ...saved,
+      documents: safeJsonArray(saved.documents),
+      applyingPositions: safeJsonArray(saved.applyingPositions),
+      statusHistory: safeJsonArray(saved.statusHistory)
+    };
     set((state) => ({
-      applicants: state.applicants.map((a) => (a.id === saved.id ? saved : a))
+      applicants: state.applicants.map((a) => (a.id === safeApp.id ? safeApp : a))
     }));
   },
   deleteApplicant: async (id) => {
@@ -677,8 +716,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       throw new Error(errData.error || "Failed to create staff member");
     }
     const saved = await res.json();
+    const safeStaff = {
+      ...saved,
+      documents: safeJsonArray(saved.documents),
+      permissions: safeJsonArray(saved.permissions)
+    };
     set((state) => {
-      const newStaff = [saved, ...state.staff];
+      const newStaff = [safeStaff, ...state.staff];
       const newSalarySetups = newStaff.map((s: any) => ({
         staffId: s.id,
         basic: s.basicSalary ?? 3000,
@@ -708,8 +752,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       throw new Error(errData.error || "Failed to update staff member");
     }
     const saved = await res.json();
+    const safeStaff = {
+      ...saved,
+      documents: safeJsonArray(saved.documents),
+      permissions: safeJsonArray(saved.permissions)
+    };
     set((state) => {
-      const newStaff = state.staff.map((s) => (s.id === saved.id ? saved : s));
+      const newStaff = state.staff.map((s) => (s.id === safeStaff.id ? safeStaff : s));
       const newSalarySetups = newStaff.map((s: any) => ({
         staffId: s.id,
         basic: s.basicSalary ?? 3000,
