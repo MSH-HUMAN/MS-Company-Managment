@@ -121,11 +121,14 @@ export async function sendEmail({
   let subject = subjectParam;
   let body = bodyParam;
   const isPrecompiledHtml = body.trim().startsWith("<html") || body.trim().startsWith("<!DOCTYPE");
-  const host = cleanEnvVar(process.env.SMTP_HOST);
+  const host = cleanEnvVar(process.env.SMTP_HOST) || "smtp.office365.com";
   const port = Number(cleanEnvVar(process.env.SMTP_PORT)) || 587;
-  const user = cleanEnvVar(process.env.SMTP_USER);
-  const pass = cleanEnvVar(process.env.SMTP_PASS);
-  const from = cleanEnvVar(process.env.SMTP_FROM) || `"MS Horizon Support" <support@mshorizon.ae>`;
+  const user = cleanEnvVar(process.env.SMTP_USER) || "info@safayar-msjobs.com";
+  const pass = cleanEnvVar(process.env.SMTP_PASS) || "Mshuman2025@";
+  let from = cleanEnvVar(process.env.SMTP_FROM);
+  if (!from || (user && !from.includes(user))) {
+    from = `"MS Horizon F.Z.E" <${user}>`;
+  }
 
   console.log(`[EMAIL-SERVICE] Triggering email to: ${to} | Subject: ${subject}`);
 
