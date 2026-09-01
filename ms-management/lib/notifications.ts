@@ -537,7 +537,10 @@ export async function sendEmail({
           });
 
       const info = await transporter.sendMail({
-        from,
+        from: {
+          name: resolvedCompanyName || "MS Horizon F.Z.E",
+          address: user,
+        },
         to,
         subject,
         text: body,
