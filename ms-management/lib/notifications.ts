@@ -121,10 +121,10 @@ export async function sendEmail({
   let subject = subjectParam;
   let body = bodyParam;
   const isPrecompiledHtml = body.trim().startsWith("<html") || body.trim().startsWith("<!DOCTYPE");
-  const host = cleanEnvVar(process.env.SMTP_HOST) || "smtp.office365.com";
-  const port = Number(cleanEnvVar(process.env.SMTP_PORT)) || 587;
-  const user = cleanEnvVar(process.env.SMTP_USER) || "info@safayar-msjobs.com";
-  const pass = cleanEnvVar(process.env.SMTP_PASS) || "Mshuman2025@";
+  const host = cleanEnvVar(process.env.SMTP_HOST) || "smtp.gmail.com";
+  const port = Number(cleanEnvVar(process.env.SMTP_PORT)) || 465;
+  const user = cleanEnvVar(process.env.SMTP_USER) || "mshorizonuae2026@gmail.com";
+  const pass = cleanEnvVar(process.env.SMTP_PASS) || "kjhmfdfzzoxudpew";
   let from = cleanEnvVar(process.env.SMTP_FROM);
   if (!from || (user && !from.includes(user))) {
     from = `"MS Horizon F.Z.E" <${user}>`;
