@@ -137,7 +137,7 @@ export async function sendEmail({
 
   // Look up sender company details in DB by name or email to keep email & whatsapp branded
   let resolvedCompanyName = "MS Horizon F.Z.E";
-  let companyEmail = "support@mshorizon.net";
+  let companyEmail = "info@safayar-msjobs.com";
   let companyPhone = "+971585538199";
   let companyAddress = "C1 Building, Ajman Free Zone, UAE";
   let companyLogo = "";
@@ -406,7 +406,7 @@ export async function sendEmail({
       branchName: templateData?.branchName || branch || "N/A",
 
       hrName: templateData?.hrName || "HR Operations Team",
-      hrEmail: templateData?.hrEmail || companyEmail || "support@mshorizon.net",
+      hrEmail: templateData?.hrEmail || companyEmail || "info@safayar-msjobs.com",
       consultantName: templateData?.consultantName || templateData?.createdBy || sentBy || "System Admin",
       salary: templateData?.salary || "N/A",
       joiningDate: templateData?.joiningDate || templateData?.placedDate || "N/A",
@@ -1172,7 +1172,7 @@ If you have any questions, please contact us.
 
 *${company}*
 📞 +971 58 553 8199
-📧 support@mshorizon.net`;
+📧 info@safayar-msjobs.com`;
     }
   }
 }
